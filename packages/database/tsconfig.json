@@ -1,0 +1,10 @@
+{
+  "extends": "@kitchenos/config/base.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "outDir": "./dist",
+    "noEmit": true
+  },
+  "include": ["prisma/seed.ts"]
+}

@@ -1,0 +1,1763 @@
+// KitchenOS — foundation schema (Prompt 01: auth, orgs, RBAC, audit log),
+// Prompt 02 (multi-brand / multi-kitchen management), Prompt 03 (product /
+// menu / pricing), Prompt 04 (ingredient / recipe / packaging engine),
+// Prompt 05 (advanced costing engine), Prompt 06 (POS billing), Prompt 07
+// (kitchen display system), Prompt 08 (inventory / procurement ERP),
+// Prompt 09 (combo / promotion intelligence), Prompt 10 (BI / reporting —
+// no schema of its own), Prompt 11 (finance / HR / CRM), and Prompt 12
+// (SaaS hardening: login lockout fields below; rate limiting, session
+// management and the audit log viewer reuse existing tables/columns).
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// A tenant. All data in the system is scoped to an Organization, directly
+/// or transitively, to enforce tenant isolation.
+model Organization {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships            OrganizationMembership[]
+  roles                  Role[]
+  auditLogs              AuditLog[]
+  brands                 Brand[]
+  kitchens               Kitchen[]
+  outlets                Outlet[]
+  taxCategories          TaxCategory[]
+  productCategories      ProductCategory[]
+  products               Product[]
+  menus                  Menu[]
+  outletProductPrices    OutletProductPrice[]
+  ingredients            Ingredient[]
+  recipes                Recipe[]
+  orders                 Order[]
+  tables                 RestaurantTable[]
+  kitchenTicketItems     KitchenTicketItem[]
+  suppliers              Supplier[]
+  purchaseOrders         PurchaseOrder[]
+  stockBalances          StockBalance[]
+  stockMovements         StockMovement[]
+  combos                 Combo[]
+  promotions             Promotion[]
+  promotionRedemptions   PromotionRedemption[]
+  expenses               Expense[]
+  employees              Employee[]
+  customers              Customer[]
+  communicationTemplates CommunicationTemplate[]
+  communicationMessages  CommunicationMessage[]
+  loyaltyTransactions    LoyaltyTransaction[]
+  loyaltyProgramSettings LoyaltyProgramSettings?
+  brandLoyaltyRules      BrandLoyaltyRule[]
+  loyaltyTiers           LoyaltyTier[]
+  loyaltyRedemptions     LoyaltyRedemption[]
+  customerSegments       CustomerSegment[]
+  campaigns              Campaign[]
+  campaignRecipients     CampaignRecipient[]
+  pricingRules           PricingRule[]
+  pricingSettings        PricingSettings?
+
+  @@map("organizations")
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  passwordHash        String
+  firstName           String
+  lastName            String
+  isActive            Boolean   @default(true)
+  /// Consecutive failed login attempts since the last success; reset to 0 on a successful login.
+  failedLoginAttempts Int       @default(0)
+  /// Set once failedLoginAttempts crosses the lockout threshold; login is refused until this passes.
+  lockedUntil         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  memberships           OrganizationMembership[]
+  refreshTokens         RefreshToken[]
+  auditLogs             AuditLog[]
+  ordersCreated         Order[]
+  purchaseOrdersCreated PurchaseOrder[]
+  expensesRecorded      Expense[]
+  loyaltyTransactions   LoyaltyTransaction[]
+  campaignsCreated      Campaign[]
+
+  @@map("users")
+}
+
+/// Join entity binding a User to an Organization with one Role.
+/// A user may belong to multiple organizations, each with its own role,
+/// but a membership itself can never span organizations (tenant isolation).
+model OrganizationMembership {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  roleId         String
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role         Role         @relation(fields: [roleId], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, userId])
+  @@index([userId])
+  @@map("organization_memberships")
+}
+
+/// Roles are organization-scoped (except system-level roles where
+/// organizationId is null, e.g. a platform Super Admin role).
+model Role {
+  id             String   @id @default(cuid())
+  organizationId String?
+  name           String
+  description    String?
+  isSystem       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization?            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  memberships  OrganizationMembership[]
+  permissions  RolePermission[]
+
+  @@unique([organizationId, name])
+  @@map("roles")
+}
+
+/// Permission catalogue is global and defined in code/seed, e.g.
+/// "org:manage", "brand:create", "pos:refund". Not tenant-scoped itself.
+model Permission {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+/// Hashed refresh tokens, one row per issued token, enabling rotation
+/// and revocation. The raw token is never stored.
+model RefreshToken {
+  id          String    @id @default(cuid())
+  userId      String
+  tokenHash   String    @unique
+  family      String
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  replacedBy  String?
+  createdAt   DateTime  @default(now())
+  createdByIp String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([family])
+  @@map("refresh_tokens")
+}
+
+/// Append-only log of critical business actions, required across every
+/// milestone (orders, inventory, finance, settings changes, ...).
+model AuditLog {
+  id             String   @id @default(cuid())
+  organizationId String?
+  userId         String?
+  action         String
+  entityType     String
+  entityId       String?
+  metadata       Json?
+  ipAddress      String?
+  createdAt      DateTime @default(now())
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  user         User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, createdAt])
+  @@index([entityType, entityId])
+  @@map("audit_logs")
+}
+
+/// A brand is a distinct restaurant concept within an organization
+/// (e.g. "Cafe Old Monk", "Pizza Paproni"). Outlets belong to exactly
+/// one brand; a brand can be fulfilled by one or more kitchens.
+model Brand {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  slug           String
+  description    String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization           Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  outlets                Outlet[]
+  brandKitchens          BrandKitchen[]
+  productCategories      ProductCategory[]
+  products               Product[]
+  menus                  Menu[]
+  combos                 Combo[]
+  promotions             Promotion[]
+  communicationTemplates CommunicationTemplate[]
+  loyaltyRule            BrandLoyaltyRule?
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+  @@map("brands")
+}
+
+enum KitchenKind {
+  PRODUCTION
+  CENTRAL_WAREHOUSE
+}
+
+/// A physical production facility. A kitchen may be dedicated to a single
+/// brand or shared across several brands (see BrandKitchen), and may serve
+/// one or more outlets (see OutletKitchen). A CENTRAL_WAREHOUSE kitchen
+/// typically supplies other kitchens/outlets rather than selling directly.
+model Kitchen {
+  id             String      @id @default(cuid())
+  organizationId String
+  name           String
+  code           String
+  kind           KitchenKind @default(PRODUCTION)
+  isActive       Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  stations       KitchenStation[]
+  brandKitchens  BrandKitchen[]
+  outletKitchens OutletKitchen[]
+  purchaseOrders PurchaseOrder[]
+  stockBalances  StockBalance[]
+  stockMovements StockMovement[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+  @@map("kitchens")
+}
+
+/// A functional station inside a kitchen (e.g. Grill, Bakery, Packing),
+/// used later by the KDS (Prompt 07) to route order items.
+model KitchenStation {
+  id        String   @id @default(cuid())
+  kitchenId String
+  name      String
+  code      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  kitchen            Kitchen             @relation(fields: [kitchenId], references: [id], onDelete: Cascade)
+  recipes            Recipe[]
+  kitchenTicketItems KitchenTicketItem[]
+
+  @@unique([kitchenId, code])
+  @@map("kitchen_stations")
+}
+
+/// Join entity: which kitchens produce for which brands (many-to-many —
+/// a shared kitchen serves several brands; a brand may use several kitchens).
+model BrandKitchen {
+  id        String   @id @default(cuid())
+  brandId   String
+  kitchenId String
+  isPrimary Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  brand   Brand   @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  kitchen Kitchen @relation(fields: [kitchenId], references: [id], onDelete: Cascade)
+
+  @@unique([brandId, kitchenId])
+  @@map("brand_kitchens")
+}
+
+/// A single point of sale for a brand (e.g. a dine-in/takeaway location).
+model Outlet {
+  id             String   @id @default(cuid())
+  organizationId String
+  brandId        String
+  name           String
+  code           String
+  address        String?
+  city           String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization        Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand               Brand                @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  outletKitchens      OutletKitchen[]
+  outletMenus         OutletMenu[]
+  outletProductPrices OutletProductPrice[]
+  orders              Order[]
+  orderSequence       OutletOrderSequence?
+  expenses            Expense[]
+  employees           Employee[]
+  pricingRules        PricingRule[]
+  tables              RestaurantTable[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+  @@index([brandId])
+  @@map("outlets")
+}
+
+/// A physical dine-in table a customer can scan a QR code at to order directly — the QR encodes
+/// `qrToken`, which doubles as this table's whole authorization model (same spirit as a magic
+/// link): whoever can scan it can order for it, which is the same trust boundary a printed QR
+/// code on a physical table already has in the real world. Public ordering never needs to know
+/// which organization it's acting for up front — the token alone resolves to exactly one table,
+/// one outlet, one organization.
+model RestaurantTable {
+  id             String   @id @default(cuid())
+  organizationId String
+  outletId       String
+  name           String
+  qrToken        String   @unique @default(cuid())
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  outlet       Outlet       @relation(fields: [outletId], references: [id], onDelete: Cascade)
+  orders       Order[]
+
+  @@unique([outletId, name])
+  @@index([organizationId])
+  @@map("restaurant_tables")
+}
+
+/// Join entity: which kitchens fulfil which outlets (an outlet is commonly
+/// fulfilled by its brand's primary kitchen plus a central warehouse).
+model OutletKitchen {
+  id        String   @id @default(cuid())
+  outletId  String
+  kitchenId String
+  isPrimary Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  outlet  Outlet  @relation(fields: [outletId], references: [id], onDelete: Cascade)
+  kitchen Kitchen @relation(fields: [kitchenId], references: [id], onDelete: Cascade)
+
+  @@unique([outletId, kitchenId])
+  @@map("outlet_kitchens")
+}
+
+/// GST/VAT-style tax rate applied to products (e.g. "GST 5%", "GST 18%").
+model TaxCategory {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  ratePercent    Decimal  @db.Decimal(5, 2)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  products     Product[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("tax_categories")
+}
+
+/// A menu grouping within a brand (e.g. "Pizzas", "Beverages"). Scoped to
+/// a brand because each brand's menu structure is independent.
+model ProductCategory {
+  id             String   @id @default(cuid())
+  organizationId String
+  brandId        String
+  name           String
+  sortOrder      Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand        Brand        @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  products     Product[]
+
+  @@unique([brandId, name])
+  @@index([organizationId])
+  @@map("product_categories")
+}
+
+/// A sellable item within a brand's menu (e.g. "Margherita Pizza"). Priced
+/// and sold via its variants (see ProductVariant) — every product has at
+/// least one, even if it is just a single "Regular" size.
+model Product {
+  id             String   @id @default(cuid())
+  organizationId String
+  brandId        String
+  categoryId     String
+  taxCategoryId  String?
+  name           String
+  sku            String
+  description    String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand        Brand            @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  category     ProductCategory  @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  taxCategory  TaxCategory?     @relation(fields: [taxCategoryId], references: [id], onDelete: SetNull)
+  variants     ProductVariant[]
+
+  @@unique([brandId, sku])
+  @@index([organizationId])
+  @@index([categoryId])
+  @@map("products")
+}
+
+/// Distinguishes a prepared, recipe-costed menu item from a pre-packaged
+/// retail commodity bought ready to sell (e.g. a bottled drink) — the two
+/// have different cost sources (recipe vs. purchase/landed cost) and only
+/// the latter is subject to a printed-MRP ceiling (Prompt 16).
+enum ProductKind {
+  PREPARED_FOOD
+  RETAIL_COMMODITY
+}
+
+/// A sellable size/option of a product (e.g. "Regular", "Large"), each with
+/// its own SKU and base selling price. Outlet-specific pricing can override
+/// basePrice per outlet (see OutletProductPrice) without creating a new SKU;
+/// PricingRule layers further dynamic adjustments on top at quote time.
+model ProductVariant {
+  id            String      @id @default(cuid())
+  productId     String
+  name          String
+  sku           String
+  basePrice     Decimal     @db.Decimal(10, 2)
+  sortOrder     Int         @default(0)
+  isActive      Boolean     @default(true)
+  kind          ProductKind @default(PREPARED_FOOD)
+  /// The four cost/pricing inputs below are meaningful for RETAIL_COMMODITY
+  /// variants (PREPARED_FOOD variants cost from their Recipe instead, via
+  /// CostingService) — all optional since they're set by procurement, not
+  /// at catalog-creation time.
+  purchasePrice Decimal?    @db.Decimal(10, 2)
+  supplierPrice Decimal?    @db.Decimal(10, 2)
+  landedCost    Decimal?    @db.Decimal(10, 2)
+  /// Legal ceiling for a pre-packaged commodity — a price quote may never
+  /// exceed this, though it may discount below it freely.
+  printedMRP    Decimal?    @db.Decimal(10, 2)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  product             Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+  menuItems           MenuItem[]
+  outletProductPrices OutletProductPrice[]
+  recipe              Recipe?
+  orderItems          OrderItem[]
+  comboItems          ComboItem[]
+  pricingRules        PricingRule[]
+
+  @@unique([productId, name])
+  @@unique([productId, sku])
+  @@map("product_variants")
+}
+
+/// Outlet-level override of a variant's basePrice (e.g. a higher price at an
+/// airport outlet). Absence of a row here means the variant's basePrice
+/// applies as-is at that outlet.
+model OutletProductPrice {
+  id             String   @id @default(cuid())
+  organizationId String
+  outletId       String
+  variantId      String
+  price          Decimal  @db.Decimal(10, 2)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  outlet       Outlet         @relation(fields: [outletId], references: [id], onDelete: Cascade)
+  variant      ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([outletId, variantId])
+  @@index([organizationId])
+  @@map("outlet_product_prices")
+}
+
+/// Categorizes a PricingRule for display/reporting only — matching and
+/// conflict resolution are driven entirely by the match conditions below,
+/// not by this label, so "midnight", "weekend" and "festival" pricing are
+/// all the same mechanism (a scoped, time-windowed adjustment) rather than
+/// three special-cased rule types.
+enum PricingRuleCategory {
+  TIME_BASED
+  WEEKEND
+  FESTIVAL
+  CHANNEL
+  OUTLET
+  SCHEDULED_DISCOUNT
+  DEMAND_BASED
+}
+
+enum PricingAdjustmentType {
+  FIXED_PRICE
+  PERCENT_DISCOUNT
+  FLAT_DISCOUNT
+  PERCENT_SURCHARGE
+  FLAT_SURCHARGE
+}
+
+/// A dynamic pricing rule layered on top of the outlet-resolved base price
+/// (basePrice, or its OutletProductPrice override) at quote time. Every
+/// match condition is optional/nullable — null means "matches anything" —
+/// so one rule shape covers variant-specific, outlet-specific,
+/// channel-specific, day/time-windowed and date-ranged pricing without a
+/// separate code path per PricingRuleCategory. See PricingRulesService for
+/// how the most specific matching rule is selected when several apply.
+model PricingRule {
+  id              String                @id @default(cuid())
+  organizationId  String
+  variantId       String?
+  outletId        String?
+  channel         OrderChannel?
+  category        PricingRuleCategory
+  label           String
+  /// 0 (Sunday) .. 6 (Saturday); empty means every day.
+  daysOfWeek      Int[]                 @default([])
+  /// "HH:mm" 24-hour local time; null means no bound on that side. An
+  /// overnight window (e.g. start "22:00", end "02:00") is one where
+  /// startTime > endTime, handled explicitly in the matching logic.
+  startTime       String?
+  endTime         String?
+  validFrom       DateTime?
+  validTo         DateTime?
+  adjustmentType  PricingAdjustmentType
+  adjustmentValue Decimal               @db.Decimal(10, 2)
+  /// Explicit tie-break when two rules are equally specific; higher wins.
+  priority        Int                   @default(0)
+  isActive        Boolean               @default(true)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  variant      ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  outlet       Outlet?         @relation(fields: [outletId], references: [id], onDelete: Cascade)
+  orderItems   OrderItem[]
+
+  @@index([organizationId])
+  @@index([variantId])
+  @@index([outletId])
+  @@map("pricing_rules")
+}
+
+/// Org-wide minimum-contribution safeguard: a price quote is never allowed
+/// to drop below cost + this margin when the cost is known (see
+/// PricingRulesService.quote) — one setting, not a per-rule field, since
+/// it's a floor the whole pricing engine must respect, not a per-campaign
+/// choice.
+model PricingSettings {
+  id                   String   @id @default(cuid())
+  organizationId       String   @unique
+  minimumMarginPercent Decimal  @default(0) @db.Decimal(5, 2)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("pricing_settings")
+}
+
+/// A named, orderable collection of product variants within a brand (e.g.
+/// "Dine-in Menu", "Delivery Menu"). Assigned to outlets via OutletMenu.
+model Menu {
+  id             String   @id @default(cuid())
+  organizationId String
+  brandId        String
+  name           String
+  description    String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand        Brand           @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  items        MenuItem[]
+  outletMenus  OutletMenu[]
+  comboItems   MenuComboItem[]
+
+  @@unique([brandId, name])
+  @@index([organizationId])
+  @@map("menus")
+}
+
+/// Join entity: which variants appear on a menu, and in what order.
+model MenuItem {
+  id          String   @id @default(cuid())
+  menuId      String
+  variantId   String
+  sortOrder   Int      @default(0)
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  menu    Menu           @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([menuId, variantId])
+  @@map("menu_items")
+}
+
+enum MenuChannel {
+  ALL
+  DINE_IN
+  DELIVERY
+  TAKEAWAY
+}
+
+/// Join entity: which menus are active at which outlets, and for which
+/// sales channel (an outlet may run a different menu for delivery).
+model OutletMenu {
+  id        String      @id @default(cuid())
+  outletId  String
+  menuId    String
+  channel   MenuChannel @default(ALL)
+  isActive  Boolean     @default(true)
+  createdAt DateTime    @default(now())
+
+  outlet Outlet @relation(fields: [outletId], references: [id], onDelete: Cascade)
+  menu   Menu   @relation(fields: [menuId], references: [id], onDelete: Cascade)
+
+  @@unique([outletId, menuId])
+  @@map("outlet_menus")
+}
+
+enum IngredientKind {
+  RAW_MATERIAL
+  PACKAGING
+}
+
+enum UnitOfMeasure {
+  GRAM
+  KILOGRAM
+  MILLILITRE
+  LITRE
+  UNIT
+  DOZEN
+}
+
+/// A raw material or packaging item tracked for recipes (and, later,
+/// inventory/procurement in Prompt 08). PACKAGING items (boxes, cups, bags)
+/// use the same catalogue as food ingredients since both are just lines on
+/// a recipe's bill of materials.
+model Ingredient {
+  id             String         @id @default(cuid())
+  organizationId String
+  name           String
+  sku            String
+  kind           IngredientKind @default(RAW_MATERIAL)
+  unit           UnitOfMeasure
+  /// Current cost per unit (in the ingredient's own unit). Null until a
+  /// cost is first set via the costing engine; changes are append-only
+  /// logged in IngredientCostHistory rather than overwritten silently.
+  costPerUnit    Decimal?       @db.Decimal(10, 4)
+  /// Which supplier the forecasting engine (Prompt 18) resolves lead time
+  /// from, when a kitchen hasn't overridden it on its own StockBalance.
+  /// Nullable — an ingredient bought from varying suppliers has no single
+  /// answer, and forecasting falls back to an org-wide default lead time.
+  preferredSupplierId String?
+  /// How many days after purchase/receipt this ingredient is still usable —
+  /// null means "doesn't meaningfully expire" (most packaging, some dry
+  /// goods). Used only for expiry-aware stock planning; no per-batch/lot
+  /// expiry tracking exists in this codebase.
+  shelfLifeDays       Int?
+  isActive       Boolean        @default(true)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organization       Organization            @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  preferredSupplier   Supplier?               @relation(fields: [preferredSupplierId], references: [id], onDelete: SetNull)
+  recipeIngredients  RecipeIngredient[]
+  costHistory        IngredientCostHistory[]
+  purchaseOrderItems PurchaseOrderItem[]
+  stockBalances      StockBalance[]
+  stockMovements     StockMovement[]
+
+  @@unique([organizationId, sku])
+  @@index([organizationId])
+  @@index([preferredSupplierId])
+  @@map("ingredients")
+}
+
+/// Append-only log of an ingredient's cost over time, so cost changes are
+/// auditable and historical margin analysis stays possible later (e.g. in
+/// Prompt 10's BI). Ingredient.costPerUnit always mirrors the latest row.
+model IngredientCostHistory {
+  id           String   @id @default(cuid())
+  ingredientId String
+  costPerUnit  Decimal  @db.Decimal(10, 4)
+  effectiveAt  DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@index([ingredientId, effectiveAt])
+  @@map("ingredient_cost_history")
+}
+
+/// The bill of materials for one product variant: which ingredients (and
+/// packaging) it consumes, how many portions it yields, and which kitchen
+/// station prepares it (used later by the KDS in Prompt 07). Prompt 05's
+/// costing engine prices a variant by valuing this recipe's ingredients.
+model Recipe {
+  id                   String   @id @default(cuid())
+  organizationId       String
+  variantId            String
+  preparationStationId String?
+  yieldQuantity        Int      @default(1)
+  instructions         String?
+  isActive             Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  organization       Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  variant            ProductVariant       @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  preparationStation KitchenStation?      @relation(fields: [preparationStationId], references: [id], onDelete: SetNull)
+  ingredients        RecipeIngredient[]
+  overheadCosts      RecipeOverheadCost[]
+
+  @@unique([variantId])
+  @@index([organizationId])
+  @@map("recipes")
+}
+
+/// A named non-ingredient cost on a recipe (e.g. "Labor", "Utilities"),
+/// added to ingredient cost when computing a variant's total cost.
+model RecipeOverheadCost {
+  id        String   @id @default(cuid())
+  recipeId  String
+  label     String
+  amount    Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  recipe Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@unique([recipeId, label])
+  @@map("recipe_overhead_costs")
+}
+
+/// One ingredient line on a recipe's bill of materials, in the ingredient's
+/// own unit (no cross-unit conversion — keep the catalogue in base units).
+model RecipeIngredient {
+  id           String   @id @default(cuid())
+  recipeId     String
+  ingredientId String
+  quantity     Decimal  @db.Decimal(10, 3)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+
+  @@unique([recipeId, ingredientId])
+  @@map("recipe_ingredients")
+}
+
+/// Per-outlet counter backing human-readable, gap-free order numbers
+/// (e.g. receipt "#42"). Incremented atomically in the same transaction
+/// as order creation so concurrent orders never collide.
+model OutletOrderSequence {
+  outletId   String @id
+  lastNumber Int    @default(0)
+
+  outlet Outlet @relation(fields: [outletId], references: [id], onDelete: Cascade)
+
+  @@map("outlet_order_sequences")
+}
+
+enum OrderChannel {
+  DINE_IN
+  DELIVERY
+  TAKEAWAY
+}
+
+enum OrderStatus {
+  OPEN
+  PAID
+  VOIDED
+}
+
+/// A point-of-sale order/bill at one outlet. Totals are maintained on the
+/// order itself (recalculated whenever items change) rather than computed
+/// on every read, since they are needed for the payment-sufficiency check.
+model Order {
+  id                    String       @id @default(cuid())
+  organizationId        String
+  outletId              String
+  orderNumber           Int
+  channel               OrderChannel
+  status                OrderStatus  @default(OPEN)
+  subtotal              Decimal      @default(0) @db.Decimal(12, 2)
+  taxTotal              Decimal      @default(0) @db.Decimal(12, 2)
+  /// Snapshotted when a promotion is applied (see PromotionRedemption);
+  /// clamped to never exceed subtotal + taxTotal so total can't go negative
+  /// if items are voided afterwards. Applied to the final total, not
+  /// reallocated into any line's tax — a bill's lines are never rewritten.
+  discountAmount        Decimal      @default(0) @db.Decimal(12, 2)
+  /// Snapshotted when loyalty points are redeemed (see LoyaltyRedemption); clamped, after
+  /// discountAmount, to never push total negative — same rule as discountAmount, applied second.
+  loyaltyDiscountAmount Decimal      @default(0) @db.Decimal(12, 2)
+  loyaltyPointsRedeemed Int          @default(0)
+  total                 Decimal      @default(0) @db.Decimal(12, 2)
+  promotionId           String?
+  customerId            String?
+  /// Nullable because a table's QR-ordering flow (see RestaurantTable) creates orders with no
+  /// logged-in staff user at all — the customer placed it themselves. Every staff-initiated order
+  /// (POS, offline sync) still always sets this.
+  createdByUserId       String?
+  tableId               String?
+  /// Set only for an order synced from the POS's offline queue — the id is generated on-device
+  /// at the moment the cashier completed the sale, before the device ever reached the server.
+  /// Unique per organization so retrying a sync (the device went offline again mid-sync, the
+  /// response was lost, etc.) can never create the same order twice: the sync endpoint looks
+  /// this up first and returns the existing order instead of creating another one.
+  clientOrderId         String?
+  closedAt              DateTime?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  organization        Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  outlet              Outlet               @relation(fields: [outletId], references: [id], onDelete: Restrict)
+  createdBy           User?                @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
+  table               RestaurantTable?     @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  promotion           Promotion?           @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+  customer            Customer?            @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  items               OrderItem[]
+  payments            Payment[]
+  promotionRedemption PromotionRedemption?
+  loyaltyRedemption   LoyaltyRedemption?
+  loyaltyTransactions LoyaltyTransaction[]
+  campaignConversions CampaignRecipient[]
+
+  @@unique([outletId, orderNumber])
+  @@unique([organizationId, clientOrderId])
+  @@index([organizationId])
+  @@index([outletId, status])
+  @@map("orders")
+}
+
+enum OrderItemStatus {
+  ACTIVE
+  VOIDED
+}
+
+/// One line on an order. Name, price and tax rate are snapshotted at the
+/// moment the item is added, so a later menu/price/tax change never alters
+/// an existing bill — only VOIDED (never hard-deleted), for an auditable bill.
+/// A combo expands into one OrderItem per component variant (reusing the
+/// same per-variant KDS routing and recipe-based inventory consumption as
+/// an ordinary item) rather than being its own line type; comboInstanceId
+/// groups those rows together so the whole bundle is added/voided as one.
+model OrderItem {
+  id              String          @id @default(cuid())
+  orderId         String
+  variantId       String
+  productName     String
+  variantName     String
+  unitPrice       Decimal         @db.Decimal(10, 2)
+  quantity        Int
+  taxRatePercent  Decimal         @default(0) @db.Decimal(5, 2)
+  lineSubtotal    Decimal         @db.Decimal(12, 2)
+  taxAmount       Decimal         @db.Decimal(12, 2)
+  lineTotal       Decimal         @db.Decimal(12, 2)
+  status          OrderItemStatus @default(ACTIVE)
+  comboId         String?
+  comboInstanceId String?
+  comboName       String?
+  /// Snapshotted at order-confirmation time (see PricingRulesService.quote)
+  /// so this line's price explanation survives the rule being edited or
+  /// deactivated later — never re-resolved, matching this codebase's
+  /// standing rule that a confirmed price is never rewritten retrospectively.
+  pricingRuleId    String?
+  pricingRuleLabel String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  order             Order              @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variant           ProductVariant     @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  combo             Combo?             @relation(fields: [comboId], references: [id], onDelete: SetNull)
+  pricingRule       PricingRule?       @relation(fields: [pricingRuleId], references: [id], onDelete: SetNull)
+  kitchenTicketItem KitchenTicketItem?
+
+  @@index([comboInstanceId])
+  @@map("order_items")
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  UPI
+  WALLET
+}
+
+/// A payment applied toward an order. An order is PAID once its payments
+/// sum to at least its total — split/partial payments are supported.
+model Payment {
+  id              String        @id @default(cuid())
+  orderId         String
+  method          PaymentMethod
+  amount          Decimal       @db.Decimal(12, 2)
+  referenceNumber String?
+  createdAt       DateTime      @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+enum KdsItemStatus {
+  QUEUED
+  IN_PROGRESS
+  READY
+  SERVED
+  CANCELLED
+}
+
+/// Routes one order item to the kitchen station that prepares it (from its
+/// Recipe.preparationStationId — set when the item is added to the order,
+/// never when it's served, so re-routing a recipe never rewrites open
+/// tickets), and tracks its prep status for the kitchen display.
+model KitchenTicketItem {
+  id             String        @id @default(cuid())
+  organizationId String
+  orderItemId    String        @unique
+  stationId      String
+  status         KdsItemStatus @default(QUEUED)
+  queuedAt       DateTime      @default(now())
+  startedAt      DateTime?
+  readyAt        DateTime?
+  servedAt       DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  orderItem    OrderItem      @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  station      KitchenStation @relation(fields: [stationId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId])
+  @@index([stationId, status])
+  @@map("kitchen_ticket_items")
+}
+
+/// A vendor that supplies ingredients/packaging to the organization.
+model Supplier {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  contactName    String?
+  phone          String?
+  email          String?
+  /// Typical days from placing a purchase order to receiving it — the
+  /// forecasting engine's default lead time for any ingredient that
+  /// prefers this supplier and hasn't overridden it per kitchen.
+  leadTimeDays   Int      @default(3)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization        Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  purchaseOrders       PurchaseOrder[]
+  preferredByIngredients Ingredient[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("suppliers")
+}
+
+/// Per-organization counter backing human-readable, gap-free purchase
+/// order numbers, incremented atomically alongside order creation.
+model OrgPurchaseOrderSequence {
+  organizationId String @id
+  lastNumber     Int    @default(0)
+
+  @@map("org_purchase_order_sequences")
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  ORDERED
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+}
+
+/// An order placed with a supplier for ingredients, to be delivered to one
+/// kitchen. Items can only be edited while DRAFT; once ORDERED, receiving
+/// against it is the only way items change (see PurchaseOrderItem).
+model PurchaseOrder {
+  id              String              @id @default(cuid())
+  organizationId  String
+  supplierId      String
+  kitchenId       String
+  orderNumber     Int
+  status          PurchaseOrderStatus @default(DRAFT)
+  createdByUserId String
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  supplier     Supplier            @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  kitchen      Kitchen             @relation(fields: [kitchenId], references: [id], onDelete: Restrict)
+  createdBy    User                @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  items        PurchaseOrderItem[]
+
+  @@unique([organizationId, orderNumber])
+  @@index([organizationId])
+  @@map("purchase_orders")
+}
+
+/// One ingredient line on a purchase order. unitCost is snapshotted at
+/// order time (the agreed price), independent of the ingredient's own
+/// catalogue cost, which may differ or change later.
+model PurchaseOrderItem {
+  id               String   @id @default(cuid())
+  purchaseOrderId  String
+  ingredientId     String
+  quantityOrdered  Decimal  @db.Decimal(10, 3)
+  quantityReceived Decimal  @default(0) @db.Decimal(10, 3)
+  unitCost         Decimal  @db.Decimal(10, 4)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  ingredient    Ingredient    @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+
+  @@unique([purchaseOrderId, ingredientId])
+  @@map("purchase_order_items")
+}
+
+/// Current on-hand quantity of an ingredient at a kitchen — a cached
+/// projection kept in sync with StockMovement, not the source of truth
+/// itself, so reads never have to replay the whole ledger.
+model StockBalance {
+  id             String   @id @default(cuid())
+  organizationId String
+  kitchenId      String
+  ingredientId   String
+  quantityOnHand Decimal  @default(0) @db.Decimal(12, 3)
+  reorderPoint   Decimal? @db.Decimal(12, 3)
+  /// Manual overrides for the forecasting engine (Prompt 18) — when set,
+  /// each wins over its own computed value (statistically-derived safety
+  /// stock, resolved supplier lead time) for this specific kitchen +
+  /// ingredient, the same override-wins-over-computed pattern used
+  /// throughout this codebase (e.g. OutletProductPrice over basePrice).
+  safetyStockOverride  Decimal? @db.Decimal(12, 3)
+  leadTimeDaysOverride Int?
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  kitchen      Kitchen      @relation(fields: [kitchenId], references: [id], onDelete: Cascade)
+  ingredient   Ingredient   @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@unique([kitchenId, ingredientId])
+  @@index([organizationId])
+  @@map("stock_balances")
+}
+
+enum StockMovementType {
+  RECEIPT
+  CONSUMPTION
+  WASTAGE
+  ADJUSTMENT
+}
+
+/// Append-only ledger of every stock change — the source of truth that
+/// StockBalance is a running total of. quantityDelta is signed (positive
+/// for RECEIPT/upward ADJUSTMENT, negative for CONSUMPTION/WASTAGE/downward
+/// ADJUSTMENT) so the full history, not just the current balance, is
+/// auditable.
+model StockMovement {
+  id             String            @id @default(cuid())
+  organizationId String
+  kitchenId      String
+  ingredientId   String
+  type           StockMovementType
+  quantityDelta  Decimal           @db.Decimal(12, 3)
+  referenceType  String?
+  referenceId    String?
+  note           String?
+  createdAt      DateTime          @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  kitchen      Kitchen      @relation(fields: [kitchenId], references: [id], onDelete: Cascade)
+  ingredient   Ingredient   @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([kitchenId, ingredientId, createdAt])
+  @@map("stock_movements")
+}
+
+/// A bundled selling unit composed of several product variants at a single
+/// bundle price (e.g. "Pizza + Coke Combo"). Brand-scoped like Product,
+/// since its component variants must all belong to that same brand.
+model Combo {
+  id             String   @id @default(cuid())
+  organizationId String
+  brandId        String
+  name           String
+  description    String?
+  comboPrice     Decimal  @db.Decimal(10, 2)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand          Brand           @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  items          ComboItem[]
+  menuComboItems MenuComboItem[]
+  orderItems     OrderItem[]
+
+  @@unique([brandId, name])
+  @@index([organizationId])
+  @@map("combos")
+}
+
+/// One component line of a combo: a variant and how many units of it one
+/// combo instance includes (e.g. 1 Pizza + 2 Cokes).
+model ComboItem {
+  id        String   @id @default(cuid())
+  comboId   String
+  variantId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+
+  combo   Combo          @relation(fields: [comboId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+
+  @@unique([comboId, variantId])
+  @@map("combo_items")
+}
+
+/// Join entity: which combos appear on a menu, mirroring MenuItem for
+/// individual variants (a combo is ordered the same way a product is).
+model MenuComboItem {
+  id          String   @id @default(cuid())
+  menuId      String
+  comboId     String
+  sortOrder   Int      @default(0)
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  menu  Menu  @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  combo Combo @relation(fields: [comboId], references: [id], onDelete: Cascade)
+
+  @@unique([menuId, comboId])
+  @@map("menu_combo_items")
+}
+
+enum PromotionType {
+  PERCENTAGE
+  FLAT
+}
+
+/// A coupon-code discount, optionally scoped to one brand (null = usable
+/// org-wide). No auto-apply/stacking — a cashier enters the code, and at
+/// most one promotion can be active on an order at a time (see
+/// PromotionRedemption's unique orderId).
+model Promotion {
+  id                String        @id @default(cuid())
+  organizationId    String
+  brandId           String?
+  code              String
+  description       String?
+  type              PromotionType
+  /// A percentage (0-100) if type is PERCENTAGE, else a currency amount.
+  value             Decimal       @db.Decimal(10, 2)
+  minOrderSubtotal  Decimal?      @db.Decimal(12, 2)
+  maxDiscountAmount Decimal?      @db.Decimal(12, 2)
+  startsAt          DateTime?
+  endsAt            DateTime?
+  usageLimit        Int?
+  isActive          Boolean       @default(true)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  organization Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand        Brand?                @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  orders       Order[]
+  redemptions  PromotionRedemption[]
+
+  @@unique([organizationId, code])
+  @@index([organizationId])
+  @@map("promotions")
+}
+
+/// One redemption of a promotion against an order — the source of truth
+/// for usageLimit counting (not inferred from Order.promotionId), so
+/// removing a promotion from an order cleanly un-counts it. unique(orderId)
+/// is what enforces "at most one promotion per order".
+model PromotionRedemption {
+  id             String   @id @default(cuid())
+  promotionId    String
+  organizationId String
+  orderId        String
+  discountAmount Decimal  @db.Decimal(12, 2)
+  createdAt      DateTime @default(now())
+
+  promotion    Promotion    @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  order        Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([orderId])
+  @@index([promotionId])
+  @@map("promotion_redemptions")
+}
+
+enum ExpenseCategory {
+  RENT
+  UTILITIES
+  SALARY
+  MARKETING
+  MAINTENANCE
+  OTHER
+}
+
+/// A non-ingredient operating cost (rent, utilities, salaries, ...),
+/// optionally scoped to one outlet (null = organization-wide, e.g. head
+/// office rent). Feeds the Prompt 10 reports' profit-and-loss endpoint
+/// alongside order revenue; never affects a variant's own costing (that
+/// stays ingredient-based, from Prompt 05).
+model Expense {
+  id               String          @id @default(cuid())
+  organizationId   String
+  outletId         String?
+  category         ExpenseCategory
+  description      String?
+  amount           Decimal         @db.Decimal(12, 2)
+  incurredAt       DateTime
+  recordedByUserId String
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  outlet       Outlet?      @relation(fields: [outletId], references: [id], onDelete: SetNull)
+  recordedBy   User         @relation(fields: [recordedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId, incurredAt])
+  @@map("expenses")
+}
+
+/// A staff member, optionally assigned to one outlet (null = roams/head
+/// office, e.g. an area manager). Deliberately minimal — no payroll
+/// calculation, shift scheduling or leave management; attendance below is
+/// just a clock-in/clock-out log.
+model Employee {
+  id             String   @id @default(cuid())
+  organizationId String
+  outletId       String?
+  name           String
+  role           String
+  phone          String?
+  email          String?
+  hireDate       DateTime
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  outlet       Outlet?      @relation(fields: [outletId], references: [id], onDelete: SetNull)
+  attendance   Attendance[]
+
+  @@index([organizationId])
+  @@map("employees")
+}
+
+/// One clock-in/clock-out record. clockOut is null while the employee is
+/// still clocked in; at most one open record per employee is enforced in
+/// application logic (clocking in again while already clocked in is a
+/// conflict), since a partial unique index on a nullable column can't
+/// portably express "unique while null" in Prisma's schema syntax.
+model Attendance {
+  id         String    @id @default(cuid())
+  employeeId String
+  clockIn    DateTime
+  clockOut   DateTime?
+  createdAt  DateTime  @default(now())
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId, clockIn])
+  @@map("attendance")
+}
+
+/// A recognized customer, for order history and simple loyalty accrual.
+/// Deliberately minimal — no redemption flow (earning points is tracked;
+/// spending them is out of scope here) and no marketing/segmentation.
+model Customer {
+  id                     String    @id @default(cuid())
+  organizationId         String
+  name                   String
+  phone                  String
+  email                  String?
+  notes                  String?
+  /// Cached current balance — the ledger (LoyaltyTransaction) is the source of truth;
+  /// this column is only ever written alongside a new ledger row in the same transaction,
+  /// never updated on its own, the same ledger-vs-cached-projection pattern as
+  /// StockBalance/StockMovement and Ingredient.costPerUnit/IngredientCostHistory.
+  loyaltyPoints          Int       @default(0)
+  /// Cumulative points ever earned (never reduced by redemption or expiry) — membership tier
+  /// is derived from this, not the spendable balance, so redeeming points never demotes a tier.
+  lifetimePoints         Int       @default(0)
+  birthday               DateTime? @db.Date
+  /// Set once this customer's first PAID order has triggered their referrer's bonus, so the
+  /// bonus is granted exactly once no matter how many further orders this customer places.
+  referralBonusGrantedAt DateTime?
+  lastBirthdayBonusAt    DateTime?
+  referredByCustomerId   String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  organization             Organization                      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  referredBy               Customer?                         @relation("CustomerReferrals", fields: [referredByCustomerId], references: [id], onDelete: SetNull)
+  referrals                Customer[]                        @relation("CustomerReferrals")
+  orders                   Order[]
+  communicationPreferences CustomerCommunicationPreference[]
+  communicationMessages    CommunicationMessage[]
+  loyaltyTransactions      LoyaltyTransaction[]
+  loyaltyRedemptions       LoyaltyRedemption[]
+  campaignRecipients       CampaignRecipient[]
+
+  @@unique([organizationId, phone])
+  @@index([organizationId])
+  @@index([referredByCustomerId])
+  @@map("customers")
+}
+
+enum LoyaltyTransactionType {
+  EARN
+  REDEEM
+  EXPIRE
+  WELCOME_BONUS
+  BIRTHDAY_BONUS
+  REFERRAL_BONUS
+  REDEMPTION_REVERSAL
+  MANUAL_ADJUSTMENT
+}
+
+/// The append-only source of truth for a customer's points balance — Customer.loyaltyPoints
+/// is only ever written in the same DB transaction as a new row here. `expiredAt` is the one
+/// field ever set after insert, and only on an EARN row once the expiry sweep has consumed its
+/// points into an EXPIRE row — it annotates consumption, it never changes `points` itself, so
+/// the ledger's amounts stay immutable even though this one bookkeeping flag does not.
+model LoyaltyTransaction {
+  id              String                 @id @default(cuid())
+  organizationId  String
+  customerId      String
+  type            LoyaltyTransactionType
+  /// Signed — positive for a credit (EARN, bonuses), negative for a debit (REDEEM, EXPIRE).
+  points          Int
+  /// The customer's loyaltyPoints balance immediately after this transaction was applied.
+  balanceAfter    Int
+  orderId         String?
+  note            String?
+  /// Set on EARN rows only, when points-expiry is configured — the expiry sweep looks for
+  /// unexpired EARN rows whose expiresAt has passed.
+  expiresAt       DateTime?
+  expiredAt       DateTime?
+  createdByUserId String?
+  createdAt       DateTime               @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  order        Order?       @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  createdBy    User?        @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([customerId, createdAt])
+  @@index([type, expiresAt])
+  @@map("loyalty_transactions")
+}
+
+/// One row per organization — configurable program-wide defaults, overridable per brand via
+/// BrandLoyaltyRule.
+model LoyaltyProgramSettings {
+  id                  String   @id @default(cuid())
+  organizationId      String   @unique
+  /// Points earned per ₹100 of a paid order's total, before any tier multiplier — e.g. 1.00
+  /// reproduces the original "1 point per ₹100" behavior this milestone generalizes.
+  earningRate         Decimal  @default(1) @db.Decimal(6, 2)
+  /// Currency value of one point when redeemed — e.g. 1.00 means 1 point = ₹1 of discount.
+  redemptionRatio     Decimal  @default(1) @db.Decimal(10, 4)
+  welcomeBonusPoints  Int      @default(0)
+  referralBonusPoints Int      @default(0)
+  birthdayBonusPoints Int      @default(0)
+  /// Null means points never expire.
+  pointsExpiryDays    Int?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("loyalty_program_settings")
+}
+
+/// Per-brand override of the organization's earning rate / redemption ratio — null on either
+/// field means "use the organization default" rather than forcing every brand to restate both.
+model BrandLoyaltyRule {
+  id              String   @id @default(cuid())
+  organizationId  String
+  brandId         String   @unique
+  earningRate     Decimal? @db.Decimal(6, 2)
+  redemptionRatio Decimal? @db.Decimal(10, 4)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand        Brand        @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("brand_loyalty_rules")
+}
+
+/// Membership tier thresholds, ranked by minLifetimePoints — a customer's tier is the highest
+/// one whose threshold their lifetime (never-reduced) points have crossed, computed on read.
+model LoyaltyTier {
+  id                String   @id @default(cuid())
+  organizationId    String
+  name              String
+  minLifetimePoints Int
+  earningMultiplier Decimal  @default(1) @db.Decimal(4, 2)
+  sortOrder         Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("loyalty_tiers")
+}
+
+/// A reservation record for points redeemed against one specific OPEN order — mirrors
+/// PromotionRedemption's shape and role exactly. The points are debited from the customer's
+/// balance (via a REDEEM ledger row) the moment this is created, not at payment time, so two
+/// concurrently open orders can never both spend the same points; voiding the order before
+/// payment reverses it (REDEMPTION_REVERSAL) and deletes this row.
+model LoyaltyRedemption {
+  id             String   @id @default(cuid())
+  organizationId String
+  orderId        String   @unique
+  customerId     String
+  pointsRedeemed Int
+  discountAmount Decimal  @db.Decimal(12, 2)
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  order        Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("loyalty_redemptions")
+}
+
+enum CommunicationChannel {
+  WHATSAPP
+  SMS
+}
+
+/// TRANSACTIONAL messages (order confirmations, status updates) are tied to a
+/// transaction the customer initiated and don't need marketing consent.
+/// PROMOTIONAL messages are marketing and require an explicit opt-in.
+enum CommunicationPurpose {
+  TRANSACTIONAL
+  PROMOTIONAL
+}
+
+enum CommunicationStatus {
+  QUEUED
+  SCHEDULED
+  SENDING
+  SENT
+  DELIVERED
+  FAILED
+  CANCELLED
+  SKIPPED
+}
+
+/// An approved message template, keyed per organization/channel so e.g.
+/// "order_confirmation" can have independent WhatsApp and SMS wording.
+/// providerTemplateName is the name registered with the provider itself —
+/// WhatsApp Business Platform only delivers pre-approved template messages,
+/// so free-form `body` text is rendered locally (for the history record and
+/// for SMS, which has no template-approval requirement) while WhatsApp sends
+/// reference providerTemplateName instead of the raw body.
+model CommunicationTemplate {
+  id                   String               @id @default(cuid())
+  organizationId       String
+  brandId              String?
+  channel              CommunicationChannel
+  purpose              CommunicationPurpose
+  key                  String
+  name                 String
+  body                 String
+  providerTemplateName String?
+  /// Per-brand sender override (a WhatsApp phone number ID or an SMS "from" number) — used
+  /// instead of the organization-wide default configured via env vars, where the provider
+  /// supports distinct sender identities per brand. Null means "use the default sender".
+  providerSenderId     String?
+  isActive             Boolean              @default(true)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  organization     Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  brand            Brand?                 @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  messages         CommunicationMessage[]
+  campaignVariants CampaignVariant[]
+
+  // brandId participates in the uniqueness check so a brand-specific override and the
+  // organization-wide default (brandId: null) can coexist for the same channel/key.
+  @@unique([organizationId, brandId, channel, key])
+  @@index([organizationId])
+  @@map("communication_templates")
+}
+
+/// Per-customer, per-channel consent state — the evidence trail for
+/// "appropriate permissions" before a marketing message goes out.
+/// Transactional messages default to allowed (opt-in by default, since
+/// they're tied to a transaction the customer themselves started);
+/// marketing messages default to blocked until explicit consent is recorded.
+model CustomerCommunicationPreference {
+  id                   String               @id @default(cuid())
+  customerId           String
+  channel              CommunicationChannel
+  transactionalOptIn   Boolean              @default(true)
+  marketingOptIn       Boolean              @default(false)
+  consentSource        String?
+  consentGivenAt       DateTime?
+  consentGivenByUserId String?
+  optedOutAt           DateTime?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, channel])
+  @@index([customerId])
+  @@map("customer_communication_preferences")
+}
+
+/// The append-only communication history and delivery-tracking record —
+/// one row per message attempt, covering immediate sends, scheduled sends,
+/// and retries. `scheduledFor` null means "send now"; a populated value
+/// means a dispatch pass must pick it up once that time has passed.
+model CommunicationMessage {
+  id                String               @id @default(cuid())
+  organizationId    String
+  customerId        String
+  templateId        String?
+  channel           CommunicationChannel
+  purpose           CommunicationPurpose
+  toAddress         String
+  body              String
+  status            CommunicationStatus  @default(QUEUED)
+  providerName      String?
+  providerMessageId String?
+  scheduledFor      DateTime?
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  failedAt          DateTime?
+  failureReason     String?
+  retryCount        Int                  @default(0)
+  metadata          Json?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  organization      Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  customer          Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  template          CommunicationTemplate? @relation(fields: [templateId], references: [id])
+  campaignRecipient CampaignRecipient?
+
+  @@index([organizationId])
+  @@index([customerId])
+  @@index([status, scheduledFor])
+  @@map("communication_messages")
+}
+
+enum CampaignSegmentType {
+  ALL
+  INACTIVE
+  REPEAT
+  BRAND_PREFERENCE
+  TOTAL_SPEND
+  LOYALTY_TIER
+  BIRTHDAY_THIS_WEEK
+}
+
+/// A customer list resolved on demand, not stored membership — the same "computed, not
+/// cached" tradeoff as the Prompt 10 reports, since recomputing which customers currently
+/// match is cheap at this data volume and a cached membership list would drift stale the
+/// moment a customer places another order. Each type reads only the field(s) it needs below.
+model CustomerSegment {
+  id             String              @id @default(cuid())
+  organizationId String
+  name           String
+  type           CampaignSegmentType
+  /// INACTIVE: no PAID order in at least this many days (or never ordered).
+  inactiveDays   Int?
+  /// REPEAT: at least this many PAID orders.
+  minOrders      Int?
+  /// BRAND_PREFERENCE: the brand the customer has placed the most PAID orders with.
+  brandId        String?
+  /// TOTAL_SPEND: lifetime PAID order total is at least this amount.
+  minSpend       Decimal?            @db.Decimal(12, 2)
+  /// LOYALTY_TIER: the customer's current (derived) membership tier.
+  loyaltyTierId  String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  campaigns    Campaign[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("customer_segments")
+}
+
+enum CampaignType {
+  MONDAY_SPECIAL
+  WEEKEND_COMBO
+  BIRTHDAY_PROMOTION
+  WIN_BACK
+  NEW_PRODUCT_LAUNCH
+  LOYALTY_MILESTONE
+  CUSTOM
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  RUNNING
+  COMPLETED
+  CANCELLED
+}
+
+/// A WhatsApp marketing campaign — one targeted send to everyone a segment resolves to at
+/// dispatch time, through the Prompt 13 communication engine (consent-aware delivery and
+/// unsubscribe/opt-out are already enforced there, not rebuilt here). Performance numbers
+/// (sent/delivered/converted/revenue) are computed on demand from CampaignRecipient joins
+/// rather than cached counters, so they can never drift out of sync with the real messages.
+model Campaign {
+  id                   String         @id @default(cuid())
+  organizationId       String
+  name                 String
+  type                 CampaignType
+  segmentId            String
+  status               CampaignStatus @default(DRAFT)
+  scheduledFor         DateTime?
+  /// Null means unlimited — otherwise dispatch stops once sentCount * costPerMessage would
+  /// exceed this, and the remaining resolved customers are recorded as skipped, not silently
+  /// dropped.
+  budgetAmount         Decimal?       @db.Decimal(12, 2)
+  /// Snapshotted at creation so a later change to the org-wide estimate never rewrites the
+  /// budget math of a campaign that's already running or completed.
+  costPerMessage       Decimal        @default(0.5) @db.Decimal(10, 4)
+  /// How many days after a campaign message is sent a customer's next paid order still counts
+  /// as a conversion attributed to this campaign.
+  conversionWindowDays Int            @default(7)
+  startedAt            DateTime?
+  completedAt          DateTime?
+  createdByUserId      String
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+
+  organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  segment      CustomerSegment     @relation(fields: [segmentId], references: [id], onDelete: Restrict)
+  createdBy    User                @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  variants     CampaignVariant[]
+  recipients   CampaignRecipient[]
+
+  @@index([organizationId])
+  @@index([status, scheduledFor])
+  @@map("campaigns")
+}
+
+/// At least one variant per campaign — a single variant at 100% is simply "no A/B test",
+/// rather than giving campaigns a separate non-variant template field and two code paths.
+model CampaignVariant {
+  id             String   @id @default(cuid())
+  campaignId     String
+  name           String
+  /// Null only when isControl — a control-group variant deliberately sends no message, so it
+  /// has no template to send.
+  templateId     String?
+  /// Variants on one campaign should sum to 100; enforced in the service layer, since a
+  /// cross-row sum isn't expressible as a Prisma/DB constraint.
+  trafficPercent Int
+  /// Prompt 19's controlled-experiment support: customers bucketed into a control variant are
+  /// targeted (counted, and still eligible for conversion attribution) but never sent a
+  /// message — the counterfactual baseline a promotional variant's lift is measured against.
+  /// At most one control variant per campaign, enforced in the service layer.
+  isControl      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  campaign   Campaign               @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  template   CommunicationTemplate? @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  recipients CampaignRecipient[]
+
+  @@unique([campaignId, name])
+  @@map("campaign_variants")
+}
+
+/// One row per customer a campaign targeted — created at dispatch time, append-only. A null
+/// messageId means the recipient was resolved but never actually sent to (skippedReason
+/// explains why: budget exhausted — consent/opt-out instead produces a real SKIPPED
+/// CommunicationMessage, since that's useful history in its own right). convertedOrderId is
+/// set the first time this customer's next paid order falls within the campaign's conversion
+/// window — see OrdersService.addPayment.
+model CampaignRecipient {
+  id                String   @id @default(cuid())
+  organizationId    String
+  campaignId        String
+  variantId         String
+  customerId        String
+  messageId         String?  @unique
+  skippedReason     String?
+  convertedOrderId  String?
+  attributedRevenue Decimal? @db.Decimal(12, 2)
+  createdAt         DateTime @default(now())
+
+  organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  campaign       Campaign              @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  variant        CampaignVariant       @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  customer       Customer              @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  message        CommunicationMessage? @relation(fields: [messageId], references: [id], onDelete: SetNull)
+  convertedOrder Order?                @relation(fields: [convertedOrderId], references: [id], onDelete: SetNull)
+
+  @@unique([campaignId, customerId])
+  @@index([organizationId])
+  @@index([customerId])
+  @@map("campaign_recipients")
+}

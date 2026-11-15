@@ -1,0 +1,10 @@
+{
+  "extends": "@kitchenos/config/base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "preserve",
+    "noEmit": true
+  },
+  "include": ["src"]
+}

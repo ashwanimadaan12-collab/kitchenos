@@ -1,0 +1,11 @@
+{$WEB_DOMAIN} {
+	reverse_proxy web:3000
+}
+
+{$API_DOMAIN} {
+	# The KDS WebSocket (Socket.IO on the /kds namespace) needs the Upgrade/Connection headers
+	# passed through untouched — reverse_proxy does this by default, but it's called out here
+	# since a hand-rolled nginx config would need `proxy_set_header Upgrade $http_upgrade` etc.
+	# explicitly, and it's an easy thing to silently break.
+	reverse_proxy api:4000
+}

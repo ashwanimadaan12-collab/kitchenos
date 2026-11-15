@@ -1,0 +1,121 @@
+name: kitchenos-prod
+
+# Generic, cloud-agnostic production stack: Postgres + Redis + the two app images this repo
+# builds (apps/api/Dockerfile, apps/web/Dockerfile) + Caddy as a reverse proxy that gets TLS
+# certificates automatically from Let's Encrypt once DNS for the two domains below points at this
+# host. Nothing here is specific to any one cloud provider — it runs the same way on a bare VPS,
+# an EC2 instance, a DigitalOcean droplet, or any other machine with Docker installed.
+#
+# Before running: copy .env.production.example to .env.production, fill in every value marked
+# CHANGE ME, point your domain's DNS A records at this machine, then:
+#   docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+#   docker compose -f docker-compose.prod.yml --env-file .env.production exec api \
+#     pnpm --filter @kitchenos/database exec prisma migrate deploy
+#   docker compose -f docker-compose.prod.yml --env-file .env.production exec api \
+#     pnpm --filter @kitchenos/database seed:production
+# (the api image has the whole built monorepo in it — see apps/api/Dockerfile — so pnpm, the
+# migrations and the seed script are already there; this never needs a separate image or step)
+#
+# That second seed command is NOT the demo seed (`pnpm db:seed`) — it only loads the permission
+# catalogue, with no organization and no demo data, which POST /v1/auth/signup needs to exist
+# before the first real restaurant can sign itself up (see apps/api/src/auth/auth.service.ts).
+# Never run the demo seed against a real deployment — it creates KitchenOS's own fake restaurant,
+# brands and orders, which a paying customer should never see.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - kitchenos_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # No host port published — only the api service (on the same Docker network) ever talks to
+    # this directly. Nothing outside this compose stack needs to reach it.
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      API_PORT: 4000
+      API_URL: ${API_URL}
+      CORS_ORIGIN: ${WEB_URL}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_URL: redis://redis:6379
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      WHATSAPP_GRAPH_API_VERSION: ${WHATSAPP_GRAPH_API_VERSION:-v20.0}
+      WHATSAPP_ACCESS_TOKEN: ${WHATSAPP_ACCESS_TOKEN:-}
+      WHATSAPP_PHONE_NUMBER_ID: ${WHATSAPP_PHONE_NUMBER_ID:-}
+      WHATSAPP_APP_SECRET: ${WHATSAPP_APP_SECRET:-}
+      WHATSAPP_WEBHOOK_VERIFY_TOKEN: ${WHATSAPP_WEBHOOK_VERIFY_TOKEN:-}
+      SMS_TWILIO_ACCOUNT_SID: ${SMS_TWILIO_ACCOUNT_SID:-}
+      SMS_TWILIO_AUTH_TOKEN: ${SMS_TWILIO_AUTH_TOKEN:-}
+      SMS_TWILIO_FROM_NUMBER: ${SMS_TWILIO_FROM_NUMBER:-}
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        # Baked into the compiled output at build time (see apps/web/Dockerfile) — this must
+        # already be the final public API URL before this image is built, not supplied later.
+        NEXT_PUBLIC_API_URL: ${API_URL}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      WEB_DOMAIN: ${WEB_DOMAIN}
+      API_DOMAIN: ${API_DOMAIN}
+    depends_on:
+      - web
+      - api
+
+volumes:
+  kitchenos_postgres_data:
+  caddy_data:
+  caddy_config:

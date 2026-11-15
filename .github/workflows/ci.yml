@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: kitchenos
+          POSTGRES_PASSWORD: kitchenos
+          POSTGRES_DB: kitchenos
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U kitchenos"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://kitchenos:kitchenos@localhost:5432/kitchenos?schema=public
+      REDIS_URL: redis://localhost:6379
+      JWT_ACCESS_SECRET: ci-only-access-secret-at-least-32-characters-long
+      JWT_REFRESH_SECRET: ci-only-refresh-secret-at-least-32-characters-long
+      CORS_ORIGIN: http://localhost:3000
+      API_URL: http://localhost:4000
+      NEXT_PUBLIC_API_URL: http://localhost:4000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm run db:generate
+
+      - name: Apply database migrations
+        run: pnpm --filter @kitchenos/database exec prisma migrate deploy
+
+      - name: Seed demo data (the e2e suite logs in as the seeded demo admin)
+        run: pnpm run db:seed
+
+      - run: pnpm run lint
+      - run: pnpm run typecheck
+      - run: pnpm run test
+
+      - name: API e2e tests
+        run: pnpm --filter @kitchenos/api run test:e2e
