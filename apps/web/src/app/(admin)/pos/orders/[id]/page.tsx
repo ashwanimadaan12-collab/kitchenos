@@ -10,6 +10,7 @@ import { VoidOrderButton } from "./void-order-button";
 import { PromotionForm } from "./promotion-form";
 import { LoyaltyRedemptionForm } from "./loyalty-redemption-form";
 import { CustomerForm } from "./customer-form";
+import { MoreOptions } from "./more-options";
 
 interface OrderItem {
   id: string;
@@ -64,6 +65,11 @@ interface Menu {
   comboItems: { isAvailable: boolean; combo: { id: string; name: string } }[];
 }
 
+interface Product {
+  category: { name: string } | null;
+  variants: { id: string }[];
+}
+
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const orderRes = await apiFetch(`/v1/orders/${id}`);
@@ -71,12 +77,21 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   if (!orderRes.ok) throw new Error("Failed to load order");
   const order: OrderDetail = await orderRes.json();
 
-  const [menusRes, customersRes] = await Promise.all([
+  const [menusRes, customersRes, productsRes] = await Promise.all([
     apiFetch(`/v1/menus?brandId=${order.outlet.brandId}`),
     apiFetch("/v1/customers"),
+    apiFetch(`/v1/products?brandId=${order.outlet.brandId}`),
   ]);
   const menus: Menu[] = menusRes.ok ? await menusRes.json() : [];
   const customers: Customer[] = customersRes.ok ? await customersRes.json() : [];
+  const products: Product[] = productsRes.ok ? await productsRes.json() : [];
+
+  const categoryNameByVariantId = new Map<string, string>();
+  for (const product of products) {
+    for (const variant of product.variants) {
+      categoryNameByVariantId.set(variant.id, product.category?.name ?? "Other");
+    }
+  }
 
   const activeMenus = menus.filter(
     (m) => m.isActive && m.outletMenus.some((om) => om.outlet.id === order.outlet.id && om.isActive),
@@ -84,7 +99,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   const availableVariants = activeMenus
     .flatMap((m) => m.items)
     .filter((item) => item.isAvailable)
-    .map((item) => ({ id: item.variant.id, label: `${item.variant.product.name} — ${item.variant.name}` }));
+    .map((item) => ({
+      id: item.variant.id,
+      label: `${item.variant.product.name} — ${item.variant.name}`,
+      category: categoryNameByVariantId.get(item.variant.id) ?? "Other",
+    }));
   const availableCombos = activeMenus
     .flatMap((m) => m.comboItems)
     .filter((item) => item.isAvailable)
@@ -128,8 +147,18 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       {order.status === "OPEN" ? (
         <section className="mt-6">
           <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <AddItemForm orderId={order.id} availableVariants={availableVariants} />
-            <AddComboForm orderId={order.id} availableCombos={availableCombos} />
+            <AddItemForm
+              orderId={order.id}
+              availableVariants={availableVariants}
+              activeItems={activeItems
+                .filter((i) => !i.comboInstanceId)
+                .map((i) => ({ id: i.id, variantId: i.variantId, quantity: i.quantity }))}
+            />
+            {availableCombos.length > 0 ? (
+              <div className="mt-4 border-t border-slate-100 pt-4">
+                <AddComboForm orderId={order.id} availableCombos={availableCombos} />
+              </div>
+            ) : null}
           </div>
         </section>
       ) : null}
@@ -193,31 +222,29 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       </table>
 
       {order.status === "OPEN" ? (
-        <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-          <CustomerForm
-            orderId={order.id}
-            customers={customers.map((c) => ({ id: c.id, label: `${c.name} (${c.phone})` }))}
-            linkedCustomer={order.customer}
-          />
-        </div>
+        <MoreOptions>
+          <div className="rounded-lg border border-slate-200 bg-white p-4">
+            <CustomerForm
+              orderId={order.id}
+              customers={customers.map((c) => ({ id: c.id, label: `${c.name} (${c.phone})` }))}
+              linkedCustomer={order.customer}
+            />
+          </div>
+          <div className="rounded-lg border border-slate-200 bg-white p-4">
+            <PromotionForm orderId={order.id} appliedCode={order.promotion?.code ?? null} />
+          </div>
+          {order.customer ? (
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <LoyaltyRedemptionForm
+                orderId={order.id}
+                availablePoints={order.customer.loyaltyPoints}
+                pointsRedeemed={order.loyaltyPointsRedeemed}
+              />
+            </div>
+          ) : null}
+        </MoreOptions>
       ) : order.customer ? (
         <p className="mt-4 text-sm text-slate-500">Customer: {order.customer.name}</p>
-      ) : null}
-
-      {order.status === "OPEN" ? (
-        <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-          <PromotionForm orderId={order.id} appliedCode={order.promotion?.code ?? null} />
-        </div>
-      ) : null}
-
-      {order.status === "OPEN" && order.customer ? (
-        <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-          <LoyaltyRedemptionForm
-            orderId={order.id}
-            availablePoints={order.customer.loyaltyPoints}
-            pointsRedeemed={order.loyaltyPointsRedeemed}
-          />
-        </div>
       ) : null}
 
       <div className="mt-4 ml-auto w-64 rounded-lg border border-slate-200 bg-white p-4 text-sm">
