@@ -3,6 +3,7 @@ import { apiFetch } from "@/lib/api";
 import { CreateTaxCategoryForm } from "./create-tax-category-form";
 import { CreateProductCategoryForm } from "./create-product-category-form";
 import { CreateProductForm } from "./create-product-form";
+import { ImportProductsForm } from "./import-products-form";
 
 interface Brand {
   id: string;
@@ -34,17 +35,33 @@ interface Product {
   variants: { id: string; name: string; basePrice: string }[];
 }
 
+interface Outlet {
+  id: string;
+  brandId: string;
+  name: string;
+}
+
+interface Menu {
+  id: string;
+  brandId: string;
+  name: string;
+}
+
 export default async function ProductsPage() {
-  const [brandsRes, taxCategoriesRes, categoriesRes, productsRes] = await Promise.all([
+  const [brandsRes, taxCategoriesRes, categoriesRes, productsRes, outletsRes, menusRes] = await Promise.all([
     apiFetch("/v1/brands"),
     apiFetch("/v1/tax-categories"),
     apiFetch("/v1/product-categories"),
     apiFetch("/v1/products"),
+    apiFetch("/v1/outlets"),
+    apiFetch("/v1/menus"),
   ]);
   const brands: Brand[] = brandsRes.ok ? await brandsRes.json() : [];
   const taxCategories: TaxCategory[] = taxCategoriesRes.ok ? await taxCategoriesRes.json() : [];
   const categories: ProductCategory[] = categoriesRes.ok ? await categoriesRes.json() : [];
   const products: Product[] = productsRes.ok ? await productsRes.json() : [];
+  const outlets: Outlet[] = outletsRes.ok ? await outletsRes.json() : [];
+  const menus: Menu[] = menusRes.ok ? await menusRes.json() : [];
 
   const brandNameById = new Map(brands.map((b) => [b.id, b.name]));
 
@@ -55,6 +72,13 @@ export default async function ProductsPage() {
         Menu items are priced and sold through their variants (e.g. sizes) — add at least one when creating a
         product, then manage the rest from the product&apos;s own page.
       </p>
+
+      <section className="mt-6">
+        <h2 className="text-sm font-semibold text-slate-700">Excel se bulk import karo</h2>
+        <div className="mt-2 rounded-lg border border-slate-200 bg-white p-4">
+          <ImportProductsForm brands={brands} categories={categories} taxCategories={taxCategories} outlets={outlets} menus={menus} />
+        </div>
+      </section>
 
       <section className="mt-6">
         <h2 className="text-sm font-semibold text-slate-700">Tax categories</h2>
