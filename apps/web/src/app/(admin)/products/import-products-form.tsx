@@ -17,6 +17,7 @@ interface ImportProductsFormProps {
   taxCategories: { id: string; name: string }[];
   outlets: { id: string; brandId: string; name: string }[];
   menus: { id: string; brandId: string; name: string }[];
+  kitchens: { id: string; stations: { id: string; isActive: boolean }[]; brandKitchens: { brand: { id: string } }[] }[];
 }
 
 const EMPTY_ROW: ItemRow = { name: "", price: "", mrp: "", purchasePrice: "" };
@@ -99,7 +100,7 @@ function downloadTemplate() {
   });
 }
 
-export function ImportProductsForm({ brands, categories, taxCategories, outlets, menus }: ImportProductsFormProps) {
+export function ImportProductsForm({ brands, categories, taxCategories, outlets, menus, kitchens }: ImportProductsFormProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [brandId, setBrandId] = useState(brands[0]?.id ?? "");
@@ -175,6 +176,16 @@ export function ImportProductsForm({ brands, categories, taxCategories, outlets,
 
     setIsSubmitting(true);
     try {
+      const kitchen = kitchens.find((k) => k.brandKitchens.some((bk) => bk.brand.id === brandId));
+      let stationId = kitchen?.stations.find((s) => s.isActive)?.id;
+      if (kitchen && !stationId) {
+        const station = await call<{ id: string }>(`/kitchens/${kitchen.id}/stations`, "POST", {
+          name: "Main Station",
+          code: codify(`K${kitchen.id.slice(-6)}-ST`, 30),
+        });
+        stationId = station.id;
+      }
+
       for (let i = 0; i < validItems.length; i += 1) {
         const item = validItems[i];
         if (!item) continue;
@@ -206,8 +217,13 @@ export function ImportProductsForm({ brands, categories, taxCategories, outlets,
         if (!variantId) continue;
         if (menuId) await call("/menus/" + menuId + "/items", "POST", { variantId });
         if (outletId) await call(`/pricing/outlets/${outletId}/variants/${variantId}`, "PUT", { price: item.price });
+        if (stationId) await call("/recipes", "POST", { variantId, preparationStationId: stationId });
       }
-      setProgress("Done! Products add ho gaye.");
+      setProgress(
+        stationId
+          ? "Done! Products add ho gaye aur kitchen screen se bhi jud gaye."
+          : "Done! Products add ho gaye, lekin is brand ka koi kitchen nahi mila — KDS me nahi dikhenge jab tak Kitchens page se brand map na karo.",
+      );
       setItems([]);
       router.refresh();
     } catch (err) {

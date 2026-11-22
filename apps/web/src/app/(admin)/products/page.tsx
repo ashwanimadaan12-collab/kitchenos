@@ -47,21 +47,30 @@ interface Menu {
   name: string;
 }
 
+interface Kitchen {
+  id: string;
+  stations: { id: string; isActive: boolean }[];
+  brandKitchens: { brand: { id: string } }[];
+}
+
 export default async function ProductsPage() {
-  const [brandsRes, taxCategoriesRes, categoriesRes, productsRes, outletsRes, menusRes] = await Promise.all([
-    apiFetch("/v1/brands"),
-    apiFetch("/v1/tax-categories"),
-    apiFetch("/v1/product-categories"),
-    apiFetch("/v1/products"),
-    apiFetch("/v1/outlets"),
-    apiFetch("/v1/menus"),
-  ]);
+  const [brandsRes, taxCategoriesRes, categoriesRes, productsRes, outletsRes, menusRes, kitchensRes] =
+    await Promise.all([
+      apiFetch("/v1/brands"),
+      apiFetch("/v1/tax-categories"),
+      apiFetch("/v1/product-categories"),
+      apiFetch("/v1/products"),
+      apiFetch("/v1/outlets"),
+      apiFetch("/v1/menus"),
+      apiFetch("/v1/kitchens"),
+    ]);
   const brands: Brand[] = brandsRes.ok ? await brandsRes.json() : [];
   const taxCategories: TaxCategory[] = taxCategoriesRes.ok ? await taxCategoriesRes.json() : [];
   const categories: ProductCategory[] = categoriesRes.ok ? await categoriesRes.json() : [];
   const products: Product[] = productsRes.ok ? await productsRes.json() : [];
   const outlets: Outlet[] = outletsRes.ok ? await outletsRes.json() : [];
   const menus: Menu[] = menusRes.ok ? await menusRes.json() : [];
+  const kitchens: Kitchen[] = kitchensRes.ok ? await kitchensRes.json() : [];
 
   const brandNameById = new Map(brands.map((b) => [b.id, b.name]));
 
@@ -76,7 +85,14 @@ export default async function ProductsPage() {
       <section className="mt-6">
         <h2 className="text-sm font-semibold text-slate-700">Excel se bulk import karo</h2>
         <div className="mt-2 rounded-lg border border-slate-200 bg-white p-4">
-          <ImportProductsForm brands={brands} categories={categories} taxCategories={taxCategories} outlets={outlets} menus={menus} />
+          <ImportProductsForm
+            brands={brands}
+            categories={categories}
+            taxCategories={taxCategories}
+            outlets={outlets}
+            menus={menus}
+            kitchens={kitchens}
+          />
         </div>
       </section>
 

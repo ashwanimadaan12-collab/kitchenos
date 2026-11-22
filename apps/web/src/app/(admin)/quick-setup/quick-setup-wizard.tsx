@@ -176,6 +176,10 @@ export function QuickSetupWizard() {
         code: codify(`${slug}-k`, 30),
       });
       await call("/kitchens/" + kitchen.id + "/brands", "POST", { brandId: brand.id, isPrimary: true });
+      const station = await call<{ id: string }>(`/kitchens/${kitchen.id}/stations`, "POST", {
+        name: "Main Station",
+        code: codify(`${slug}-st`, 30),
+      });
 
       setProgress("Branch/outlet bana rahe hain...");
       const outlet = await call<{ id: string }>("/outlets", "POST", {
@@ -235,6 +239,7 @@ export function QuickSetupWizard() {
         if (!variantId) continue;
         await call("/menus/" + menu.id + "/items", "POST", { variantId });
         await call(`/pricing/outlets/${outlet.id}/variants/${variantId}`, "PUT", { price: item.price });
+        await call("/recipes", "POST", { variantId, preparationStationId: station.id });
       }
 
       setProgress("Taiyaar hai! Order screen khol rahe hain...");

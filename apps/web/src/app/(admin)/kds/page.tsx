@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { apiFetch } from "@/lib/api";
+import { FixKitchenRoutingButton } from "./fix-kitchen-routing-button";
 
 interface Kitchen {
   id: string;
@@ -15,6 +16,8 @@ export default async function KdsLandingPage() {
     <div>
       <h1 className="text-2xl font-semibold text-slate-900">Kitchen Display</h1>
       <p className="mt-2 text-sm text-slate-600">Pick a station to see its ticket queue.</p>
+
+      <FixKitchenRoutingButton />
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {kitchens.flatMap((kitchen) =>
