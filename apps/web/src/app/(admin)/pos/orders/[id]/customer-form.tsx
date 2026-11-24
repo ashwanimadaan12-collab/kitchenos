@@ -56,8 +56,8 @@ export function CustomerForm({
   if (linkedCustomer) {
     return (
       <div className="flex items-center gap-3 text-sm">
-        <span className="text-slate-600">
-          Customer: <span className="font-medium text-slate-900">{linkedCustomer.name}</span> (
+        <span className="text-ink-2">
+          Customer: <span className="font-medium text-ink">{linkedCustomer.name}</span> (
           {linkedCustomer.loyaltyPoints} loyalty points)
         </span>
         <Button type="button" variant="ghost" isLoading={isLoading} onClick={onRemove}>
@@ -79,7 +79,7 @@ export function CustomerForm({
       <Button type="submit" variant="secondary" isLoading={isLoading} disabled={!customerId}>
         Link
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

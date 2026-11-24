@@ -54,8 +54,8 @@ export function LoyaltyRedemptionForm({
   if (pointsRedeemed > 0) {
     return (
       <div className="flex items-center gap-3 text-sm">
-        <span className="text-slate-600">
-          Loyalty points redeemed: <span className="font-medium text-slate-900">{pointsRedeemed}</span>
+        <span className="text-ink-2">
+          Loyalty points redeemed: <span className="font-medium text-ink">{pointsRedeemed}</span>
         </span>
         <Button type="button" variant="ghost" isLoading={isLoading} onClick={onRemove}>
           Remove
@@ -67,21 +67,21 @@ export function LoyaltyRedemptionForm({
   return (
     <form onSubmit={onApply} className="flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600">Redeem loyalty points ({availablePoints} available)</label>
+        <label className="block text-xs font-medium text-ink-2">Redeem loyalty points ({availablePoints} available)</label>
         <input
           value={points}
           onChange={(e) => setPoints(e.target.value)}
           type="number"
           min={1}
           max={availablePoints}
-          className="mt-1 w-32 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-32 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="0"
         />
       </div>
       <Button type="submit" variant="secondary" isLoading={isLoading} disabled={availablePoints <= 0}>
         Redeem
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

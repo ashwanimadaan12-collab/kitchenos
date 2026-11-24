@@ -36,7 +36,7 @@ export function AddComboItemForm({ comboId, variants }: { comboId: string; varia
   }
 
   if (variants.length === 0) {
-    return <p className="text-sm text-slate-400">Every variant from this brand is already a component.</p>;
+    return <p className="text-sm text-ink-3">Every variant from this brand is already a component.</p>;
   }
 
   return (
@@ -49,17 +49,17 @@ export function AddComboItemForm({ comboId, variants }: { comboId: string; varia
         placeholder="Select a variant to add"
       />
       <div>
-        <label className="block text-xs font-medium text-slate-600">Quantity</label>
+        <label className="block text-xs font-medium text-ink-2">Quantity</label>
         <input
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
-          className="mt-1 w-20 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-20 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <Button type="submit" variant="secondary" isLoading={isLoading}>
         Add item
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

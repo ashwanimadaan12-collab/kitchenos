@@ -43,7 +43,7 @@ export function SetPriceForm({ outletId, availableVariants }: SetPriceFormProps)
   }
 
   if (availableVariants.length === 0) {
-    return <p className="text-sm text-slate-400">Every variant for this brand already has a price override.</p>;
+    return <p className="text-sm text-ink-3">Every variant for this brand already has a price override.</p>;
   }
 
   return (
@@ -56,7 +56,7 @@ export function SetPriceForm({ outletId, availableVariants }: SetPriceFormProps)
         placeholder="Select a variant"
       />
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="override-price">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="override-price">
           Override price
         </label>
         <input
@@ -65,14 +65,14 @@ export function SetPriceForm({ outletId, availableVariants }: SetPriceFormProps)
           inputMode="decimal"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="100.00"
         />
       </div>
       <Button type="submit" isLoading={isLoading} variant="secondary" disabled={!variantId}>
         Set price
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

@@ -28,24 +28,24 @@ export default async function CommunicationsPage() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">Communication templates</h1>
-        <Link href="/communications/messages" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+        <h1 className="text-2xl font-semibold text-ink">Communication templates</h1>
+        <Link href="/communications/messages" className="text-sm font-medium text-ink-2 hover:text-ink">
           View message history →
         </Link>
       </div>
-      <p className="mt-2 text-sm text-slate-600">
+      <p className="mt-2 text-sm text-ink-2">
         Approved WhatsApp/SMS message templates. A brand-specific template takes priority over the
         organization-wide default of the same key and channel — e.g. a Pizza Paproni-branded order confirmation
         instead of the generic one. WhatsApp only delivers pre-approved templates, so{" "}
         <span className="font-medium">Provider template name</span> is required for that channel.
       </p>
 
-      <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+      <div className="mt-4 rounded-lg border border-line bg-surface p-4">
         <CreateTemplateForm brands={brands} />
       </div>
 
-      <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">Key</th>
             <th className="px-4 py-2">Channel</th>
@@ -58,12 +58,12 @@ export default async function CommunicationsPage() {
         </thead>
         <tbody>
           {templates.map((template) => (
-            <tr key={template.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 font-medium text-slate-900">{template.key}</td>
-              <td className="px-4 py-2 text-slate-500">{template.channel}</td>
-              <td className="px-4 py-2 text-slate-500">{template.purpose}</td>
-              <td className="px-4 py-2 text-slate-500">{template.brand?.name ?? "All brands"}</td>
-              <td className="px-4 py-2 text-slate-500">{template.name}</td>
+            <tr key={template.id} className="border-t border-line">
+              <td className="px-4 py-2 font-medium text-ink">{template.key}</td>
+              <td className="px-4 py-2 text-ink-2">{template.channel}</td>
+              <td className="px-4 py-2 text-ink-2">{template.purpose}</td>
+              <td className="px-4 py-2 text-ink-2">{template.brand?.name ?? "All brands"}</td>
+              <td className="px-4 py-2 text-ink-2">{template.name}</td>
               <td className="px-4 py-2">{template.isActive ? "Active" : "Inactive"}</td>
               <td className="px-4 py-2 text-right">
                 <ToggleActiveButton path={`communication-templates/${template.id}`} isActive={template.isActive} />
@@ -72,7 +72,7 @@ export default async function CommunicationsPage() {
           ))}
           {templates.length === 0 ? (
             <tr>
-              <td colSpan={7} className="px-4 py-6 text-center text-slate-400">
+              <td colSpan={7} className="px-4 py-6 text-center text-ink-3">
                 No communication templates yet.
               </td>
             </tr>

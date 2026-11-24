@@ -1,11 +1,128 @@
 @import "tailwindcss";
 
-:root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+/* The shared UI package lives outside this app, so Tailwind is told to scan it
+   too — otherwise the primitives' classes get stripped from the build. */
+@source "../../../../packages/ui/src";
+
+/* ---------------------------------------------------------------------------
+   KitchenOS design tokens — "Counter" direction.
+   One indigo primary, amber reserved for attention (late order, low stock).
+   Light is the default. Dark is opt-in per screen via data-theme="dark" on
+   <html>, which POS and the kitchen screen set so staff aren't staring at a
+   bright white panel through a 12-hour shift.
+   Change a colour here and every screen follows — nothing is hardcoded in pages.
+--------------------------------------------------------------------------- */
+
+@theme {
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+
+  /* surfaces */
+  --color-canvas: #f3f4f8;
+  --color-surface: #ffffff;
+  --color-surface-2: #f7f7fb;
+  --color-line: #e3e5ee;
+  --color-line-strong: #dddfeb;
+
+  /* text */
+  --color-ink: #14142b;
+  --color-ink-2: #5c6080;
+  --color-ink-3: #8a8ea8;
+  --color-ink-invert: #ffffff;
+
+  /* brand */
+  --color-brand: #4338ca;
+  --color-brand-hover: #312ba6;
+  --color-brand-ink: #ffffff;
+  --color-brand-tint: #eeedfb;
+  --color-brand-tint-ink: #2e2a7a;
+  --color-brand-deep: #2e2a7a;
+
+  /* semantic — kept apart from the brand colour on purpose */
+  --color-good: #15803d;
+  --color-good-tint: #f0fdf4;
+  --color-warn: #a96a00;
+  --color-warn-tint: #fff7e6;
+  --color-warn-line: #f5d491;
+  --color-bad: #b42318;
+  --color-bad-tint: #fef2f2;
+
+  /* Sequential single-hue ramp for the demand heatmap — magnitude reads as
+     lightness, never as a change of hue. */
+  --color-heat-1: #eef2ff;
+  --color-heat-2: #e0e7ff;
+  --color-heat-3: #c7d2fe;
+  --color-heat-4: #a5b4fc;
+  --color-heat-5: #818cf8;
+  --color-heat-6: #6366f1;
+  --color-heat-7: #4338ca;
+
+  --radius-card: 18px;
+  --radius-control: 12px;
+}
+
+/* Dark: same tokens, flipped surfaces. The indigo lightens so it stays
+   readable on a dark panel; amber keeps its single job. */
+@layer base {
+  [data-theme="dark"] {
+    color-scheme: dark;
+
+    --color-canvas: #121318;
+    --color-surface: #1b1d26;
+    --color-surface-2: #22252f;
+    --color-line: #2a2d3a;
+    --color-line-strong: #3a3e4d;
+
+    --color-ink: #eceef5;
+    --color-ink-2: #9a9db5;
+    --color-ink-3: #878ba3;
+
+    --color-brand: #6c63f0;
+    --color-brand-hover: #837bf5;
+    --color-brand-tint: #221f45;
+    --color-brand-tint-ink: #c6c1ff;
+    --color-brand-deep: #b4aeff;
+
+    --color-good: #4ade80;
+    --color-good-tint: #11291c;
+    --color-warn: #ffb020;
+    --color-warn-tint: #241a0b;
+    --color-warn-line: #4a3715;
+    --color-bad: #ff8a80;
+    --color-bad-tint: #2a1513;
+
+    /* The same ramp walking up from the dark ground instead of down from white. */
+    --color-heat-1: #1e2235;
+    --color-heat-2: #262b47;
+    --color-heat-3: #2f3660;
+    --color-heat-4: #3b4382;
+    --color-heat-5: #4c52a8;
+    --color-heat-6: #5d60cf;
+    --color-heat-7: #7b78f0;
+  }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Money and counters line up in columns instead of jittering as they change. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

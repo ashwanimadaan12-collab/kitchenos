@@ -45,36 +45,36 @@ export function CreateCustomerForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600">Name</label>
+        <label className="block text-xs font-medium text-ink-2">Name</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Vikram Singh"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Phone</label>
+        <label className="block text-xs font-medium text-ink-2">Phone</label>
         <input
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="+91-9800000000"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Email</label>
+        <label className="block text-xs font-medium text-ink-2">Email</label>
         <input
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="optional"
         />
       </div>
       <Button type="submit" isLoading={isLoading}>
         Add customer
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

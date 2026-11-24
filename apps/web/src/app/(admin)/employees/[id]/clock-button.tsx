@@ -31,7 +31,7 @@ export function ClockButton({ employeeId, isClockedIn }: { employeeId: string; i
       <Button variant={isClockedIn ? "secondary" : "primary"} isLoading={isLoading} onClick={onClick}>
         {isClockedIn ? "Clock out" : "Clock in"}
       </Button>
-      {error ? <p className="mt-1 text-xs text-red-600">{error}</p> : null}
+      {error ? <p className="mt-1 text-xs text-bad">{error}</p> : null}
     </div>
   );
 }

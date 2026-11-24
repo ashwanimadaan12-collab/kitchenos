@@ -10,6 +10,7 @@
 # needed at runtime gets left behind, at the cost of a larger image than a fully-optimized
 # multi-stage prune would produce — a reasonable tradeoff to get a correct image first.
 FROM node:20-alpine AS base
+RUN apk add --no-cache openssl
 RUN corepack enable
 WORKDIR /repo
 
@@ -19,10 +20,15 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm --filter "@kitchenos/api..." run --if-present build
 
 FROM node:20-alpine AS runner
+RUN apk add --no-cache openssl
 RUN corepack enable
 WORKDIR /repo
 ENV NODE_ENV=production
 COPY --from=build /repo /repo
+COPY apps/api/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 EXPOSE 4000
 USER node
-CMD ["node", "apps/api/dist/main.js"]
+# Migrations run here, not in a separate deploy step, so there is never a
+# window where new code is live against an old schema.
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

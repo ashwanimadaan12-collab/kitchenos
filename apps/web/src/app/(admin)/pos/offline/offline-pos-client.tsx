@@ -259,23 +259,23 @@ export function OfflinePosClient() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">Offline sale</h1>
+        <h1 className="text-2xl font-semibold text-ink">Offline sale</h1>
         <span
-          className={`rounded-full px-3 py-1 text-xs font-medium ${isOnline ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}
+          className={`rounded-full px-3 py-1 text-xs font-medium ${isOnline ? "bg-good-tint text-good" : "bg-warn-tint text-warn"}`}
         >
           {isOnline ? "Online" : "Offline"}
         </span>
       </div>
-      <p className="mt-2 text-sm text-slate-600">
+      <p className="mt-2 text-sm text-ink-2">
         Cash-only sales for a single order at a time — no combos, promotions, loyalty redemption or customer
         lookup, since those need live data this screen can&apos;t trust while offline. Prices shown are estimates;
         the real total is calculated when the sale syncs.
       </p>
 
       {queued.length > 0 ? (
-        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+        <div className="mt-4 rounded-lg border border-warn-line bg-warn-tint p-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-amber-900">
+            <p className="text-sm font-medium text-warn">
               {queued.filter((q) => q.status === "pending").length} queued,{" "}
               {queued.filter((q) => q.status === "failed").length} failed
             </p>
@@ -283,7 +283,7 @@ export function OfflinePosClient() {
               Sync now
             </Button>
           </div>
-          <ul className="mt-2 space-y-1 text-xs text-amber-800">
+          <ul className="mt-2 space-y-1 text-xs text-warn">
             {queued.map((q) => (
               <li key={q.clientOrderId}>
                 {q.outletName} — ₹{q.estimatedTotal} ({q.items.length} item{q.items.length === 1 ? "" : "s"})
@@ -294,9 +294,9 @@ export function OfflinePosClient() {
         </div>
       ) : null}
 
-      {message ? <p className="mt-4 rounded-md bg-slate-100 p-3 text-sm text-slate-700">{message}</p> : null}
+      {message ? <p className="mt-4 rounded-md bg-surface-2 p-3 text-sm text-ink">{message}</p> : null}
 
-      <div className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4">
+      <div className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-line bg-surface p-4">
         <Select
           aria-label="Outlet"
           value={outletId}
@@ -311,7 +311,7 @@ export function OfflinePosClient() {
       </div>
 
       {outletId && !reference ? (
-        <p className="mt-4 text-sm text-slate-400">
+        <p className="mt-4 text-sm text-ink-3">
           No menu cached for this outlet yet — open this screen once while online to set up offline sales here.
         </p>
       ) : null}
@@ -319,33 +319,33 @@ export function OfflinePosClient() {
       {reference ? (
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <section>
-            <h2 className="text-sm font-semibold text-slate-700">Menu</h2>
-            <div className="mt-2 max-h-96 overflow-y-auto rounded-lg border border-slate-200 bg-white">
+            <h2 className="text-sm font-semibold text-ink">Menu</h2>
+            <div className="mt-2 max-h-96 overflow-y-auto rounded-lg border border-line bg-surface">
               {reference.items.map((item) => (
                 <button
                   key={item.variantId}
                   type="button"
                   onClick={() => addToCart(item)}
-                  className="flex w-full items-center justify-between border-b border-slate-100 px-4 py-2 text-left text-sm last:border-0 hover:bg-slate-50"
+                  className="flex w-full items-center justify-between border-b border-line px-4 py-2 text-left text-sm last:border-0 hover:bg-surface-2"
                 >
-                  <span className="font-medium text-slate-900">
+                  <span className="font-medium text-ink">
                     {item.productName} — {item.variantName}
                   </span>
-                  <span className="text-slate-500">₹{item.estimatedPrice}</span>
+                  <span className="text-ink-2">₹{item.estimatedPrice}</span>
                 </button>
               ))}
               {reference.items.length === 0 ? (
-                <p className="px-4 py-6 text-center text-sm text-slate-400">No sellable items cached for this outlet.</p>
+                <p className="px-4 py-6 text-center text-sm text-ink-3">No sellable items cached for this outlet.</p>
               ) : null}
             </div>
           </section>
 
           <section>
-            <h2 className="text-sm font-semibold text-slate-700">Cart</h2>
-            <div className="mt-2 rounded-lg border border-slate-200 bg-white">
+            <h2 className="text-sm font-semibold text-ink">Cart</h2>
+            <div className="mt-2 rounded-lg border border-line bg-surface">
               {cart.map((line) => (
-                <div key={line.variantId} className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-2 text-sm last:border-0">
-                  <span className="font-medium text-slate-900">
+                <div key={line.variantId} className="flex items-center justify-between gap-2 border-b border-line px-4 py-2 text-sm last:border-0">
+                  <span className="font-medium text-ink">
                     {line.productName} ({line.variantName})
                   </span>
                   <div className="flex items-center gap-2">
@@ -354,18 +354,18 @@ export function OfflinePosClient() {
                       min={0}
                       value={line.quantity}
                       onChange={(e) => updateQuantity(line.variantId, Number(e.target.value))}
-                      className="w-16 rounded-md border border-slate-200 px-2 py-1 text-sm"
+                      className="w-16 rounded-md border border-line px-2 py-1 text-sm"
                     />
-                    <span className="text-slate-500">₹{(Number(line.estimatedPrice) * line.quantity).toFixed(2)}</span>
+                    <span className="text-ink-2">₹{(Number(line.estimatedPrice) * line.quantity).toFixed(2)}</span>
                   </div>
                 </div>
               ))}
-              {cart.length === 0 ? <p className="px-4 py-6 text-center text-sm text-slate-400">No items added yet.</p> : null}
+              {cart.length === 0 ? <p className="px-4 py-6 text-center text-sm text-ink-3">No items added yet.</p> : null}
             </div>
 
             <div className="mt-3 flex items-end gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-600" htmlFor="cash-tendered">
+                <label className="block text-xs font-medium text-ink-2" htmlFor="cash-tendered">
                   Cash tendered
                 </label>
                 <input
@@ -373,10 +373,10 @@ export function OfflinePosClient() {
                   value={cashTendered}
                   onChange={(e) => setCashTendered(e.target.value)}
                   placeholder={estimatedTotal.toFixed(2)}
-                  className="mt-1 w-32 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+                  className="mt-1 w-32 rounded-md border border-line px-3 py-1.5 text-sm"
                 />
               </div>
-              <p className="pb-2 text-sm text-slate-600">Estimated total: ₹{estimatedTotal.toFixed(2)}</p>
+              <p className="pb-2 text-sm text-ink-2">Estimated total: ₹{estimatedTotal.toFixed(2)}</p>
             </div>
 
             <Button className="mt-3" disabled={cart.length === 0} onClick={completeSale}>

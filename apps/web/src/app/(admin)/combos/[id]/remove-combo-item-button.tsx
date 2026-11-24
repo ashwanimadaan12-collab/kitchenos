@@ -38,7 +38,7 @@ export function RemoveComboItemButton({
       <Button variant="danger" isLoading={isLoading} onClick={onClick} disabled={disabled}>
         Remove
       </Button>
-      {error ? <p className="mt-1 text-xs text-red-600">{error}</p> : null}
+      {error ? <p className="mt-1 text-xs text-bad">{error}</p> : null}
     </div>
   );
 }

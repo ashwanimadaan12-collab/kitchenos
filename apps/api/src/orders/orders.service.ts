@@ -22,6 +22,9 @@ import type { SyncOfflineOrderDto } from "./dto/sync-offline-order.dto.js";
 const { Decimal } = Prisma;
 
 const ORDER_INCLUDE = {
+  // organization is here for the printed bill, which has to carry the
+  // registered business name alongside the brand people know.
+  organization: { select: { name: true, legalName: true } },
   outlet: { include: { brand: { select: { name: true } } } },
   createdBy: { select: { id: true, firstName: true, lastName: true } },
   items: { orderBy: { createdAt: "asc" as const } },

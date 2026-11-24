@@ -35,8 +35,8 @@ export default async function PurchaseOrderDetailPage({ params }: { params: Prom
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Purchase Order #{po.orderNumber}</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold text-ink">Purchase Order #{po.orderNumber}</h1>
+          <p className="mt-1 text-sm text-ink-2">
             {po.supplier.name} → {po.kitchen.name} · {po.status}
           </p>
         </div>
@@ -46,8 +46,8 @@ export default async function PurchaseOrderDetailPage({ params }: { params: Prom
         </div>
       </div>
 
-      <table className="mt-6 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-6 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">Ingredient</th>
             <th className="px-4 py-2">Unit cost</th>
@@ -58,13 +58,13 @@ export default async function PurchaseOrderDetailPage({ params }: { params: Prom
         </thead>
         <tbody>
           {po.items.map((item) => (
-            <tr key={item.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 font-medium text-slate-900">{item.ingredient.name}</td>
-              <td className="px-4 py-2 text-slate-500">₹{item.unitCost}</td>
-              <td className="px-4 py-2 text-slate-500">
+            <tr key={item.id} className="border-t border-line">
+              <td className="px-4 py-2 font-medium text-ink">{item.ingredient.name}</td>
+              <td className="px-4 py-2 text-ink-2">₹{item.unitCost}</td>
+              <td className="px-4 py-2 text-ink-2">
                 {item.quantityOrdered} {item.ingredient.unit}
               </td>
-              <td className="px-4 py-2 text-slate-900">
+              <td className="px-4 py-2 text-ink">
                 {item.quantityReceived} {item.ingredient.unit}
               </td>
               {canReceive ? (
@@ -72,7 +72,7 @@ export default async function PurchaseOrderDetailPage({ params }: { params: Prom
                   {Number(item.quantityReceived) < Number(item.quantityOrdered) ? (
                     <ReceiveItemForm purchaseOrderId={po.id} itemId={item.id} />
                   ) : (
-                    <span className="text-xs text-slate-400">fully received</span>
+                    <span className="text-xs text-ink-3">fully received</span>
                   )}
                 </td>
               ) : null}

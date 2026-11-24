@@ -54,8 +54,8 @@ export function PromotionForm({
   if (appliedCode) {
     return (
       <div className="flex items-center gap-3 text-sm">
-        <span className="text-slate-600">
-          Promotion applied: <span className="font-medium text-slate-900">{appliedCode}</span>
+        <span className="text-ink-2">
+          Promotion applied: <span className="font-medium text-ink">{appliedCode}</span>
         </span>
         <Button type="button" variant="ghost" isLoading={isLoading} onClick={onRemove}>
           Remove
@@ -67,18 +67,18 @@ export function PromotionForm({
   return (
     <form onSubmit={onApply} className="flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600">Promotion code</label>
+        <label className="block text-xs font-medium text-ink-2">Promotion code</label>
         <input
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          className="mt-1 w-40 rounded-md border border-slate-200 px-3 py-1.5 text-sm uppercase"
+          className="mt-1 w-40 rounded-md border border-line px-3 py-1.5 text-sm uppercase"
           placeholder="WELCOME10"
         />
       </div>
       <Button type="submit" variant="secondary" isLoading={isLoading}>
         Apply
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

@@ -36,7 +36,7 @@ export function SetCostForm({ ingredientId, currentCost }: SetCostFormProps) {
         value={costPerUnit}
         onChange={(e) => setCostPerUnit(e.target.value)}
         placeholder="0.0000"
-        className="w-24 rounded-md border border-slate-200 px-2 py-1 text-sm"
+        className="w-24 rounded-md border border-line px-2 py-1 text-sm"
       />
       <Button type="submit" variant="ghost" isLoading={isLoading}>
         Save

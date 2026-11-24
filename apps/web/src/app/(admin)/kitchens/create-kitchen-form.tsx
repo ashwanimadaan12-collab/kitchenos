@@ -43,9 +43,9 @@ export function CreateKitchenForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4">
+    <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3 rounded-lg border border-line bg-surface p-4">
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="kitchen-name">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="kitchen-name">
           Name
         </label>
         <input
@@ -53,12 +53,12 @@ export function CreateKitchenForm() {
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Old Monk Kitchen"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="kitchen-code">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="kitchen-code">
           Code
         </label>
         <input
@@ -66,12 +66,12 @@ export function CreateKitchenForm() {
           required
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase())}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="KOM-01"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="kitchen-kind">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="kitchen-kind">
           Kind
         </label>
         <Select
@@ -85,7 +85,7 @@ export function CreateKitchenForm() {
       <Button type="submit" isLoading={isLoading}>
         Add kitchen
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

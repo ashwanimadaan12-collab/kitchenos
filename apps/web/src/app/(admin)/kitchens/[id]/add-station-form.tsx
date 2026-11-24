@@ -39,7 +39,7 @@ export function AddStationForm({ kitchenId }: { kitchenId: string }) {
   return (
     <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="station-name">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="station-name">
           Station name
         </label>
         <input
@@ -47,12 +47,12 @@ export function AddStationForm({ kitchenId }: { kitchenId: string }) {
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Grill"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="station-code">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="station-code">
           Code
         </label>
         <input
@@ -60,14 +60,14 @@ export function AddStationForm({ kitchenId }: { kitchenId: string }) {
           required
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase())}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="GRILL-01"
         />
       </div>
       <Button type="submit" isLoading={isLoading} variant="secondary">
         Add station
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

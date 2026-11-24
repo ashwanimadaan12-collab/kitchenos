@@ -52,27 +52,27 @@ export default async function LoyaltyPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Loyalty &amp; Rewards</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <h1 className="text-2xl font-semibold text-ink">Loyalty &amp; Rewards</h1>
+      <p className="mt-2 text-sm text-ink-2">
         Points are earned on every paid order, debited the moment they&apos;re redeemed (never changed after the
         fact — every change is an append-only ledger entry), and expire after the configured window if set. A
         customer&apos;s membership tier is derived from lifetime points earned, which redemption never reduces.
       </p>
 
-      <section className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">Program settings</h2>
+      <section className="mt-4 rounded-lg border border-line bg-surface p-4">
+        <h2 className="text-sm font-semibold text-ink">Program settings</h2>
         <div className="mt-3">
           <ProgramSettingsForm settings={settings} />
         </div>
       </section>
 
-      <section className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">Membership tiers</h2>
+      <section className="mt-4 rounded-lg border border-line bg-surface p-4">
+        <h2 className="text-sm font-semibold text-ink">Membership tiers</h2>
         <div className="mt-3">
           <CreateTierForm />
         </div>
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Min. lifetime points</th>
@@ -81,15 +81,15 @@ export default async function LoyaltyPage() {
           </thead>
           <tbody>
             {tiers.map((tier) => (
-              <tr key={tier.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">{tier.name}</td>
-                <td className="px-4 py-2 text-slate-500">{tier.minLifetimePoints}</td>
-                <td className="px-4 py-2 text-slate-500">{tier.earningMultiplier}×</td>
+              <tr key={tier.id} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">{tier.name}</td>
+                <td className="px-4 py-2 text-ink-2">{tier.minLifetimePoints}</td>
+                <td className="px-4 py-2 text-ink-2">{tier.earningMultiplier}×</td>
               </tr>
             ))}
             {tiers.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={3} className="px-4 py-6 text-center text-ink-3">
                   No membership tiers yet — every customer earns at the base rate.
                 </td>
               </tr>
@@ -98,11 +98,11 @@ export default async function LoyaltyPage() {
         </table>
       </section>
 
-      <section className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">Brand-specific rates</h2>
-        <p className="mt-1 text-xs text-slate-500">Leave blank to use the organization default shown above.</p>
-        <table className="mt-3 w-full overflow-hidden rounded-lg border border-slate-200 text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+      <section className="mt-4 rounded-lg border border-line bg-surface p-4">
+        <h2 className="text-sm font-semibold text-ink">Brand-specific rates</h2>
+        <p className="mt-1 text-xs text-ink-2">Leave blank to use the organization default shown above.</p>
+        <table className="mt-3 w-full overflow-hidden rounded-lg border border-line text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Brand</th>
               <th className="px-4 py-2">Earning rate</th>

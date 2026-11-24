@@ -96,7 +96,7 @@ export function CreateRecipeForm({ brands, products, stations, variantIdsWithRec
       <Button type="submit" isLoading={isLoading} disabled={!variantId}>
         Add recipe
       </Button>
-      {error ? <p className="w-full text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="w-full text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

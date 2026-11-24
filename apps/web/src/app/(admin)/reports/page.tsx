@@ -1,4 +1,5 @@
 import { apiFetch } from "@/lib/api";
+import { ExportExcel } from "./export-excel";
 
 interface Brand {
   id: string;
@@ -99,14 +100,17 @@ export default async function ReportsPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Reports</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="font-display text-[28px] font-bold tracking-tight text-ink">Reports</h1>
+        <ExportExcel outletId={outletId} brandId={brandId} />
+      </div>
+      <p className="mt-2 text-sm text-ink-2">
         Computed on demand from PAID orders — open or voided orders never count toward revenue.
       </p>
 
-      <form method="get" className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4">
+      <form method="get" className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-line bg-surface p-4">
         <div>
-          <label className="block text-xs font-medium text-slate-600" htmlFor="from">
+          <label className="block text-xs font-medium text-ink-2" htmlFor="from">
             From
           </label>
           <input
@@ -114,11 +118,11 @@ export default async function ReportsPage({
             type="date"
             name="from"
             defaultValue={from?.slice(0, 10)}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600" htmlFor="to">
+          <label className="block text-xs font-medium text-ink-2" htmlFor="to">
             To
           </label>
           <input
@@ -126,18 +130,18 @@ export default async function ReportsPage({
             type="date"
             name="to"
             defaultValue={to?.slice(0, 10)}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600" htmlFor="brandId">
+          <label className="block text-xs font-medium text-ink-2" htmlFor="brandId">
             Brand
           </label>
           <select
             id="brandId"
             name="brandId"
             defaultValue={brandId ?? ""}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           >
             <option value="">All brands</option>
             {brands.map((b) => (
@@ -148,14 +152,14 @@ export default async function ReportsPage({
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600" htmlFor="outletId">
+          <label className="block text-xs font-medium text-ink-2" htmlFor="outletId">
             Outlet
           </label>
           <select
             id="outletId"
             name="outletId"
             defaultValue={outletId ?? ""}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           >
             <option value="">All outlets</option>
             {outlets.map((o) => (
@@ -166,14 +170,14 @@ export default async function ReportsPage({
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600" htmlFor="channel">
+          <label className="block text-xs font-medium text-ink-2" htmlFor="channel">
             Channel
           </label>
           <select
             id="channel"
             name="channel"
             defaultValue={channel ?? ""}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           >
             <option value="">All channels</option>
             <option value="DINE_IN">Dine-in</option>
@@ -181,7 +185,7 @@ export default async function ReportsPage({
             <option value="TAKEAWAY">Takeaway</option>
           </select>
         </div>
-        <button type="submit" className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-700">
+        <button type="submit" className="rounded-md bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-hover">
           Apply filters
         </button>
       </form>
@@ -206,9 +210,9 @@ export default async function ReportsPage({
       ) : null}
 
       <section className="mt-8">
-        <h2 className="text-sm font-semibold text-slate-700">Revenue by day</h2>
-        <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <h2 className="text-sm font-semibold text-ink">Revenue by day</h2>
+        <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Date</th>
               <th className="px-4 py-2">Revenue</th>
@@ -216,14 +220,14 @@ export default async function ReportsPage({
           </thead>
           <tbody>
             {byDay.map((row) => (
-              <tr key={row.date} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">{row.date}</td>
-                <td className="px-4 py-2 text-slate-900">₹{row.total}</td>
+              <tr key={row.date} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">{row.date}</td>
+                <td className="px-4 py-2 text-ink">₹{row.total}</td>
               </tr>
             ))}
             {byDay.length === 0 ? (
               <tr>
-                <td colSpan={2} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={2} className="px-4 py-6 text-center text-ink-3">
                   No revenue in this range.
                 </td>
               </tr>
@@ -234,9 +238,9 @@ export default async function ReportsPage({
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <section>
-          <h2 className="text-sm font-semibold text-slate-700">Top-selling products</h2>
-          <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-            <thead className="bg-slate-50 text-left text-slate-500">
+          <h2 className="text-sm font-semibold text-ink">Top-selling products</h2>
+          <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+            <thead className="bg-surface-2 text-left text-ink-2">
               <tr>
                 <th className="px-4 py-2">Product</th>
                 <th className="px-4 py-2">Qty</th>
@@ -245,17 +249,17 @@ export default async function ReportsPage({
             </thead>
             <tbody>
               {topProducts.map((row) => (
-                <tr key={row.variantId} className="border-t border-slate-100">
-                  <td className="px-4 py-2 font-medium text-slate-900">
+                <tr key={row.variantId} className="border-t border-line">
+                  <td className="px-4 py-2 font-medium text-ink">
                     {row.productName} ({row.variantName})
                   </td>
-                  <td className="px-4 py-2 text-slate-500">{row.quantitySold}</td>
-                  <td className="px-4 py-2 text-slate-900">₹{row.revenue}</td>
+                  <td className="px-4 py-2 text-ink-2">{row.quantitySold}</td>
+                  <td className="px-4 py-2 text-ink">₹{row.revenue}</td>
                 </tr>
               ))}
               {topProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-4 py-6 text-center text-slate-400">
+                  <td colSpan={3} className="px-4 py-6 text-center text-ink-3">
                     Nothing sold in this range.
                   </td>
                 </tr>
@@ -265,9 +269,9 @@ export default async function ReportsPage({
         </section>
 
         <section>
-          <h2 className="text-sm font-semibold text-slate-700">Combo performance</h2>
-          <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-            <thead className="bg-slate-50 text-left text-slate-500">
+          <h2 className="text-sm font-semibold text-ink">Combo performance</h2>
+          <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+            <thead className="bg-surface-2 text-left text-ink-2">
               <tr>
                 <th className="px-4 py-2">Combo</th>
                 <th className="px-4 py-2">Sold</th>
@@ -276,15 +280,15 @@ export default async function ReportsPage({
             </thead>
             <tbody>
               {comboPerformance.map((row) => (
-                <tr key={row.comboId} className="border-t border-slate-100">
-                  <td className="px-4 py-2 font-medium text-slate-900">{row.name}</td>
-                  <td className="px-4 py-2 text-slate-500">{row.instancesSold}</td>
-                  <td className="px-4 py-2 text-slate-900">₹{row.revenue}</td>
+                <tr key={row.comboId} className="border-t border-line">
+                  <td className="px-4 py-2 font-medium text-ink">{row.name}</td>
+                  <td className="px-4 py-2 text-ink-2">{row.instancesSold}</td>
+                  <td className="px-4 py-2 text-ink">₹{row.revenue}</td>
                 </tr>
               ))}
               {comboPerformance.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-4 py-6 text-center text-slate-400">
+                  <td colSpan={3} className="px-4 py-6 text-center text-ink-3">
                     No combos sold in this range.
                   </td>
                 </tr>
@@ -294,9 +298,9 @@ export default async function ReportsPage({
         </section>
 
         <section>
-          <h2 className="text-sm font-semibold text-slate-700">Payment methods</h2>
-          <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-            <thead className="bg-slate-50 text-left text-slate-500">
+          <h2 className="text-sm font-semibold text-ink">Payment methods</h2>
+          <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+            <thead className="bg-surface-2 text-left text-ink-2">
               <tr>
                 <th className="px-4 py-2">Method</th>
                 <th className="px-4 py-2">Count</th>
@@ -305,15 +309,15 @@ export default async function ReportsPage({
             </thead>
             <tbody>
               {paymentMethods.map((row) => (
-                <tr key={row.method} className="border-t border-slate-100">
-                  <td className="px-4 py-2 font-medium text-slate-900">{row.method}</td>
-                  <td className="px-4 py-2 text-slate-500">{row.count}</td>
-                  <td className="px-4 py-2 text-slate-900">₹{row.amount}</td>
+                <tr key={row.method} className="border-t border-line">
+                  <td className="px-4 py-2 font-medium text-ink">{row.method}</td>
+                  <td className="px-4 py-2 text-ink-2">{row.count}</td>
+                  <td className="px-4 py-2 text-ink">₹{row.amount}</td>
                 </tr>
               ))}
               {paymentMethods.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-4 py-6 text-center text-slate-400">
+                  <td colSpan={3} className="px-4 py-6 text-center text-ink-3">
                     No payments in this range.
                   </td>
                 </tr>
@@ -323,9 +327,9 @@ export default async function ReportsPage({
         </section>
 
         <section>
-          <h2 className="text-sm font-semibold text-slate-700">Promotion usage</h2>
-          <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-            <thead className="bg-slate-50 text-left text-slate-500">
+          <h2 className="text-sm font-semibold text-ink">Promotion usage</h2>
+          <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+            <thead className="bg-surface-2 text-left text-ink-2">
               <tr>
                 <th className="px-4 py-2">Code</th>
                 <th className="px-4 py-2">Redemptions</th>
@@ -334,15 +338,15 @@ export default async function ReportsPage({
             </thead>
             <tbody>
               {promotionUsage.map((row) => (
-                <tr key={row.promotionId} className="border-t border-slate-100">
-                  <td className="px-4 py-2 font-medium text-slate-900">{row.code}</td>
-                  <td className="px-4 py-2 text-slate-500">{row.redemptions}</td>
-                  <td className="px-4 py-2 text-slate-900">₹{row.totalDiscount}</td>
+                <tr key={row.promotionId} className="border-t border-line">
+                  <td className="px-4 py-2 font-medium text-ink">{row.code}</td>
+                  <td className="px-4 py-2 text-ink-2">{row.redemptions}</td>
+                  <td className="px-4 py-2 text-ink">₹{row.totalDiscount}</td>
                 </tr>
               ))}
               {promotionUsage.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-4 py-6 text-center text-slate-400">
+                  <td colSpan={3} className="px-4 py-6 text-center text-ink-3">
                     No promotions redeemed in this range.
                   </td>
                 </tr>
@@ -357,9 +361,9 @@ export default async function ReportsPage({
 
 function SummaryCard({ label, value, emphasize }: { label: string; value: string; emphasize?: boolean }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <div className="text-xs text-slate-500">{label}</div>
-      <div className={`mt-1 text-lg font-semibold ${emphasize ? "text-slate-900" : "text-slate-700"}`}>{value}</div>
+    <div className="rounded-lg border border-line bg-surface p-4">
+      <div className="text-xs text-ink-2">{label}</div>
+      <div className={`mt-1 text-lg font-semibold ${emphasize ? "text-ink" : "text-ink"}`}>{value}</div>
     </div>
   );
 }

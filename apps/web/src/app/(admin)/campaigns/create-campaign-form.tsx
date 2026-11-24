@@ -110,16 +110,16 @@ export function CreateCampaignForm({ segments, templates }: CreateCampaignFormPr
     <form onSubmit={onSubmit} className="space-y-3">
       <div className="flex flex-wrap items-end gap-3">
         <div>
-          <label className="block text-xs font-medium text-slate-600">Campaign name</label>
+          <label className="block text-xs font-medium text-ink-2">Campaign name</label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 w-56 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-56 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="Weekend Combo Blast"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Type</label>
+          <label className="block text-xs font-medium text-ink-2">Type</label>
           <Select
             aria-label="Campaign type"
             value={type}
@@ -129,7 +129,7 @@ export function CreateCampaignForm({ segments, templates }: CreateCampaignFormPr
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Segment</label>
+          <label className="block text-xs font-medium text-ink-2">Segment</label>
           <Select
             aria-label="Segment"
             value={segmentId}
@@ -140,36 +140,36 @@ export function CreateCampaignForm({ segments, templates }: CreateCampaignFormPr
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Schedule for (optional)</label>
+          <label className="block text-xs font-medium text-ink-2">Schedule for (optional)</label>
           <input
             value={scheduledFor}
             onChange={(e) => setScheduledFor(e.target.value)}
             type="datetime-local"
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Budget (₹, optional)</label>
+          <label className="block text-xs font-medium text-ink-2">Budget (₹, optional)</label>
           <input
             value={budgetAmount}
             onChange={(e) => setBudgetAmount(e.target.value)}
-            className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="No cap"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Conversion window (days)</label>
+          <label className="block text-xs font-medium text-ink-2">Conversion window (days)</label>
           <input
             value={conversionWindowDays}
             onChange={(e) => setConversionWindowDays(e.target.value)}
             type="number"
-            className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
           />
         </div>
       </div>
 
       <div>
-        <label className="block text-xs font-medium text-slate-600">
+        <label className="block text-xs font-medium text-ink-2">
           Variants — an A/B test if more than one, traffic must sum to 100%. A control-group variant sends no
           message at all, so its lift over the real sends can be measured (Prompt 19).
         </label>
@@ -179,11 +179,11 @@ export function CreateCampaignForm({ segments, templates }: CreateCampaignFormPr
               <input
                 value={variant.name}
                 onChange={(e) => updateVariant(index, { name: e.target.value })}
-                className="w-16 rounded-md border border-slate-200 px-2 py-1.5 text-sm"
+                className="w-16 rounded-md border border-line px-2 py-1.5 text-sm"
                 placeholder="A"
               />
               {variant.isControl ? (
-                <div className="flex w-64 items-center rounded-md border border-dashed border-slate-300 px-2 py-1.5 text-sm text-slate-400">
+                <div className="flex w-64 items-center rounded-md border border-dashed border-line-strong px-2 py-1.5 text-sm text-ink-3">
                   Control group — no message sent
                 </div>
               ) : (
@@ -200,10 +200,10 @@ export function CreateCampaignForm({ segments, templates }: CreateCampaignFormPr
                 value={variant.trafficPercent}
                 onChange={(e) => updateVariant(index, { trafficPercent: e.target.value })}
                 type="number"
-                className="w-24 rounded-md border border-slate-200 px-2 py-1.5 text-sm"
+                className="w-24 rounded-md border border-line px-2 py-1.5 text-sm"
                 placeholder="%"
               />
-              <label className="flex items-center gap-1 whitespace-nowrap text-xs text-slate-600">
+              <label className="flex items-center gap-1 whitespace-nowrap text-xs text-ink-2">
                 <input
                   type="checkbox"
                   checked={variant.isControl}
@@ -228,7 +228,7 @@ export function CreateCampaignForm({ segments, templates }: CreateCampaignFormPr
         <Button type="submit" isLoading={isLoading}>
           Create campaign
         </Button>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? <p className="text-sm text-bad">{error}</p> : null}
       </div>
     </form>
   );

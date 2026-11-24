@@ -53,12 +53,12 @@ export function CreateExpenseForm({ outlets }: { outlets: { id: string; name: st
   return (
     <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600">Date</label>
+        <label className="block text-xs font-medium text-ink-2">Date</label>
         <input
           type="date"
           value={incurredAt}
           onChange={(e) => setIncurredAt(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <Select
@@ -75,27 +75,27 @@ export function CreateExpenseForm({ outlets }: { outlets: { id: string; name: st
         placeholder="Organization-wide"
       />
       <div>
-        <label className="block text-xs font-medium text-slate-600">Description</label>
+        <label className="block text-xs font-medium text-ink-2">Description</label>
         <input
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="optional"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Amount</label>
+        <label className="block text-xs font-medium text-ink-2">Amount</label>
         <input
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="2500.00"
         />
       </div>
       <Button type="submit" isLoading={isLoading}>
         Record expense
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

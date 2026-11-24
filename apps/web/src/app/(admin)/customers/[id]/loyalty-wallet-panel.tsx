@@ -65,59 +65,59 @@ export function LoyaltyWalletPanel({
   }
 
   return (
-    <div className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
-      <h2 className="text-sm font-semibold text-slate-900">Loyalty wallet</h2>
+    <div className="mt-6 rounded-lg border border-line bg-surface p-4">
+      <h2 className="text-sm font-semibold text-ink">Loyalty wallet</h2>
       <div className="mt-3 flex flex-wrap gap-6 text-sm">
         <div>
-          <div className="text-xs text-slate-500">Balance</div>
-          <div className="text-lg font-semibold text-slate-900">{wallet.balance} pts</div>
+          <div className="text-xs text-ink-2">Balance</div>
+          <div className="text-lg font-semibold text-ink">{wallet.balance} pts</div>
         </div>
         <div>
-          <div className="text-xs text-slate-500">Lifetime points</div>
-          <div className="text-lg font-semibold text-slate-900">{wallet.lifetimePoints} pts</div>
+          <div className="text-xs text-ink-2">Lifetime points</div>
+          <div className="text-lg font-semibold text-ink">{wallet.lifetimePoints} pts</div>
         </div>
         <div>
-          <div className="text-xs text-slate-500">Tier</div>
-          <div className="text-lg font-semibold text-slate-900">{wallet.tier?.name ?? "—"}</div>
+          <div className="text-xs text-ink-2">Tier</div>
+          <div className="text-lg font-semibold text-ink">{wallet.tier?.name ?? "—"}</div>
         </div>
         {wallet.nextTier ? (
           <div>
-            <div className="text-xs text-slate-500">Next tier</div>
-            <div className="text-sm text-slate-600">
+            <div className="text-xs text-ink-2">Next tier</div>
+            <div className="text-sm text-ink-2">
               {wallet.nextTier.pointsNeeded} pts to {wallet.nextTier.name}
             </div>
           </div>
         ) : null}
       </div>
 
-      <form onSubmit={onSubmit} className="mt-4 flex flex-wrap items-end gap-3 border-t border-slate-100 pt-4">
+      <form onSubmit={onSubmit} className="mt-4 flex flex-wrap items-end gap-3 border-t border-line pt-4">
         <div>
-          <label className="block text-xs font-medium text-slate-600">Manual adjustment</label>
+          <label className="block text-xs font-medium text-ink-2">Manual adjustment</label>
           <input
             value={points}
             onChange={(e) => setPoints(e.target.value)}
             type="number"
-            className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="±points"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Note</label>
+          <label className="block text-xs font-medium text-ink-2">Note</label>
           <input
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            className="mt-1 w-56 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-56 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="Reason for the adjustment"
           />
         </div>
         <Button type="submit" variant="secondary" isLoading={isLoading}>
           Apply
         </Button>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? <p className="text-sm text-bad">{error}</p> : null}
       </form>
 
-      <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-4 w-full overflow-hidden rounded-lg border border-line text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">When</th>
             <th className="px-4 py-2">Type</th>
@@ -128,20 +128,20 @@ export function LoyaltyWalletPanel({
         </thead>
         <tbody>
           {transactions.map((tx) => (
-            <tr key={tx.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 text-slate-500">{new Date(tx.createdAt).toLocaleString()}</td>
-              <td className="px-4 py-2 text-slate-900">{tx.type}</td>
-              <td className={`px-4 py-2 ${tx.points >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+            <tr key={tx.id} className="border-t border-line">
+              <td className="px-4 py-2 text-ink-2">{new Date(tx.createdAt).toLocaleString()}</td>
+              <td className="px-4 py-2 text-ink">{tx.type}</td>
+              <td className={`px-4 py-2 ${tx.points >= 0 ? "text-good" : "text-bad"}`}>
                 {tx.points >= 0 ? "+" : ""}
                 {tx.points}
               </td>
-              <td className="px-4 py-2 text-slate-500">{tx.balanceAfter}</td>
-              <td className="px-4 py-2 text-slate-500">{tx.note ?? "—"}</td>
+              <td className="px-4 py-2 text-ink-2">{tx.balanceAfter}</td>
+              <td className="px-4 py-2 text-ink-2">{tx.note ?? "—"}</td>
             </tr>
           ))}
           {transactions.length === 0 ? (
             <tr>
-              <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+              <td colSpan={5} className="px-4 py-6 text-center text-ink-3">
                 No loyalty activity yet.
               </td>
             </tr>

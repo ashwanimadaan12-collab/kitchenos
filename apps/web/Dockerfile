@@ -6,6 +6,7 @@
 # whole monorepo copied in, just the standalone output plus the static assets and public files
 # Next deliberately leaves out of it.
 FROM node:20-alpine AS base
+RUN apk add --no-cache openssl
 RUN corepack enable
 WORKDIR /repo
 

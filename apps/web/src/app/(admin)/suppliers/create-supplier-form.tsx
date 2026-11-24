@@ -48,7 +48,7 @@ export function CreateSupplierForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="supplier-name">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="supplier-name">
           Name
         </label>
         <input
@@ -56,34 +56,34 @@ export function CreateSupplierForm() {
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Fresh Farms Produce"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="supplier-contact">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="supplier-contact">
           Contact name
         </label>
         <input
           id="supplier-contact"
           value={contactName}
           onChange={(e) => setContactName(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="supplier-phone">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="supplier-phone">
           Phone
         </label>
         <input
           id="supplier-phone"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="supplier-lead-time">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="supplier-lead-time">
           Lead time (days)
         </label>
         <input
@@ -91,13 +91,13 @@ export function CreateSupplierForm() {
           type="number"
           value={leadTimeDays}
           onChange={(e) => setLeadTimeDays(e.target.value)}
-          className="mt-1 w-20 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-20 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <Button type="submit" isLoading={isLoading}>
         Add supplier
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

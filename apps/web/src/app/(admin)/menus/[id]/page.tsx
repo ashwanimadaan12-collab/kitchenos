@@ -49,17 +49,17 @@ export default async function MenuDetailPage({ params }: { params: Promise<{ id:
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">{menu.name}</h1>
+        <h1 className="text-2xl font-semibold text-ink">{menu.name}</h1>
         <ToggleActiveButton path={`menus/${menu.id}`} isActive={menu.isActive} />
       </div>
 
       <section className="mt-8">
-        <h2 className="text-lg font-medium text-slate-900">Items</h2>
-        <div className="mt-3 rounded-lg border border-slate-200 bg-white p-4">
+        <h2 className="text-lg font-medium text-ink">Items</h2>
+        <div className="mt-3 rounded-lg border border-line bg-surface p-4">
           <AddItemForm menuId={menu.id} availableVariants={availableVariants} />
         </div>
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Product</th>
               <th className="px-4 py-2">Variant</th>
@@ -68,9 +68,9 @@ export default async function MenuDetailPage({ params }: { params: Promise<{ id:
           </thead>
           <tbody>
             {menu.items.map((item) => (
-              <tr key={item.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">{item.variant.product.name}</td>
-                <td className="px-4 py-2 text-slate-500">{item.variant.name}</td>
+              <tr key={item.id} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">{item.variant.product.name}</td>
+                <td className="px-4 py-2 text-ink-2">{item.variant.name}</td>
                 <td className="px-4 py-2 text-right">
                   <UnmapButton path={`menus/${menu.id}/items/${item.variant.id}`} />
                 </td>
@@ -78,7 +78,7 @@ export default async function MenuDetailPage({ params }: { params: Promise<{ id:
             ))}
             {menu.items.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={3} className="px-4 py-6 text-center text-ink-3">
                   No items yet.
                 </td>
               </tr>
@@ -88,12 +88,12 @@ export default async function MenuDetailPage({ params }: { params: Promise<{ id:
       </section>
 
       <section className="mt-8">
-        <h2 className="text-lg font-medium text-slate-900">Outlets running this menu</h2>
-        <div className="mt-3 rounded-lg border border-slate-200 bg-white p-4">
+        <h2 className="text-lg font-medium text-ink">Outlets running this menu</h2>
+        <div className="mt-3 rounded-lg border border-line bg-surface p-4">
           <AssignOutletForm menuId={menu.id} availableOutlets={availableOutlets} />
         </div>
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Outlet</th>
               <th className="px-4 py-2">Channel</th>
@@ -102,9 +102,9 @@ export default async function MenuDetailPage({ params }: { params: Promise<{ id:
           </thead>
           <tbody>
             {menu.outletMenus.map((mapping) => (
-              <tr key={mapping.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">{mapping.outlet.name}</td>
-                <td className="px-4 py-2 text-slate-500">{mapping.channel}</td>
+              <tr key={mapping.id} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">{mapping.outlet.name}</td>
+                <td className="px-4 py-2 text-ink-2">{mapping.channel}</td>
                 <td className="px-4 py-2 text-right">
                   <UnmapButton path={`menus/${menu.id}/outlets/${mapping.outlet.id}`} />
                 </td>
@@ -112,7 +112,7 @@ export default async function MenuDetailPage({ params }: { params: Promise<{ id:
             ))}
             {menu.outletMenus.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={3} className="px-4 py-6 text-center text-ink-3">
                   Not assigned to any outlet yet.
                 </td>
               </tr>

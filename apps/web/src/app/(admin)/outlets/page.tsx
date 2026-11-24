@@ -24,8 +24,8 @@ export default async function OutletsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Outlets</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <h1 className="text-2xl font-semibold text-ink">Outlets</h1>
+      <p className="mt-2 text-sm text-ink-2">
         Points of sale, each belonging to exactly one brand. Open an outlet to assign the kitchen(s) that
         fulfil it.
       </p>
@@ -34,8 +34,8 @@ export default async function OutletsPage() {
         <CreateOutletForm brands={brands} />
       </div>
 
-      <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">Name</th>
             <th className="px-4 py-2">Code</th>
@@ -47,16 +47,16 @@ export default async function OutletsPage() {
         </thead>
         <tbody>
           {outlets.map((outlet) => (
-            <tr key={outlet.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 font-medium text-slate-900">
+            <tr key={outlet.id} className="border-t border-line">
+              <td className="px-4 py-2 font-medium text-ink">
                 <Link href={`/outlets/${outlet.id}`} className="hover:underline">
                   {outlet.name}
                 </Link>
               </td>
-              <td className="px-4 py-2 text-slate-500">{outlet.code}</td>
-              <td className="px-4 py-2 text-slate-500">{outlet.brand.name}</td>
-              <td className="px-4 py-2 text-slate-500">{outlet.city ?? "—"}</td>
-              <td className="px-4 py-2 text-slate-500">
+              <td className="px-4 py-2 text-ink-2">{outlet.code}</td>
+              <td className="px-4 py-2 text-ink-2">{outlet.brand.name}</td>
+              <td className="px-4 py-2 text-ink-2">{outlet.city ?? "—"}</td>
+              <td className="px-4 py-2 text-ink-2">
                 {outlet.outletKitchens.map((ok) => ok.kitchen.name).join(", ") || "—"}
               </td>
               <td className="px-4 py-2">{outlet.isActive ? "Active" : "Inactive"}</td>
@@ -64,7 +64,7 @@ export default async function OutletsPage() {
           ))}
           {outlets.length === 0 ? (
             <tr>
-              <td colSpan={6} className="px-4 py-6 text-center text-slate-400">
+              <td colSpan={6} className="px-4 py-6 text-center text-ink-3">
                 No outlets yet.
               </td>
             </tr>

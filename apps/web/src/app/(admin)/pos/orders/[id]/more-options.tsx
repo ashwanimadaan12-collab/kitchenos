@@ -10,7 +10,7 @@ export function MoreOptions({ children }: { children: React.ReactNode }) {
       <button
         type="button"
         onClick={() => setIsOpen((v) => !v)}
-        className="text-sm font-medium text-slate-500 hover:text-slate-900"
+        className="text-sm font-medium text-ink-2 hover:text-ink"
       >
         {isOpen ? "− Kam options dikhao" : "+ Combo / Discount / Loyalty / Customer"}
       </button>

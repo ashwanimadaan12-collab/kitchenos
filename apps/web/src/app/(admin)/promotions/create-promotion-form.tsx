@@ -60,11 +60,11 @@ export function CreatePromotionForm({ brands }: { brands: { id: string; name: st
   return (
     <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600">Code</label>
+        <label className="block text-xs font-medium text-ink-2">Code</label>
         <input
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          className="mt-1 w-32 rounded-md border border-slate-200 px-3 py-1.5 text-sm uppercase"
+          className="mt-1 w-32 rounded-md border border-line px-3 py-1.5 text-sm uppercase"
           placeholder="WELCOME10"
         />
       </div>
@@ -85,45 +85,45 @@ export function CreatePromotionForm({ brands }: { brands: { id: string; name: st
         ]}
       />
       <div>
-        <label className="block text-xs font-medium text-slate-600">Value</label>
+        <label className="block text-xs font-medium text-ink-2">Value</label>
         <input
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder={type === "PERCENTAGE" ? "10" : "50.00"}
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Min. subtotal</label>
+        <label className="block text-xs font-medium text-ink-2">Min. subtotal</label>
         <input
           value={minOrderSubtotal}
           onChange={(e) => setMinOrderSubtotal(e.target.value)}
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="optional"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Max discount</label>
+        <label className="block text-xs font-medium text-ink-2">Max discount</label>
         <input
           value={maxDiscountAmount}
           onChange={(e) => setMaxDiscountAmount(e.target.value)}
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="optional"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Usage limit</label>
+        <label className="block text-xs font-medium text-ink-2">Usage limit</label>
         <input
           value={usageLimit}
           onChange={(e) => setUsageLimit(e.target.value)}
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="unlimited"
         />
       </div>
       <Button type="submit" isLoading={isLoading}>
         Add promotion
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

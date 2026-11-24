@@ -37,9 +37,9 @@ export function CreateBrandForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4">
+    <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3 rounded-lg border border-line bg-surface p-4">
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="brand-name">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="brand-name">
           Name
         </label>
         <input
@@ -47,12 +47,12 @@ export function CreateBrandForm() {
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Cafe Old Monk"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="brand-slug">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="brand-slug">
           Slug
         </label>
         <input
@@ -60,14 +60,14 @@ export function CreateBrandForm() {
           required
           value={slug}
           onChange={(e) => setSlug(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="cafe-old-monk"
         />
       </div>
       <Button type="submit" isLoading={isLoading}>
         Add brand
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

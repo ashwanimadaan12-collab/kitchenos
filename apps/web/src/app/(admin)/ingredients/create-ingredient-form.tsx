@@ -66,7 +66,7 @@ export function CreateIngredientForm({ suppliers }: { suppliers: { id: string; n
   return (
     <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="ingredient-name">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="ingredient-name">
           Name
         </label>
         <input
@@ -74,12 +74,12 @@ export function CreateIngredientForm({ suppliers }: { suppliers: { id: string; n
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Mozzarella Cheese"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="ingredient-sku">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="ingredient-sku">
           SKU
         </label>
         <input
@@ -87,24 +87,24 @@ export function CreateIngredientForm({ suppliers }: { suppliers: { id: string; n
           required
           value={sku}
           onChange={(e) => setSku(e.target.value.toUpperCase())}
-          className="mt-1 w-32 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-32 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="ING-MOZZ"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="ingredient-kind">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="ingredient-kind">
           Kind
         </label>
         <Select id="ingredient-kind" value={kind} onChange={(e) => setKind(e.target.value)} options={KIND_OPTIONS} />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="ingredient-unit">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="ingredient-unit">
           Unit
         </label>
         <Select id="ingredient-unit" value={unit} onChange={(e) => setUnit(e.target.value)} options={UNIT_OPTIONS} />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="ingredient-supplier">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="ingredient-supplier">
           Preferred supplier
         </label>
         <Select
@@ -116,7 +116,7 @@ export function CreateIngredientForm({ suppliers }: { suppliers: { id: string; n
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="ingredient-shelf-life">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="ingredient-shelf-life">
           Shelf life (days)
         </label>
         <input
@@ -125,13 +125,13 @@ export function CreateIngredientForm({ suppliers }: { suppliers: { id: string; n
           value={shelfLifeDays}
           onChange={(e) => setShelfLifeDays(e.target.value)}
           placeholder="doesn't expire"
-          className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <Button type="submit" isLoading={isLoading}>
         Add ingredient
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

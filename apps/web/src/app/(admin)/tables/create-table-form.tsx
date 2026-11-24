@@ -47,7 +47,7 @@ export function CreateTableForm({ outlets }: { outlets: { id: string; name: stri
         placeholder="Select an outlet"
       />
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="table-name">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="table-name">
           Table name
         </label>
         <input
@@ -55,13 +55,13 @@ export function CreateTableForm({ outlets }: { outlets: { id: string; name: stri
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="T1"
-          className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <Button type="submit" isLoading={isLoading}>
         Add table
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

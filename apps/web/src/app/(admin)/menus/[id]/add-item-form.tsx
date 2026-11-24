@@ -41,7 +41,7 @@ export function AddItemForm({ menuId, availableVariants }: AddItemFormProps) {
   }
 
   if (availableVariants.length === 0) {
-    return <p className="text-sm text-slate-400">Every variant for this brand is already on the menu.</p>;
+    return <p className="text-sm text-ink-3">Every variant for this brand is already on the menu.</p>;
   }
 
   return (
@@ -56,7 +56,7 @@ export function AddItemForm({ menuId, availableVariants }: AddItemFormProps) {
       <Button type="submit" isLoading={isLoading} variant="secondary" disabled={!variantId}>
         Add to menu
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

@@ -37,29 +37,29 @@ export default async function KdsStationBoardPage({ params }: { params: Promise<
   return (
     <div>
       <LiveRefresh stationId={stationId} />
-      <h1 className="text-2xl font-semibold text-slate-900">Kitchen Display</h1>
+      <h1 className="text-2xl font-semibold text-ink">Kitchen Display</h1>
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {COLUMNS.map((column) => {
           const columnTickets = tickets.filter((t) => t.status === column.status);
           return (
             <div key={column.status}>
-              <h2 className="text-sm font-semibold text-slate-700">
+              <h2 className="text-sm font-semibold text-ink">
                 {column.title} ({columnTickets.length})
               </h2>
               <div className="mt-2 space-y-3">
                 {columnTickets.map((ticket) => {
                   const next = NEXT_STATUS[ticket.status];
                   return (
-                    <div key={ticket.id} className="rounded-lg border border-slate-200 bg-white p-3 text-sm">
-                      <p className="font-medium text-slate-900">
+                    <div key={ticket.id} className="rounded-lg border border-line bg-surface p-3 text-sm">
+                      <p className="font-medium text-ink">
                         {ticket.orderItem.productName} — {ticket.orderItem.variantName}
                       </p>
-                      <p className="text-slate-500">Qty {ticket.orderItem.quantity}</p>
-                      <p className="mt-1 text-xs text-slate-400">
+                      <p className="text-ink-2">Qty {ticket.orderItem.quantity}</p>
+                      <p className="mt-1 text-xs text-ink-3">
                         #{ticket.orderItem.order.orderNumber} · {ticket.orderItem.order.outlet.name} ·{" "}
                         {ticket.orderItem.order.channel}
                       </p>
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-ink-3">
                         Queued {new Date(ticket.queuedAt).toLocaleTimeString()}
                       </p>
                       <div className="mt-2">
@@ -68,7 +68,7 @@ export default async function KdsStationBoardPage({ params }: { params: Promise<
                     </div>
                   );
                 })}
-                {columnTickets.length === 0 ? <p className="text-sm text-slate-400">Nothing here.</p> : null}
+                {columnTickets.length === 0 ? <p className="text-sm text-ink-3">Nothing here.</p> : null}
               </div>
             </div>
           );

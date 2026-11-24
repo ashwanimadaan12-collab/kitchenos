@@ -15,6 +15,10 @@ export const envSchema = z.object({
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
   LOGIN_LOCKOUT_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
   LOGIN_LOCKOUT_MINUTES: z.coerce.number().int().positive().default(15),
+  /** Minutes east of UTC used to bucket reports by hour and day of week.
+   *  Defaults to +05:30 (IST) because an Indian restaurant's "9pm rush" has to
+   *  land in the 9pm bucket, not in UTC's 15:30 one. */
+  REPORT_UTC_OFFSET_MINUTES: z.coerce.number().int().min(-720).max(840).default(330),
   // Communication provider credentials are all optional: without them, that channel's adapter
   // marks messages FAILED with a clear reason instead of sending — a missing integration must
   // never crash the app or block an order from being created.

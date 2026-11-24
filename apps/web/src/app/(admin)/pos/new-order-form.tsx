@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Select } from "@kitchenos/ui";
+import { Button, Chip, ChipGroup } from "@kitchenos/ui";
 
-const CHANNEL_OPTIONS = [
+const CHANNELS = [
   { value: "DINE_IN", label: "Dine-in" },
+  { value: "TAKEAWAY", label: "Parcel" },
   { value: "DELIVERY", label: "Delivery" },
-  { value: "TAKEAWAY", label: "Takeaway" },
 ];
 
 export function NewOrderForm({ outlets }: { outlets: { id: string; name: string }[] }) {
@@ -20,7 +20,7 @@ export function NewOrderForm({ outlets }: { outlets: { id: string; name: string 
 
   async function startOrder() {
     if (!outletId) {
-      setError("Outlet chuno.");
+      setError("Pehle outlet pe tap karo.");
       return;
     }
     setError(null);
@@ -35,7 +35,7 @@ export function NewOrderForm({ outlets }: { outlets: { id: string; name: string 
         const body = (await res.json().catch(() => ({ message: "Order shuru nahi ho paaya." }))) as {
           message?: string;
         };
-        setError(body.message ?? "Order shuru nahi ho paaya.");
+        setError(body.message ?? "Order shuru nahi ho paaya. Dobara koshish karo.");
         return;
       }
       const order = await res.json();
@@ -46,26 +46,42 @@ export function NewOrderForm({ outlets }: { outlets: { id: string; name: string 
   }
 
   return (
-    <div className="flex flex-wrap items-end gap-3">
+    <div className="flex flex-col gap-4">
+      {/* Chips instead of dropdowns: the choice is visible without opening anything,
+          and each one is a full-size tap target. */}
       {!singleOutletId ? (
-        <Select
-          aria-label="Outlet"
-          value={outletId}
-          onChange={(e) => setOutletId(e.target.value)}
-          options={outlets.map((o) => ({ value: o.id, label: o.name }))}
-          placeholder="Outlet chuno"
-        />
+        <div>
+          <p className="mb-2 text-xs font-bold uppercase tracking-wide text-ink-2">Outlet</p>
+          <ChipGroup label="Outlet">
+            {outlets.map((o) => (
+              <Chip key={o.id} selected={outletId === o.id} onSelect={() => setOutletId(o.id)}>
+                {o.name}
+              </Chip>
+            ))}
+          </ChipGroup>
+        </div>
       ) : null}
-      <Select aria-label="Channel" value={channel} onChange={(e) => setChannel(e.target.value)} options={CHANNEL_OPTIONS} />
-      <button
-        type="button"
-        onClick={startOrder}
-        disabled={isLoading}
-        className="rounded-xl bg-slate-900 px-6 py-3 text-base font-semibold text-white hover:bg-slate-700 disabled:opacity-60"
-      >
-        {isLoading ? "…" : "+ Naya Order"}
-      </button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+
+      <div>
+        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-ink-2">Order kis type ka hai</p>
+        <ChipGroup label="Order type">
+          {CHANNELS.map((c) => (
+            <Chip key={c.value} selected={channel === c.value} onSelect={() => setChannel(c.value)}>
+              {c.label}
+            </Chip>
+          ))}
+        </ChipGroup>
+      </div>
+
+      <Button type="button" size="lg" onClick={startOrder} isLoading={isLoading} className="self-start">
+        Order shuru karo
+      </Button>
+
+      {error ? (
+        <p className="rounded-control bg-bad-tint px-4 py-3 text-sm font-semibold text-bad" role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

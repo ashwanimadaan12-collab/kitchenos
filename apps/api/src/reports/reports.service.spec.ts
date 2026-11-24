@@ -1,4 +1,5 @@
 import { Test } from "@nestjs/testing";
+import { ConfigService } from "@nestjs/config";
 import { Prisma, PrismaService } from "@kitchenos/database";
 import { CostingService } from "../costing/costing.service.js";
 import { ReportsService } from "./reports.service.js";
@@ -38,6 +39,9 @@ describe("ReportsService", () => {
         ReportsService,
         { provide: PrismaService, useValue: prisma },
         { provide: CostingService, useValue: costing },
+        // The real default: +05:30, so these tests assert what an Indian
+        // outlet's owner would see rather than UTC buckets.
+        { provide: ConfigService, useValue: { get: () => 330 } },
       ],
     }).compile();
     service = module.get(ReportsService);
@@ -203,7 +207,7 @@ describe("ReportsService", () => {
   });
 
   describe("hourlyDistribution", () => {
-    it("groups PAID orders by UTC hour and fills every hour", async () => {
+    it("groups PAID orders by the outlet's own hour, not UTC, and fills every hour", async () => {
       prisma.order.findMany.mockResolvedValue([
         { closedAt: new Date("2026-01-01T23:30:00.000Z"), total: D("100") },
         { closedAt: new Date("2026-01-02T23:45:00.000Z"), total: D("40") },
@@ -212,7 +216,10 @@ describe("ReportsService", () => {
       const result = await service.hourlyDistribution("org_1", {});
 
       expect(result).toHaveLength(24);
-      expect(result[23]).toEqual({ hour: 23, orderCount: 2, revenue: D("140"), averageOrderValue: D("70") });
+      // Both closed at 23:30-ish UTC, which is 05:00-ish the next morning in IST.
+      // Bucketing on UTC reported these as a late-night rush that never happened.
+      expect(result[5]).toEqual({ hour: 5, orderCount: 2, revenue: D("140"), averageOrderValue: D("70") });
+      expect(result[23]).toEqual({ hour: 23, orderCount: 0, revenue: D("0"), averageOrderValue: D("0") });
       expect(result[0]).toEqual({ hour: 0, orderCount: 0, revenue: D("0"), averageOrderValue: D("0") });
     });
   });
@@ -220,16 +227,16 @@ describe("ReportsService", () => {
   describe("demandHeatmap", () => {
     it("returns only the weekday x hour cells that actually had an order", async () => {
       prisma.order.findMany.mockResolvedValue([
-        { closedAt: new Date("2026-01-04T10:00:00.000Z"), total: D("100") }, // Sunday 10:00
-        { closedAt: new Date("2026-01-04T10:30:00.000Z"), total: D("20") }, // Sunday 10:00 again
-        { closedAt: new Date("2026-01-05T09:00:00.000Z"), total: D("75") }, // Monday 09:00
+        { closedAt: new Date("2026-01-04T10:00:00.000Z"), total: D("100") }, // Sunday 15:30 IST
+        { closedAt: new Date("2026-01-04T10:20:00.000Z"), total: D("20") }, // Sunday 15:50 IST, same cell
+        { closedAt: new Date("2026-01-05T09:00:00.000Z"), total: D("75") }, // Monday 14:30 IST
       ]);
 
       const result = await service.demandHeatmap("org_1", {});
 
       expect(result).toEqual([
-        { dayOfWeek: 0, hour: 10, orderCount: 2, revenue: D("120") },
-        { dayOfWeek: 1, hour: 9, orderCount: 1, revenue: D("75") },
+        { dayOfWeek: 0, hour: 15, orderCount: 2, revenue: D("120") },
+        { dayOfWeek: 1, hour: 14, orderCount: 1, revenue: D("75") },
       ]);
     });
   });
@@ -237,16 +244,16 @@ describe("ReportsService", () => {
   describe("peakAndSlowHours", () => {
     it("picks the busiest and quietest hour among hours that had at least one order", async () => {
       prisma.order.findMany.mockResolvedValue([
-        { closedAt: new Date("2026-01-04T12:00:00.000Z"), total: D("10") },
-        { closedAt: new Date("2026-01-04T12:30:00.000Z"), total: D("10") },
-        { closedAt: new Date("2026-01-04T12:45:00.000Z"), total: D("10") },
-        { closedAt: new Date("2026-01-05T03:00:00.000Z"), total: D("5") },
+        { closedAt: new Date("2026-01-04T12:00:00.000Z"), total: D("10") }, // 17:30 IST
+        { closedAt: new Date("2026-01-04T12:10:00.000Z"), total: D("10") }, // 17:40 IST
+        { closedAt: new Date("2026-01-04T12:20:00.000Z"), total: D("10") }, // 17:50 IST
+        { closedAt: new Date("2026-01-05T03:00:00.000Z"), total: D("5") }, // 08:30 IST
       ]);
 
       const result = await service.peakAndSlowHours("org_1", {});
 
-      expect(result.peakHour).toEqual({ hour: 12, orderCount: 3, revenue: D("30") });
-      expect(result.slowHour).toEqual({ hour: 3, orderCount: 1, revenue: D("5") });
+      expect(result.peakHour).toEqual({ hour: 17, orderCount: 3, revenue: D("30") });
+      expect(result.slowHour).toEqual({ hour: 8, orderCount: 1, revenue: D("5") });
     });
 
     it("returns nulls when there are no orders at all in the window", async () => {
@@ -359,7 +366,7 @@ describe("ReportsService", () => {
 
       expect(result).toHaveLength(1);
       expect(result[0]!.dayOfWeek).toBe(0);
-      expect(result[0]!.hour).toBe(10);
+      expect(result[0]!.hour).toBe(15);
       expect(result[0]!.suggestion).toMatch(/volume-driving discount/);
     });
 

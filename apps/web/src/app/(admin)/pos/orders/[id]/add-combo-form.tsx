@@ -38,7 +38,7 @@ export function AddComboForm({ orderId, availableCombos }: { orderId: string; av
   if (availableCombos.length === 0) return null;
 
   return (
-    <form onSubmit={onSubmit} className="mt-3 flex flex-wrap items-end gap-3 border-t border-slate-100 pt-3">
+    <form onSubmit={onSubmit} className="mt-3 flex flex-wrap items-end gap-3 border-t border-line pt-3">
       <Select
         aria-label="Combo"
         value={comboId}
@@ -47,19 +47,19 @@ export function AddComboForm({ orderId, availableCombos }: { orderId: string; av
         placeholder="Select a combo"
       />
       <div>
-        <label className="block text-xs font-medium text-slate-600">Qty</label>
+        <label className="block text-xs font-medium text-ink-2">Qty</label>
         <input
           type="number"
           min={1}
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
-          className="mt-1 w-20 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-20 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <Button type="submit" variant="secondary" isLoading={isLoading} disabled={!comboId}>
         Add combo
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

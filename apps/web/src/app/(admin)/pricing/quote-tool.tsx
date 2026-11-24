@@ -62,7 +62,7 @@ export function QuoteTool({ variants, outlets }: QuoteToolProps) {
     <div>
       <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
         <div>
-          <label className="block text-xs font-medium text-slate-600">Variant</label>
+          <label className="block text-xs font-medium text-ink-2">Variant</label>
           <Select
             aria-label="Variant"
             value={variantId}
@@ -73,7 +73,7 @@ export function QuoteTool({ variants, outlets }: QuoteToolProps) {
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Outlet</label>
+          <label className="block text-xs font-medium text-ink-2">Outlet</label>
           <Select
             aria-label="Outlet"
             value={outletId}
@@ -84,7 +84,7 @@ export function QuoteTool({ variants, outlets }: QuoteToolProps) {
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Channel</label>
+          <label className="block text-xs font-medium text-ink-2">Channel</label>
           <Select
             aria-label="Channel"
             value={channel}
@@ -98,59 +98,59 @@ export function QuoteTool({ variants, outlets }: QuoteToolProps) {
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">At (blank = now)</label>
-          <input value={at} onChange={(e) => setAt(e.target.value)} type="datetime-local" className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm" />
+          <label className="block text-xs font-medium text-ink-2">At (blank = now)</label>
+          <input value={at} onChange={(e) => setAt(e.target.value)} type="datetime-local" className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm" />
         </div>
         <Button type="submit" isLoading={isLoading} variant="secondary">
           Get quote
         </Button>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? <p className="text-sm text-bad">{error}</p> : null}
       </form>
 
       {result ? (
-        <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm">
-          <div className="text-lg font-semibold text-slate-900">Final price: ₹{result.finalPrice}</div>
-          <div className="mt-1 text-slate-600">
+        <div className="mt-4 rounded-lg border border-line bg-surface-2 p-4 text-sm">
+          <div className="text-lg font-semibold text-ink">Final price: ₹{result.finalPrice}</div>
+          <div className="mt-1 text-ink-2">
             Selected rule: {result.selectedRule ? `${result.selectedRule.label} (${result.selectedRule.category})` : "none — plain base price"}
           </div>
           <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
             <div>
-              <dt className="text-xs text-slate-500">Base price</dt>
-              <dd className="font-medium text-slate-900">₹{result.breakdown.basePrice}</dd>
+              <dt className="text-xs text-ink-2">Base price</dt>
+              <dd className="font-medium text-ink">₹{result.breakdown.basePrice}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-500">Outlet override</dt>
-              <dd className="font-medium text-slate-900">{result.breakdown.outletOverride ? `₹${result.breakdown.outletOverride}` : "—"}</dd>
+              <dt className="text-xs text-ink-2">Outlet override</dt>
+              <dd className="font-medium text-ink">{result.breakdown.outletOverride ? `₹${result.breakdown.outletOverride}` : "—"}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-500">After rule</dt>
-              <dd className="font-medium text-slate-900">₹{result.breakdown.afterRule}</dd>
+              <dt className="text-xs text-ink-2">After rule</dt>
+              <dd className="font-medium text-ink">₹{result.breakdown.afterRule}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-500">MRP ceiling</dt>
-              <dd className="font-medium text-slate-900">
+              <dt className="text-xs text-ink-2">MRP ceiling</dt>
+              <dd className="font-medium text-ink">
                 {result.breakdown.mrpCeiling ? `₹${result.breakdown.mrpCeiling}${result.breakdown.mrpCapped ? " (capped)" : ""}` : "—"}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-500">Cost</dt>
-              <dd className="font-medium text-slate-900">{result.breakdown.cost ? `₹${result.breakdown.cost}` : "unknown"}</dd>
+              <dt className="text-xs text-ink-2">Cost</dt>
+              <dd className="font-medium text-ink">{result.breakdown.cost ? `₹${result.breakdown.cost}` : "unknown"}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-500">Min. margin</dt>
-              <dd className="font-medium text-slate-900">
+              <dt className="text-xs text-ink-2">Min. margin</dt>
+              <dd className="font-medium text-ink">
                 {result.breakdown.minimumMarginPercent}%{result.breakdown.marginFloorApplied ? " (floor applied)" : ""}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-500">Valid from</dt>
-              <dd className="font-medium text-slate-900">
+              <dt className="text-xs text-ink-2">Valid from</dt>
+              <dd className="font-medium text-ink">
                 {result.validity?.validFrom ? new Date(result.validity.validFrom).toLocaleDateString() : "—"}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-500">Valid to</dt>
-              <dd className="font-medium text-slate-900">
+              <dt className="text-xs text-ink-2">Valid to</dt>
+              <dd className="font-medium text-ink">
                 {result.validity?.validTo ? new Date(result.validity.validTo).toLocaleDateString() : "—"}
               </dd>
             </div>
