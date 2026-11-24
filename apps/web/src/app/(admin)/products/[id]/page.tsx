@@ -34,8 +34,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">{product.name}</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold text-ink">{product.name}</h1>
+          <p className="mt-1 text-sm text-ink-2">
             {product.sku} · {product.category.name}
             {product.taxCategory ? ` · ${product.taxCategory.name} (${product.taxCategory.ratePercent}%)` : ""}
           </p>
@@ -44,15 +44,15 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       </div>
 
       <section className="mt-8">
-        <h2 className="text-lg font-medium text-slate-900">Variants</h2>
-        <p className="mt-1 text-sm text-slate-500">
+        <h2 className="text-lg font-medium text-ink">Variants</h2>
+        <p className="mt-1 text-sm text-ink-2">
           Each variant is independently sellable and priced — outlets can override its base price.
         </p>
-        <div className="mt-3 rounded-lg border border-slate-200 bg-white p-4">
+        <div className="mt-3 rounded-lg border border-line bg-surface p-4">
           <AddVariantForm productId={product.id} />
         </div>
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">SKU</th>
@@ -65,17 +65,17 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </thead>
           <tbody>
             {product.variants.map((variant) => (
-              <tr key={variant.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">{variant.name}</td>
-                <td className="px-4 py-2 text-slate-500">{variant.sku}</td>
-                <td className="px-4 py-2 text-slate-500">₹{variant.basePrice}</td>
-                <td className="px-4 py-2 text-slate-500">
+              <tr key={variant.id} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">{variant.name}</td>
+                <td className="px-4 py-2 text-ink-2">{variant.sku}</td>
+                <td className="px-4 py-2 text-ink-2">₹{variant.basePrice}</td>
+                <td className="px-4 py-2 text-ink-2">
                   {variant.kind === "RETAIL_COMMODITY" ? "Retail commodity" : "Prepared food"}
                 </td>
-                <td className="px-4 py-2 text-slate-500">{variant.printedMRP ? `₹${variant.printedMRP}` : "—"}</td>
+                <td className="px-4 py-2 text-ink-2">{variant.printedMRP ? `₹${variant.printedMRP}` : "—"}</td>
                 <td className="px-4 py-2">{variant.isActive ? "Active" : "Inactive"}</td>
                 <td className="px-4 py-2 text-right">
-                  <Link href={`/pricing?variantId=${variant.id}`} className="text-sm font-medium text-slate-600 hover:text-slate-900">
+                  <Link href={`/pricing?variantId=${variant.id}`} className="text-sm font-medium text-ink-2 hover:text-ink">
                     Pricing rules →
                   </Link>
                 </td>

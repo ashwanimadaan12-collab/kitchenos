@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isValidFssai, isValidGstin, normalizeFssai, normalizeGstin } from "./gstin.js";
 import { moneySchema } from "./money.schemas.js";
 
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -41,17 +42,50 @@ export const updateKitchenStationSchema = createKitchenStationSchema.partial().e
 });
 export type UpdateKitchenStationDto = z.infer<typeof updateKitchenStationSchema>;
 
+/**
+ * Spaces and dashes are stripped and letters upper-cased before checking, so a
+ * number copied off a certificate in groups is accepted as typed. An empty box
+ * becomes null, which means "this outlet has no GSTIN" — a real answer for a
+ * business below the registration threshold, and the only way to remove one
+ * that was entered by mistake.
+ */
+const gstinField = z
+  .string()
+  .transform(normalizeGstin)
+  .refine((v) => v === "" || isValidGstin(v), {
+    message: "Ye GSTIN sahi nahi hai — 15 character ka hota hai aur aakhri digit baaki se match karta hai",
+  })
+  .transform((v) => (v === "" ? null : v))
+  .nullable()
+  .optional();
+
+const fssaiField = z
+  .string()
+  .transform(normalizeFssai)
+  .refine((v) => v === "" || isValidFssai(v), { message: "FSSAI licence 14 ank ka hota hai" })
+  .transform((v) => (v === "" ? null : v))
+  .nullable()
+  .optional();
+
 export const createOutletSchema = z.object({
   brandId: z.string().min(1),
   name: z.string().min(1).max(120),
   code: z.string().min(1).max(30).regex(CODE_RE, "code must be uppercase alphanumeric, e.g. OM-CP-01"),
   address: z.string().max(255).optional(),
   city: z.string().max(100).optional(),
+  gstin: gstinField,
+  fssaiLicence: fssaiField,
 });
 export type CreateOutletDto = z.infer<typeof createOutletSchema>;
 
 export const updateOutletSchema = createOutletSchema.omit({ brandId: true }).partial().extend({
   isActive: z.boolean().optional(),
+  // These four accept null as well as being omitted, because the two mean
+  // different things on a PATCH: an omitted key leaves the value alone, null
+  // clears it. Without null an outlet could never stop printing a GSTIN it no
+  // longer holds — the field would be set for good once saved.
+  address: createOutletSchema.shape.address.nullable(),
+  city: createOutletSchema.shape.city.nullable(),
 });
 export type UpdateOutletDto = z.infer<typeof updateOutletSchema>;
 

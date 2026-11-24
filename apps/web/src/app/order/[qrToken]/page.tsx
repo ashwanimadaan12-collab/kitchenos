@@ -22,11 +22,11 @@ export default async function PublicOrderPage({ params }: { params: Promise<{ qr
   const menu: PublicMenu = await res.json();
 
   return (
-    <div className="mx-auto min-h-screen max-w-lg bg-slate-50 p-4 pb-32">
+    <div className="mx-auto min-h-screen max-w-lg bg-surface-2 p-4 pb-32">
       <div className="mb-4 text-center">
-        <p className="text-sm text-slate-500">{menu.brandName}</p>
-        <h1 className="text-xl font-semibold text-slate-900">{menu.outletName}</h1>
-        <p className="text-sm text-slate-500">{menu.tableName}</p>
+        <p className="text-sm text-ink-2">{menu.brandName}</p>
+        <h1 className="text-xl font-semibold text-ink">{menu.outletName}</h1>
+        <p className="text-sm text-ink-2">{menu.tableName}</p>
       </div>
       <OrderClient qrToken={qrToken} items={menu.items} />
     </div>

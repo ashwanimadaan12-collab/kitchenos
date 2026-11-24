@@ -81,16 +81,16 @@ export function CreateSegmentForm({ brands, loyaltyTiers }: CreateSegmentFormPro
   return (
     <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600">Segment name</label>
+        <label className="block text-xs font-medium text-ink-2">Segment name</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 w-48 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-48 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Lapsed regulars"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Type</label>
+        <label className="block text-xs font-medium text-ink-2">Type</label>
         <Select
           aria-label="Segment type"
           value={type}
@@ -102,29 +102,29 @@ export function CreateSegmentForm({ brands, loyaltyTiers }: CreateSegmentFormPro
 
       {type === "INACTIVE" ? (
         <div>
-          <label className="block text-xs font-medium text-slate-600">Inactive days</label>
+          <label className="block text-xs font-medium text-ink-2">Inactive days</label>
           <input
             value={inactiveDays}
             onChange={(e) => setInactiveDays(e.target.value)}
             type="number"
-            className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
           />
         </div>
       ) : null}
       {type === "REPEAT" ? (
         <div>
-          <label className="block text-xs font-medium text-slate-600">Min. paid orders</label>
+          <label className="block text-xs font-medium text-ink-2">Min. paid orders</label>
           <input
             value={minOrders}
             onChange={(e) => setMinOrders(e.target.value)}
             type="number"
-            className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
           />
         </div>
       ) : null}
       {type === "BRAND_PREFERENCE" ? (
         <div>
-          <label className="block text-xs font-medium text-slate-600">Brand</label>
+          <label className="block text-xs font-medium text-ink-2">Brand</label>
           <Select
             aria-label="Brand"
             value={brandId}
@@ -137,18 +137,18 @@ export function CreateSegmentForm({ brands, loyaltyTiers }: CreateSegmentFormPro
       ) : null}
       {type === "TOTAL_SPEND" ? (
         <div>
-          <label className="block text-xs font-medium text-slate-600">Min. total spend (₹)</label>
+          <label className="block text-xs font-medium text-ink-2">Min. total spend (₹)</label>
           <input
             value={minSpend}
             onChange={(e) => setMinSpend(e.target.value)}
-            className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="5000"
           />
         </div>
       ) : null}
       {type === "LOYALTY_TIER" ? (
         <div>
-          <label className="block text-xs font-medium text-slate-600">Loyalty tier</label>
+          <label className="block text-xs font-medium text-ink-2">Loyalty tier</label>
           <Select
             aria-label="Loyalty tier"
             value={loyaltyTierId}
@@ -163,7 +163,7 @@ export function CreateSegmentForm({ brands, loyaltyTiers }: CreateSegmentFormPro
       <Button type="submit" isLoading={isLoading}>
         Add segment
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

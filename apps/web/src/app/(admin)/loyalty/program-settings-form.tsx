@@ -55,62 +55,62 @@ export function ProgramSettingsForm({ settings }: { settings: Settings }) {
   return (
     <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600">Earning rate (pts per ₹100)</label>
+        <label className="block text-xs font-medium text-ink-2">Earning rate (pts per ₹100)</label>
         <input
           value={earningRate}
           onChange={(e) => setEarningRate(e.target.value)}
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Redemption ratio (₹ per pt)</label>
+        <label className="block text-xs font-medium text-ink-2">Redemption ratio (₹ per pt)</label>
         <input
           value={redemptionRatio}
           onChange={(e) => setRedemptionRatio(e.target.value)}
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Welcome bonus</label>
+        <label className="block text-xs font-medium text-ink-2">Welcome bonus</label>
         <input
           value={welcomeBonusPoints}
           onChange={(e) => setWelcomeBonusPoints(e.target.value)}
           type="number"
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Referral bonus</label>
+        <label className="block text-xs font-medium text-ink-2">Referral bonus</label>
         <input
           value={referralBonusPoints}
           onChange={(e) => setReferralBonusPoints(e.target.value)}
           type="number"
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Birthday bonus</label>
+        <label className="block text-xs font-medium text-ink-2">Birthday bonus</label>
         <input
           value={birthdayBonusPoints}
           onChange={(e) => setBirthdayBonusPoints(e.target.value)}
           type="number"
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Points expire after (days)</label>
+        <label className="block text-xs font-medium text-ink-2">Points expire after (days)</label>
         <input
           value={pointsExpiryDays}
           onChange={(e) => setPointsExpiryDays(e.target.value)}
           type="number"
           placeholder="never"
-          className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <Button type="submit" isLoading={isLoading}>
         Save settings
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

@@ -43,7 +43,7 @@ export function AddIngredientForm({ recipeId, availableIngredients }: AddIngredi
   }
 
   if (availableIngredients.length === 0) {
-    return <p className="text-sm text-slate-400">Every ingredient is already on this recipe.</p>;
+    return <p className="text-sm text-ink-3">Every ingredient is already on this recipe.</p>;
   }
 
   return (
@@ -56,7 +56,7 @@ export function AddIngredientForm({ recipeId, availableIngredients }: AddIngredi
         placeholder="Select an ingredient"
       />
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="ingredient-quantity">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="ingredient-quantity">
           Quantity
         </label>
         <input
@@ -65,14 +65,14 @@ export function AddIngredientForm({ recipeId, availableIngredients }: AddIngredi
           inputMode="decimal"
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="0.300"
         />
       </div>
       <Button type="submit" isLoading={isLoading} variant="secondary" disabled={!ingredientId}>
         Add to recipe
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

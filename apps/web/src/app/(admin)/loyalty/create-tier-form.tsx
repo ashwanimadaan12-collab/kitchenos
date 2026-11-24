@@ -47,36 +47,36 @@ export function CreateTierForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600">Tier name</label>
+        <label className="block text-xs font-medium text-ink-2">Tier name</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 w-32 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-32 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Gold"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Min. lifetime points</label>
+        <label className="block text-xs font-medium text-ink-2">Min. lifetime points</label>
         <input
           value={minLifetimePoints}
           onChange={(e) => setMinLifetimePoints(e.target.value)}
           type="number"
-          className="mt-1 w-32 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-32 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="500"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Earning multiplier</label>
+        <label className="block text-xs font-medium text-ink-2">Earning multiplier</label>
         <input
           value={earningMultiplier}
           onChange={(e) => setEarningMultiplier(e.target.value)}
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <Button type="submit" isLoading={isLoading}>
         Add tier
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

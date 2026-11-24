@@ -132,13 +132,13 @@ export default async function GrowthDashboardPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Growth Dashboard</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <h1 className="text-2xl font-semibold text-ink">Growth Dashboard</h1>
+      <p className="mt-2 text-sm text-ink-2">
         Every figure below reconciles with the underlying orders, inventory and financial reports — drill down by
         brand, outlet, kitchen or channel using the filters.
       </p>
 
-      <form method="get" className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4">
+      <form method="get" className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-line bg-surface p-4">
         <Field id="from" label="From" defaultValue={from?.slice(0, 10)} type="date" />
         <Field id="to" label="To" defaultValue={to?.slice(0, 10)} type="date" />
         <SelectField id="brandId" label="Brand" defaultValue={brandId} placeholder="All brands" options={brands.map((b) => ({ value: b.id, label: b.name }))} />
@@ -155,13 +155,13 @@ export default async function GrowthDashboardPage({
             { value: "TAKEAWAY", label: "Takeaway" },
           ]}
         />
-        <button type="submit" className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-700">
+        <button type="submit" className="rounded-md bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-hover">
           Apply filters
         </button>
       </form>
 
       {!dashboard ? (
-        <p className="mt-6 text-sm text-red-600">Could not load the dashboard.</p>
+        <p className="mt-6 text-sm text-bad">Could not load the dashboard.</p>
       ) : (
         <>
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
@@ -174,27 +174,27 @@ export default async function GrowthDashboardPage({
           </div>
 
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="rounded-lg border border-slate-200 bg-white p-4">
-              <div className="text-xs text-slate-500">WhatsApp campaign ROI</div>
-              <div className="mt-1 text-lg font-semibold text-slate-900">
+            <div className="rounded-lg border border-line bg-surface p-4">
+              <div className="text-xs text-ink-2">WhatsApp campaign ROI</div>
+              <div className="mt-1 text-lg font-semibold text-ink">
                 {dashboard.campaignROI.whatsapp.roiPercent !== null ? `${dashboard.campaignROI.whatsapp.roiPercent}%` : "—"}
               </div>
-              <div className="mt-1 text-xs text-slate-500">
+              <div className="mt-1 text-xs text-ink-2">
                 Revenue ₹{dashboard.campaignROI.whatsapp.revenue} − cost ₹{dashboard.campaignROI.whatsapp.cost}
               </div>
             </div>
-            <div className="rounded-lg border border-slate-200 bg-white p-4">
-              <div className="text-xs text-slate-500">SMS campaign ROI</div>
-              <div className="mt-1 text-lg font-semibold text-slate-900">—</div>
-              <div className="mt-1 text-xs text-slate-500">{dashboard.campaignROI.sms.note}</div>
+            <div className="rounded-lg border border-line bg-surface p-4">
+              <div className="text-xs text-ink-2">SMS campaign ROI</div>
+              <div className="mt-1 text-lg font-semibold text-ink">—</div>
+              <div className="mt-1 text-xs text-ink-2">{dashboard.campaignROI.sms.note}</div>
             </div>
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
             <section>
-              <h2 className="text-sm font-semibold text-slate-700">Brand profitability</h2>
-              <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-                <thead className="bg-slate-50 text-left text-slate-500">
+              <h2 className="text-sm font-semibold text-ink">Brand profitability</h2>
+              <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+                <thead className="bg-surface-2 text-left text-ink-2">
                   <tr>
                     <th className="px-4 py-2">Brand</th>
                     <th className="px-4 py-2">Revenue</th>
@@ -205,12 +205,12 @@ export default async function GrowthDashboardPage({
                 </thead>
                 <tbody>
                   {dashboard.brandProfitability.map((row) => (
-                    <tr key={row.brandId} className="border-t border-slate-100">
-                      <td className="px-4 py-2 font-medium text-slate-900">{row.brandName}</td>
-                      <td className="px-4 py-2 text-slate-900">₹{row.revenue}</td>
-                      <td className="px-4 py-2 text-slate-500">₹{row.cogs}</td>
-                      <td className="px-4 py-2 text-slate-500">₹{row.expenses}</td>
-                      <td className="px-4 py-2 font-medium text-slate-900">₹{row.profit}</td>
+                    <tr key={row.brandId} className="border-t border-line">
+                      <td className="px-4 py-2 font-medium text-ink">{row.brandName}</td>
+                      <td className="px-4 py-2 text-ink">₹{row.revenue}</td>
+                      <td className="px-4 py-2 text-ink-2">₹{row.cogs}</td>
+                      <td className="px-4 py-2 text-ink-2">₹{row.expenses}</td>
+                      <td className="px-4 py-2 font-medium text-ink">₹{row.profit}</td>
                     </tr>
                   ))}
                   {dashboard.brandProfitability.length === 0 ? <EmptyRow colSpan={5} /> : null}
@@ -219,9 +219,9 @@ export default async function GrowthDashboardPage({
             </section>
 
             <section>
-              <h2 className="text-sm font-semibold text-slate-700">Outlet profitability</h2>
-              <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-                <thead className="bg-slate-50 text-left text-slate-500">
+              <h2 className="text-sm font-semibold text-ink">Outlet profitability</h2>
+              <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+                <thead className="bg-surface-2 text-left text-ink-2">
                   <tr>
                     <th className="px-4 py-2">Outlet</th>
                     <th className="px-4 py-2">Revenue</th>
@@ -232,12 +232,12 @@ export default async function GrowthDashboardPage({
                 </thead>
                 <tbody>
                   {dashboard.outletProfitability.map((row) => (
-                    <tr key={row.outletId} className="border-t border-slate-100">
-                      <td className="px-4 py-2 font-medium text-slate-900">{row.outletName}</td>
-                      <td className="px-4 py-2 text-slate-900">₹{row.revenue}</td>
-                      <td className="px-4 py-2 text-slate-500">₹{row.cogs}</td>
-                      <td className="px-4 py-2 text-slate-500">₹{row.expenses}</td>
-                      <td className="px-4 py-2 font-medium text-slate-900">₹{row.profit}</td>
+                    <tr key={row.outletId} className="border-t border-line">
+                      <td className="px-4 py-2 font-medium text-ink">{row.outletName}</td>
+                      <td className="px-4 py-2 text-ink">₹{row.revenue}</td>
+                      <td className="px-4 py-2 text-ink-2">₹{row.cogs}</td>
+                      <td className="px-4 py-2 text-ink-2">₹{row.expenses}</td>
+                      <td className="px-4 py-2 font-medium text-ink">₹{row.profit}</td>
                     </tr>
                   ))}
                   {dashboard.outletProfitability.length === 0 ? <EmptyRow colSpan={5} /> : null}
@@ -246,9 +246,9 @@ export default async function GrowthDashboardPage({
             </section>
 
             <section>
-              <h2 className="text-sm font-semibold text-slate-700">Product performance</h2>
-              <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-                <thead className="bg-slate-50 text-left text-slate-500">
+              <h2 className="text-sm font-semibold text-ink">Product performance</h2>
+              <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+                <thead className="bg-surface-2 text-left text-ink-2">
                   <tr>
                     <th className="px-4 py-2">Product</th>
                     <th className="px-4 py-2">Qty</th>
@@ -257,12 +257,12 @@ export default async function GrowthDashboardPage({
                 </thead>
                 <tbody>
                   {dashboard.productPerformance.map((row) => (
-                    <tr key={row.variantId} className="border-t border-slate-100">
-                      <td className="px-4 py-2 font-medium text-slate-900">
+                    <tr key={row.variantId} className="border-t border-line">
+                      <td className="px-4 py-2 font-medium text-ink">
                         {row.productName} ({row.variantName})
                       </td>
-                      <td className="px-4 py-2 text-slate-500">{row.quantitySold}</td>
-                      <td className="px-4 py-2 text-slate-900">₹{row.revenue}</td>
+                      <td className="px-4 py-2 text-ink-2">{row.quantitySold}</td>
+                      <td className="px-4 py-2 text-ink">₹{row.revenue}</td>
                     </tr>
                   ))}
                   {dashboard.productPerformance.length === 0 ? <EmptyRow colSpan={3} /> : null}
@@ -271,9 +271,9 @@ export default async function GrowthDashboardPage({
             </section>
 
             <section>
-              <h2 className="text-sm font-semibold text-slate-700">Low-demand slots (promotion-worthy)</h2>
-              <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-                <thead className="bg-slate-50 text-left text-slate-500">
+              <h2 className="text-sm font-semibold text-ink">Low-demand slots (promotion-worthy)</h2>
+              <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+                <thead className="bg-surface-2 text-left text-ink-2">
                   <tr>
                     <th className="px-4 py-2">Slot</th>
                     <th className="px-4 py-2">Orders</th>
@@ -282,12 +282,12 @@ export default async function GrowthDashboardPage({
                 </thead>
                 <tbody>
                   {dashboard.lowDemandPeriods.quietSlots.map((slot, i) => (
-                    <tr key={i} className="border-t border-slate-100">
-                      <td className="px-4 py-2 font-medium text-slate-900">
+                    <tr key={i} className="border-t border-line">
+                      <td className="px-4 py-2 font-medium text-ink">
                         {DAY_NAMES[slot.dayOfWeek]} {slot.hour}:00
                       </td>
-                      <td className="px-4 py-2 text-slate-500">{slot.orderCount}</td>
-                      <td className="px-4 py-2 text-slate-600">{slot.suggestion}</td>
+                      <td className="px-4 py-2 text-ink-2">{slot.orderCount}</td>
+                      <td className="px-4 py-2 text-ink-2">{slot.suggestion}</td>
                     </tr>
                   ))}
                   {dashboard.lowDemandPeriods.quietSlots.length === 0 ? <EmptyRow colSpan={3} /> : null}
@@ -296,9 +296,9 @@ export default async function GrowthDashboardPage({
             </section>
 
             <section>
-              <h2 className="text-sm font-semibold text-slate-700">Stockout risks</h2>
-              <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-                <thead className="bg-slate-50 text-left text-slate-500">
+              <h2 className="text-sm font-semibold text-ink">Stockout risks</h2>
+              <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+                <thead className="bg-surface-2 text-left text-ink-2">
                   <tr>
                     <th className="px-4 py-2">Ingredient</th>
                     <th className="px-4 py-2">Days of stock</th>
@@ -307,12 +307,12 @@ export default async function GrowthDashboardPage({
                 </thead>
                 <tbody>
                   {dashboard.stockoutRisks.map((row) => (
-                    <tr key={`${row.kitchenId}-${row.ingredientId}`} className="border-t border-slate-100">
-                      <td className="px-4 py-2 font-medium text-slate-900">{row.ingredientName}</td>
-                      <td className="px-4 py-2 text-slate-500">
+                    <tr key={`${row.kitchenId}-${row.ingredientId}`} className="border-t border-line">
+                      <td className="px-4 py-2 font-medium text-ink">{row.ingredientName}</td>
+                      <td className="px-4 py-2 text-ink-2">
                         {row.daysOfStockRemaining !== null ? row.daysOfStockRemaining.toFixed(1) : "—"}
                       </td>
-                      <td className="px-4 py-2 text-slate-900">{row.stockoutRisk}</td>
+                      <td className="px-4 py-2 text-ink">{row.stockoutRisk}</td>
                     </tr>
                   ))}
                   {dashboard.stockoutRisks.length === 0 ? <EmptyRow colSpan={3} /> : null}
@@ -321,9 +321,9 @@ export default async function GrowthDashboardPage({
             </section>
 
             <section>
-              <h2 className="text-sm font-semibold text-slate-700">Purchase recommendations</h2>
-              <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-                <thead className="bg-slate-50 text-left text-slate-500">
+              <h2 className="text-sm font-semibold text-ink">Purchase recommendations</h2>
+              <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+                <thead className="bg-surface-2 text-left text-ink-2">
                   <tr>
                     <th className="px-4 py-2">Ingredient</th>
                     <th className="px-4 py-2">Suggested qty</th>
@@ -331,9 +331,9 @@ export default async function GrowthDashboardPage({
                 </thead>
                 <tbody>
                   {dashboard.purchaseRecommendations.map((row) => (
-                    <tr key={`${row.kitchenId}-${row.ingredientId}`} className="border-t border-slate-100">
-                      <td className="px-4 py-2 font-medium text-slate-900">{row.ingredientName}</td>
-                      <td className="px-4 py-2 text-slate-900">{row.reorderQuantitySuggested}</td>
+                    <tr key={`${row.kitchenId}-${row.ingredientId}`} className="border-t border-line">
+                      <td className="px-4 py-2 font-medium text-ink">{row.ingredientName}</td>
+                      <td className="px-4 py-2 text-ink">{row.reorderQuantitySuggested}</td>
                     </tr>
                   ))}
                   {dashboard.purchaseRecommendations.length === 0 ? <EmptyRow colSpan={2} /> : null}
@@ -342,9 +342,9 @@ export default async function GrowthDashboardPage({
             </section>
 
             <section>
-              <h2 className="text-sm font-semibold text-slate-700">Discount candidates</h2>
-              <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-                <thead className="bg-slate-50 text-left text-slate-500">
+              <h2 className="text-sm font-semibold text-ink">Discount candidates</h2>
+              <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+                <thead className="bg-surface-2 text-left text-ink-2">
                   <tr>
                     <th className="px-4 py-2">Product</th>
                     <th className="px-4 py-2">Margin</th>
@@ -353,12 +353,12 @@ export default async function GrowthDashboardPage({
                 </thead>
                 <tbody>
                   {dashboard.promotionOpportunities.discountCandidates.map((row) => (
-                    <tr key={row.variantId} className="border-t border-slate-100">
-                      <td className="px-4 py-2 font-medium text-slate-900">
+                    <tr key={row.variantId} className="border-t border-line">
+                      <td className="px-4 py-2 font-medium text-ink">
                         {row.productName} ({row.variantName})
                       </td>
-                      <td className="px-4 py-2 text-slate-500">{row.marginPercent ?? "—"}%</td>
-                      <td className="px-4 py-2 text-slate-900">{row.suggestedDiscountPercent}%</td>
+                      <td className="px-4 py-2 text-ink-2">{row.marginPercent ?? "—"}%</td>
+                      <td className="px-4 py-2 text-ink">{row.suggestedDiscountPercent}%</td>
                     </tr>
                   ))}
                   {dashboard.promotionOpportunities.discountCandidates.length === 0 ? <EmptyRow colSpan={3} /> : null}
@@ -367,9 +367,9 @@ export default async function GrowthDashboardPage({
             </section>
 
             <section>
-              <h2 className="text-sm font-semibold text-slate-700">Combo &amp; segment opportunities</h2>
-              <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-                <thead className="bg-slate-50 text-left text-slate-500">
+              <h2 className="text-sm font-semibold text-ink">Combo &amp; segment opportunities</h2>
+              <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+                <thead className="bg-surface-2 text-left text-ink-2">
                   <tr>
                     <th className="px-4 py-2">Name</th>
                     <th className="px-4 py-2">Detail</th>
@@ -377,15 +377,15 @@ export default async function GrowthDashboardPage({
                 </thead>
                 <tbody>
                   {dashboard.promotionOpportunities.comboCandidates.map((row) => (
-                    <tr key={row.comboId} className="border-t border-slate-100">
-                      <td className="px-4 py-2 font-medium text-slate-900">{row.name}</td>
-                      <td className="px-4 py-2 text-slate-500">{row.instancesSoldLast90Days} sold in 90d</td>
+                    <tr key={row.comboId} className="border-t border-line">
+                      <td className="px-4 py-2 font-medium text-ink">{row.name}</td>
+                      <td className="px-4 py-2 text-ink-2">{row.instancesSoldLast90Days} sold in 90d</td>
                     </tr>
                   ))}
                   {dashboard.promotionOpportunities.segmentCandidates.map((row) => (
-                    <tr key={row.segmentId} className="border-t border-slate-100">
-                      <td className="px-4 py-2 font-medium text-slate-900">{row.name}</td>
-                      <td className="px-4 py-2 text-slate-500">
+                    <tr key={row.segmentId} className="border-t border-line">
+                      <td className="px-4 py-2 font-medium text-ink">{row.name}</td>
+                      <td className="px-4 py-2 text-ink-2">
                         {row.customerCount} customers{row.recommended ? " — recommended" : ""}
                       </td>
                     </tr>
@@ -406,9 +406,9 @@ export default async function GrowthDashboardPage({
 
 function SummaryCard({ label, value, emphasize }: { label: string; value: string; emphasize?: boolean }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <div className="text-xs text-slate-500">{label}</div>
-      <div className={`mt-1 text-lg font-semibold ${emphasize ? "text-slate-900" : "text-slate-700"}`}>{value}</div>
+    <div className="rounded-lg border border-line bg-surface p-4">
+      <div className="text-xs text-ink-2">{label}</div>
+      <div className={`mt-1 text-lg font-semibold ${emphasize ? "text-ink" : "text-ink"}`}>{value}</div>
     </div>
   );
 }
@@ -416,7 +416,7 @@ function SummaryCard({ label, value, emphasize }: { label: string; value: string
 function EmptyRow({ colSpan }: { colSpan: number }) {
   return (
     <tr>
-      <td colSpan={colSpan} className="px-4 py-6 text-center text-slate-400">
+      <td colSpan={colSpan} className="px-4 py-6 text-center text-ink-3">
         Nothing to show for this range.
       </td>
     </tr>
@@ -426,7 +426,7 @@ function EmptyRow({ colSpan }: { colSpan: number }) {
 function Field({ id, label, defaultValue, type }: { id: string; label: string; defaultValue?: string; type: string }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-slate-600" htmlFor={id}>
+      <label className="block text-xs font-medium text-ink-2" htmlFor={id}>
         {label}
       </label>
       <input
@@ -434,7 +434,7 @@ function Field({ id, label, defaultValue, type }: { id: string; label: string; d
         type={type}
         name={id}
         defaultValue={defaultValue}
-        className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+        className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
       />
     </div>
   );
@@ -455,14 +455,14 @@ function SelectField({
 }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-slate-600" htmlFor={id}>
+      <label className="block text-xs font-medium text-ink-2" htmlFor={id}>
         {label}
       </label>
       <select
         id={id}
         name={id}
         defaultValue={defaultValue ?? ""}
-        className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+        className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
       >
         <option value="">{placeholder}</option>
         {options.map((o) => (

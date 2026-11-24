@@ -1,12 +1,16 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, PrismaService } from "@kitchenos/database";
+import { PlanService } from "../plan/plan.service.js";
 import type { CreateOutletDto } from "./dto/create-outlet.dto.js";
 import type { UpdateOutletDto } from "./dto/update-outlet.dto.js";
 import type { MapOutletKitchenDto } from "./dto/map-outlet-kitchen.dto.js";
 
 @Injectable()
 export class OutletsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly plans: PlanService,
+  ) {}
 
   async list(organizationId: string, brandId?: string) {
     return this.prisma.outlet.findMany({
@@ -30,6 +34,11 @@ export class OutletsService {
     const brand = await this.prisma.brand.findFirst({ where: { id: dto.brandId, organizationId } });
     if (!brand) throw new NotFoundException("Brand not found");
 
+    // Checked before the insert so a workspace past its plan's outlet count is
+    // told why, rather than finding out when a bill fails somewhere later.
+    const existing = await this.prisma.outlet.count({ where: { organizationId } });
+    await this.plans.assertWithinLimit(organizationId, "outlets", existing, "outlet");
+
     try {
       return await this.prisma.outlet.create({
         data: {
@@ -39,6 +48,8 @@ export class OutletsService {
           code: dto.code,
           address: dto.address,
           city: dto.city,
+          gstin: dto.gstin,
+          fssaiLicence: dto.fssaiLicence,
         },
       });
     } catch (err) {

@@ -24,8 +24,8 @@ export default async function MenusPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Menus</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <h1 className="text-2xl font-semibold text-ink">Menus</h1>
+      <p className="mt-2 text-sm text-ink-2">
         A named, orderable collection of variants within a brand (e.g. Dine-in vs Delivery). Open a menu to
         manage its items and which outlets it runs at.
       </p>
@@ -34,8 +34,8 @@ export default async function MenusPage() {
         <CreateMenuForm brands={brands} />
       </div>
 
-      <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">Name</th>
             <th className="px-4 py-2">Brand</th>
@@ -46,15 +46,15 @@ export default async function MenusPage() {
         </thead>
         <tbody>
           {menus.map((menu) => (
-            <tr key={menu.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 font-medium text-slate-900">
+            <tr key={menu.id} className="border-t border-line">
+              <td className="px-4 py-2 font-medium text-ink">
                 <Link href={`/menus/${menu.id}`} className="hover:underline">
                   {menu.name}
                 </Link>
               </td>
-              <td className="px-4 py-2 text-slate-500">{brandNameById.get(menu.brandId)}</td>
-              <td className="px-4 py-2 text-slate-500">{menu.items.length}</td>
-              <td className="px-4 py-2 text-slate-500">
+              <td className="px-4 py-2 text-ink-2">{brandNameById.get(menu.brandId)}</td>
+              <td className="px-4 py-2 text-ink-2">{menu.items.length}</td>
+              <td className="px-4 py-2 text-ink-2">
                 {menu.outletMenus.map((om) => om.outlet.name).join(", ") || "—"}
               </td>
               <td className="px-4 py-2">{menu.isActive ? "Active" : "Inactive"}</td>
@@ -62,7 +62,7 @@ export default async function MenusPage() {
           ))}
           {menus.length === 0 ? (
             <tr>
-              <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+              <td colSpan={5} className="px-4 py-6 text-center text-ink-3">
                 No menus yet.
               </td>
             </tr>

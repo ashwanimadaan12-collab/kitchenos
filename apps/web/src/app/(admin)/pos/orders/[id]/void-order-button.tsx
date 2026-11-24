@@ -32,7 +32,7 @@ export function VoidOrderButton({ orderId }: { orderId: string }) {
       <Button variant="danger" isLoading={isLoading} onClick={onClick}>
         Void order
       </Button>
-      {error ? <p className="mt-1 text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="mt-1 text-sm text-bad">{error}</p> : null}
     </div>
   );
 }

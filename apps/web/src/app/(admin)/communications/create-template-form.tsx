@@ -84,42 +84,42 @@ export function CreateTemplateForm({ brands }: { brands: { id: string; name: str
           ]}
         />
         <div>
-          <label className="block text-xs font-medium text-slate-600">Key</label>
+          <label className="block text-xs font-medium text-ink-2">Key</label>
           <input
             value={key}
             onChange={(e) => setKey(e.target.value)}
-            className="mt-1 w-48 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-48 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="order_confirmation"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Name</label>
+          <label className="block text-xs font-medium text-ink-2">Name</label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 w-48 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-48 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="Order confirmation"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Provider template name</label>
+          <label className="block text-xs font-medium text-ink-2">Provider template name</label>
           <input
             value={providerTemplateName}
             onChange={(e) => setProviderTemplateName(e.target.value)}
-            className="mt-1 w-48 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-48 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="required for WhatsApp"
           />
         </div>
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">
-          Body — use <code className="rounded bg-slate-100 px-1">{"{{variable}}"}</code> placeholders
+        <label className="block text-xs font-medium text-ink-2">
+          Body — use <code className="rounded bg-surface-2 px-1">{"{{variable}}"}</code> placeholders
         </label>
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
           rows={2}
-          className="mt-1 w-full rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-full rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Thanks for ordering from {{brand}} at {{outlet}}! Order #{{orderNumber}}: {{items}}. Total: ₹{{total}} ({{paymentStatus}}). Loyalty points: {{loyaltyPoints}}."
         />
       </div>
@@ -127,7 +127,7 @@ export function CreateTemplateForm({ brands }: { brands: { id: string; name: str
         <Button type="submit" isLoading={isLoading}>
           Add template
         </Button>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? <p className="text-sm text-bad">{error}</p> : null}
       </div>
     </form>
   );

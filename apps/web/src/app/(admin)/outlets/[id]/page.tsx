@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import { ToggleActiveButton } from "@/components/toggle-active-button";
 import { UnmapButton } from "@/components/unmap-button";
+import { BillDetailsForm } from "./bill-details-form";
 import { MapKitchenForm } from "./map-kitchen-form";
 import { SetPriceForm } from "./set-price-form";
 
@@ -9,7 +10,10 @@ interface OutletDetail {
   id: string;
   name: string;
   code: string;
+  address: string | null;
   city: string | null;
+  gstin: string | null;
+  fssaiLicence: string | null;
   isActive: boolean;
   brand: { id: string; name: string };
   outletKitchens: { id: string; isPrimary: boolean; kitchen: { id: string; name: string } }[];
@@ -66,8 +70,8 @@ export default async function OutletDetailPage({ params }: { params: Promise<{ i
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">{outlet.name}</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold text-ink">{outlet.name}</h1>
+          <p className="mt-1 text-sm text-ink-2">
             {outlet.code} · {outlet.brand.name}
             {outlet.city ? ` · ${outlet.city}` : ""}
           </p>
@@ -76,15 +80,32 @@ export default async function OutletDetailPage({ params }: { params: Promise<{ i
       </div>
 
       <section className="mt-8">
-        <h2 className="text-lg font-medium text-slate-900">Fulfilling kitchens</h2>
-        <p className="mt-1 text-sm text-slate-500">
+        <h2 className="text-lg font-medium text-ink">Bill pe kya chhapega</h2>
+        <p className="mt-1 text-sm text-ink-2">
+          GSTIN aur FSSAI har bill ke upar chhapte hain. GST registration state-wise hoti hai, isliye har
+          outlet ka apna GSTIN hota hai.
+        </p>
+        <div className="mt-3 rounded-card border border-line bg-surface p-5">
+          <BillDetailsForm
+            outletId={outlet.id}
+            gstin={outlet.gstin}
+            fssaiLicence={outlet.fssaiLicence}
+            address={outlet.address}
+            city={outlet.city}
+          />
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="text-lg font-medium text-ink">Fulfilling kitchens</h2>
+        <p className="mt-1 text-sm text-ink-2">
           Typically the brand&apos;s primary kitchen plus the central warehouse for backend supply.
         </p>
-        <div className="mt-3 rounded-lg border border-slate-200 bg-white p-4">
+        <div className="mt-3 rounded-lg border border-line bg-surface p-4">
           <MapKitchenForm outletId={outlet.id} availableKitchens={availableKitchens} />
         </div>
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Kitchen</th>
               <th className="px-4 py-2">Primary</th>
@@ -93,9 +114,9 @@ export default async function OutletDetailPage({ params }: { params: Promise<{ i
           </thead>
           <tbody>
             {outlet.outletKitchens.map((mapping) => (
-              <tr key={mapping.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">{mapping.kitchen.name}</td>
-                <td className="px-4 py-2 text-slate-500">{mapping.isPrimary ? "Yes" : "No"}</td>
+              <tr key={mapping.id} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">{mapping.kitchen.name}</td>
+                <td className="px-4 py-2 text-ink-2">{mapping.isPrimary ? "Yes" : "No"}</td>
                 <td className="px-4 py-2 text-right">
                   <UnmapButton path={`outlets/${outlet.id}/kitchens/${mapping.kitchen.id}`} />
                 </td>
@@ -103,7 +124,7 @@ export default async function OutletDetailPage({ params }: { params: Promise<{ i
             ))}
             {outlet.outletKitchens.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={3} className="px-4 py-6 text-center text-ink-3">
                   No kitchens mapped yet.
                 </td>
               </tr>
@@ -113,15 +134,15 @@ export default async function OutletDetailPage({ params }: { params: Promise<{ i
       </section>
 
       <section className="mt-8">
-        <h2 className="text-lg font-medium text-slate-900">Price overrides</h2>
-        <p className="mt-1 text-sm text-slate-500">
+        <h2 className="text-lg font-medium text-ink">Price overrides</h2>
+        <p className="mt-1 text-sm text-ink-2">
           Charge a different price than the brand&apos;s base price at this outlet only.
         </p>
-        <div className="mt-3 rounded-lg border border-slate-200 bg-white p-4">
+        <div className="mt-3 rounded-lg border border-line bg-surface p-4">
           <SetPriceForm outletId={outlet.id} availableVariants={availableVariants} />
         </div>
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Product</th>
               <th className="px-4 py-2">Variant</th>
@@ -132,11 +153,11 @@ export default async function OutletDetailPage({ params }: { params: Promise<{ i
           </thead>
           <tbody>
             {priceOverrides.map((override) => (
-              <tr key={override.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">{override.variant.product.name}</td>
-                <td className="px-4 py-2 text-slate-500">{override.variant.name}</td>
-                <td className="px-4 py-2 text-slate-500">₹{override.variant.basePrice}</td>
-                <td className="px-4 py-2 text-slate-900">₹{override.price}</td>
+              <tr key={override.id} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">{override.variant.product.name}</td>
+                <td className="px-4 py-2 text-ink-2">{override.variant.name}</td>
+                <td className="px-4 py-2 text-ink-2">₹{override.variant.basePrice}</td>
+                <td className="px-4 py-2 text-ink">₹{override.price}</td>
                 <td className="px-4 py-2 text-right">
                   <UnmapButton
                     path={`pricing/outlets/${outlet.id}/variants/${override.variantId}`}
@@ -147,7 +168,7 @@ export default async function OutletDetailPage({ params }: { params: Promise<{ i
             ))}
             {priceOverrides.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={5} className="px-4 py-6 text-center text-ink-3">
                   No price overrides — every variant sells at its base price here.
                 </td>
               </tr>

@@ -76,15 +76,15 @@ export default async function ProductsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Products</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <h1 className="text-2xl font-semibold text-ink">Products</h1>
+      <p className="mt-2 text-sm text-ink-2">
         Menu items are priced and sold through their variants (e.g. sizes) — add at least one when creating a
         product, then manage the rest from the product&apos;s own page.
       </p>
 
       <section className="mt-6">
-        <h2 className="text-sm font-semibold text-slate-700">Excel se bulk import karo</h2>
-        <div className="mt-2 rounded-lg border border-slate-200 bg-white p-4">
+        <h2 className="text-sm font-semibold text-ink">Excel se bulk import karo</h2>
+        <div className="mt-2 rounded-lg border border-line bg-surface p-4">
           <ImportProductsForm
             brands={brands}
             categories={categories}
@@ -97,13 +97,13 @@ export default async function ProductsPage() {
       </section>
 
       <section className="mt-6">
-        <h2 className="text-sm font-semibold text-slate-700">Tax categories</h2>
-        <div className="mt-2 rounded-lg border border-slate-200 bg-white p-4">
+        <h2 className="text-sm font-semibold text-ink">Tax categories</h2>
+        <div className="mt-2 rounded-lg border border-line bg-surface p-4">
           <CreateTaxCategoryForm />
         </div>
-        <div className="mt-2 flex flex-wrap gap-2 text-sm text-slate-600">
+        <div className="mt-2 flex flex-wrap gap-2 text-sm text-ink-2">
           {taxCategories.map((t) => (
-            <span key={t.id} className="rounded-full border border-slate-200 bg-white px-3 py-1">
+            <span key={t.id} className="rounded-full border border-line bg-surface px-3 py-1">
               {t.name} ({t.ratePercent}%)
             </span>
           ))}
@@ -111,13 +111,13 @@ export default async function ProductsPage() {
       </section>
 
       <section className="mt-6">
-        <h2 className="text-sm font-semibold text-slate-700">Categories</h2>
-        <div className="mt-2 rounded-lg border border-slate-200 bg-white p-4">
+        <h2 className="text-sm font-semibold text-ink">Categories</h2>
+        <div className="mt-2 rounded-lg border border-line bg-surface p-4">
           <CreateProductCategoryForm brands={brands} />
         </div>
-        <div className="mt-2 flex flex-wrap gap-2 text-sm text-slate-600">
+        <div className="mt-2 flex flex-wrap gap-2 text-sm text-ink-2">
           {categories.map((c) => (
-            <span key={c.id} className="rounded-full border border-slate-200 bg-white px-3 py-1">
+            <span key={c.id} className="rounded-full border border-line bg-surface px-3 py-1">
               {brandNameById.get(c.brandId)} / {c.name}
             </span>
           ))}
@@ -125,12 +125,12 @@ export default async function ProductsPage() {
       </section>
 
       <section className="mt-6">
-        <h2 className="text-sm font-semibold text-slate-700">Products</h2>
-        <div className="mt-2 rounded-lg border border-slate-200 bg-white p-4">
+        <h2 className="text-sm font-semibold text-ink">Products</h2>
+        <div className="mt-2 rounded-lg border border-line bg-surface p-4">
           <CreateProductForm brands={brands} categories={categories} taxCategories={taxCategories} />
         </div>
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Brand</th>
@@ -142,17 +142,17 @@ export default async function ProductsPage() {
           </thead>
           <tbody>
             {products.map((product) => (
-              <tr key={product.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">
+              <tr key={product.id} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">
                   <Link href={`/products/${product.id}`} className="hover:underline">
                     {product.name}
                   </Link>
-                  <span className="ml-2 text-xs text-slate-400">{product.sku}</span>
+                  <span className="ml-2 text-xs text-ink-3">{product.sku}</span>
                 </td>
-                <td className="px-4 py-2 text-slate-500">{brandNameById.get(product.brandId)}</td>
-                <td className="px-4 py-2 text-slate-500">{product.category.name}</td>
-                <td className="px-4 py-2 text-slate-500">{product.taxCategory?.name ?? "—"}</td>
-                <td className="px-4 py-2 text-slate-500">
+                <td className="px-4 py-2 text-ink-2">{brandNameById.get(product.brandId)}</td>
+                <td className="px-4 py-2 text-ink-2">{product.category.name}</td>
+                <td className="px-4 py-2 text-ink-2">{product.taxCategory?.name ?? "—"}</td>
+                <td className="px-4 py-2 text-ink-2">
                   {product.variants.map((v) => `${v.name} (₹${v.basePrice})`).join(", ")}
                 </td>
                 <td className="px-4 py-2">{product.isActive ? "Active" : "Inactive"}</td>
@@ -160,7 +160,7 @@ export default async function ProductsPage() {
             ))}
             {products.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={6} className="px-4 py-6 text-center text-ink-3">
                   No products yet.
                 </td>
               </tr>

@@ -41,7 +41,7 @@ export function MapBrandForm({ kitchenId, availableBrands }: MapBrandFormProps) 
   }
 
   if (availableBrands.length === 0) {
-    return <p className="text-sm text-slate-400">Every brand in this organization is already mapped.</p>;
+    return <p className="text-sm text-ink-3">Every brand in this organization is already mapped.</p>;
   }
 
   return (
@@ -56,7 +56,7 @@ export function MapBrandForm({ kitchenId, availableBrands }: MapBrandFormProps) 
       <Button type="submit" isLoading={isLoading} variant="secondary" disabled={!brandId}>
         Map brand
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

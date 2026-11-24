@@ -14,22 +14,22 @@ export default async function InventoryLandingPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Inventory</h1>
-      <p className="mt-2 text-sm text-slate-600">Pick a kitchen to see its stock on hand and movement ledger.</p>
+      <h1 className="text-2xl font-semibold text-ink">Inventory</h1>
+      <p className="mt-2 text-sm text-ink-2">Pick a kitchen to see its stock on hand and movement ledger.</p>
 
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {kitchens.map((kitchen) => (
           <Link
             key={kitchen.id}
             href={`/inventory/${kitchen.id}`}
-            className="rounded-lg border border-slate-200 bg-white p-4 hover:border-slate-400"
+            className="rounded-lg border border-line bg-surface p-4 hover:border-brand"
           >
-            <p className="text-sm text-slate-500">{kitchen.kind === "CENTRAL_WAREHOUSE" ? "Central warehouse" : "Production"}</p>
-            <p className="mt-1 font-medium text-slate-900">{kitchen.name}</p>
-            <p className="text-xs text-slate-400">{kitchen.code}</p>
+            <p className="text-sm text-ink-2">{kitchen.kind === "CENTRAL_WAREHOUSE" ? "Central warehouse" : "Production"}</p>
+            <p className="mt-1 font-medium text-ink">{kitchen.name}</p>
+            <p className="text-xs text-ink-3">{kitchen.code}</p>
           </Link>
         ))}
-        {kitchens.length === 0 ? <p className="text-sm text-slate-400">No kitchens yet.</p> : null}
+        {kitchens.length === 0 ? <p className="text-sm text-ink-3">No kitchens yet.</p> : null}
       </div>
     </div>
   );

@@ -41,18 +41,18 @@ export default async function PurchaseOrdersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Purchase Orders</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <h1 className="text-2xl font-semibold text-ink">Purchase Orders</h1>
+      <p className="mt-2 text-sm text-ink-2">
         Order ingredients from a supplier for delivery to a kitchen. Items can only be edited while a draft;
         once submitted, receiving against it is the only way quantities change.
       </p>
 
-      <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+      <div className="mt-4 rounded-lg border border-line bg-surface p-4">
         <CreatePurchaseOrderForm suppliers={suppliers} kitchens={kitchens} ingredients={ingredients} />
       </div>
 
-      <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">PO #</th>
             <th className="px-4 py-2">Supplier</th>
@@ -63,21 +63,21 @@ export default async function PurchaseOrdersPage() {
         </thead>
         <tbody>
           {purchaseOrders.map((po) => (
-            <tr key={po.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 font-medium text-slate-900">
+            <tr key={po.id} className="border-t border-line">
+              <td className="px-4 py-2 font-medium text-ink">
                 <Link href={`/purchase-orders/${po.id}`} className="hover:underline">
                   #{po.orderNumber}
                 </Link>
               </td>
-              <td className="px-4 py-2 text-slate-500">{po.supplier.name}</td>
-              <td className="px-4 py-2 text-slate-500">{po.kitchen.name}</td>
-              <td className="px-4 py-2 text-slate-500">{po.items.length}</td>
+              <td className="px-4 py-2 text-ink-2">{po.supplier.name}</td>
+              <td className="px-4 py-2 text-ink-2">{po.kitchen.name}</td>
+              <td className="px-4 py-2 text-ink-2">{po.items.length}</td>
               <td className="px-4 py-2">{po.status}</td>
             </tr>
           ))}
           {purchaseOrders.length === 0 ? (
             <tr>
-              <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+              <td colSpan={5} className="px-4 py-6 text-center text-ink-3">
                 No purchase orders yet.
               </td>
             </tr>

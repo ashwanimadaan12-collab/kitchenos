@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Badge, Card, CardHeader, Icon } from "@kitchenos/ui";
 import { apiFetch } from "@/lib/api";
 import { NewOrderForm } from "./new-order-form";
 
@@ -18,6 +19,22 @@ interface Order {
   createdAt: string;
 }
 
+const CHANNEL_LABEL: Record<string, string> = {
+  DINE_IN: "Dine-in",
+  TAKEAWAY: "Parcel",
+  DELIVERY: "Delivery",
+};
+
+function rupees(amount: string): string {
+  const n = Number(amount);
+  if (!Number.isFinite(n)) return "₹0";
+  return "₹" + Math.round(n).toLocaleString("en-IN");
+}
+
+function minutesOld(iso: string): number {
+  return Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+}
+
 export default async function PosPage() {
   const [outletsRes, openOrdersRes] = await Promise.all([
     apiFetch("/v1/outlets"),
@@ -27,59 +44,82 @@ export default async function PosPage() {
   const openOrders: Order[] = openOrdersRes.ok ? await openOrdersRes.json() : [];
 
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-slate-900">Point of Sale</h1>
-        <Link href="/pos/offline" className="text-sm font-medium text-slate-600 hover:underline">
-          Offline sale →
+    <div className="flex flex-col gap-6">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-[28px] font-bold tracking-tight text-ink">Order lo</h1>
+          <p className="mt-1 text-sm text-ink-2">
+            Naya bill kholo, ya chal rahe order pe tap karke usme item add karo.
+          </p>
+        </div>
+        <Link
+          href="/pos/offline"
+          className="inline-flex min-h-11 items-center gap-2 rounded-control border border-line-strong px-4 text-sm font-bold text-ink no-underline"
+        >
+          <Icon name="install" size={16} />
+          Net nahi hai — offline sale
         </Link>
-      </div>
-      <p className="mt-2 text-sm text-slate-600">
-        Open a new bill at an outlet, or resume one that&apos;s still open. If the connection drops, use{" "}
-        <Link href="/pos/offline" className="underline">
-          Offline sale
-        </Link>{" "}
-        for a cash-only sale that syncs automatically once you&apos;re back online.
-      </p>
+      </header>
 
-      <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-        <NewOrderForm outlets={outlets} />
-      </div>
+      <Card>
+        <CardHeader title="Naya order" />
+        <div className="mt-4">
+          <NewOrderForm outlets={outlets} />
+        </div>
+      </Card>
 
-      <h2 className="mt-6 text-sm font-semibold text-slate-700">Open orders</h2>
-      <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
-          <tr>
-            <th className="px-4 py-2">Order #</th>
-            <th className="px-4 py-2">Outlet</th>
-            <th className="px-4 py-2">Channel</th>
-            <th className="px-4 py-2">Total</th>
-            <th className="px-4 py-2">Opened</th>
-          </tr>
-        </thead>
-        <tbody>
-          {openOrders.map((order) => (
-            <tr key={order.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 font-medium text-slate-900">
-                <Link href={`/pos/orders/${order.id}`} className="hover:underline">
-                  #{order.orderNumber}
-                </Link>
-              </td>
-              <td className="px-4 py-2 text-slate-500">{order.outlet.name}</td>
-              <td className="px-4 py-2 text-slate-500">{order.channel}</td>
-              <td className="px-4 py-2 text-slate-900">₹{order.total}</td>
-              <td className="px-4 py-2 text-slate-500">{new Date(order.createdAt).toLocaleTimeString()}</td>
-            </tr>
-          ))}
-          {openOrders.length === 0 ? (
-            <tr>
-              <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
-                No open orders.
-              </td>
-            </tr>
-          ) : null}
-        </tbody>
-      </table>
+      <section>
+        <h2 className="font-display text-[17px] font-bold text-ink">
+          Chal rahe orders{openOrders.length > 0 ? ` (${openOrders.length})` : ""}
+        </h2>
+
+        {openOrders.length === 0 ? (
+          <Card className="mt-3">
+            <p className="py-6 text-center text-sm text-ink-3">
+              Abhi koi order khula nahi hai. Upar se naya order shuru karo.
+            </p>
+          </Card>
+        ) : (
+          /* Each order is one big tap target — a cashier shouldn't be aiming at a
+             table row with a finger. */
+          <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {openOrders.map((order) => {
+              const mins = minutesOld(order.createdAt);
+              const isLate = mins >= 15;
+              return (
+                <li key={order.id}>
+                  <Link
+                    href={`/pos/orders/${order.id}`}
+                    className={`flex min-h-[7rem] flex-col gap-2 rounded-card p-5 no-underline transition-colors ${
+                      isLate
+                        ? "border-2 border-bad bg-bad-tint"
+                        : "border border-line bg-surface hover:border-brand"
+                    }`}
+                  >
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="tnum font-display text-xl font-bold text-ink">
+                        #{order.orderNumber}
+                      </span>
+                      {isLate ? (
+                        <Badge tone="bad">{mins} min · Late</Badge>
+                      ) : (
+                        <Badge tone="brand">{CHANNEL_LABEL[order.channel] ?? order.channel}</Badge>
+                      )}
+                    </span>
+                    <span className="text-sm font-medium text-ink-2">{order.outlet.name}</span>
+                    <span className="mt-auto flex items-baseline justify-between">
+                      <span className="tnum font-display text-lg font-bold text-ink">
+                        {rupees(order.total)}
+                      </span>
+                      <span className="tnum text-xs font-semibold text-ink-3">{mins} min pehle khula</span>
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

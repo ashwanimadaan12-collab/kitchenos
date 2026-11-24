@@ -51,14 +51,14 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">{customer.name}</h1>
-      <p className="mt-1 text-sm text-slate-500">
+      <h1 className="text-2xl font-semibold text-ink">{customer.name}</h1>
+      <p className="mt-1 text-sm text-ink-2">
         {customer.phone} · {customer.email ?? "no email"} · {customer.loyaltyPoints} loyalty points
       </p>
-      {customer.notes ? <p className="mt-2 text-sm text-slate-600">{customer.notes}</p> : null}
+      {customer.notes ? <p className="mt-2 text-sm text-ink-2">{customer.notes}</p> : null}
 
-      <table className="mt-6 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-6 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">Order #</th>
             <th className="px-4 py-2">Outlet</th>
@@ -69,17 +69,17 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         </thead>
         <tbody>
           {orders.map((order) => (
-            <tr key={order.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 font-medium text-slate-900">#{order.orderNumber}</td>
-              <td className="px-4 py-2 text-slate-500">{order.outlet.name}</td>
-              <td className="px-4 py-2 text-slate-500">{order.status}</td>
-              <td className="px-4 py-2 text-slate-900">₹{order.total}</td>
-              <td className="px-4 py-2 text-slate-500">{new Date(order.createdAt).toLocaleDateString()}</td>
+            <tr key={order.id} className="border-t border-line">
+              <td className="px-4 py-2 font-medium text-ink">#{order.orderNumber}</td>
+              <td className="px-4 py-2 text-ink-2">{order.outlet.name}</td>
+              <td className="px-4 py-2 text-ink-2">{order.status}</td>
+              <td className="px-4 py-2 text-ink">₹{order.total}</td>
+              <td className="px-4 py-2 text-ink-2">{new Date(order.createdAt).toLocaleDateString()}</td>
             </tr>
           ))}
           {orders.length === 0 ? (
             <tr>
-              <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+              <td colSpan={5} className="px-4 py-6 text-center text-ink-3">
                 No orders yet.
               </td>
             </tr>

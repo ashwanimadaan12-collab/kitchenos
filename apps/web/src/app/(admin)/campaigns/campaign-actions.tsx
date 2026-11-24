@@ -40,7 +40,7 @@ export function CampaignActions({ campaignId, status }: CampaignActionsProps) {
       <Button variant="secondary" isLoading={isLoading} onClick={() => act("cancel")}>
         Cancel
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </div>
   );
 }

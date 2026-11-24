@@ -37,8 +37,8 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">{employee.name}</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold text-ink">{employee.name}</h1>
+          <p className="mt-1 text-sm text-ink-2">
             {employee.role} · {employee.outlet?.name ?? "Organization-wide"} · {employee.isActive ? "Active" : "Inactive"}
           </p>
         </div>
@@ -48,8 +48,8 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
         </div>
       </div>
 
-      <table className="mt-6 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-6 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">Clock in</th>
             <th className="px-4 py-2">Clock out</th>
@@ -57,16 +57,16 @@ export default async function EmployeeDetailPage({ params }: { params: Promise<{
         </thead>
         <tbody>
           {attendance.map((record) => (
-            <tr key={record.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 font-medium text-slate-900">{new Date(record.clockIn).toLocaleString()}</td>
-              <td className="px-4 py-2 text-slate-500">
+            <tr key={record.id} className="border-t border-line">
+              <td className="px-4 py-2 font-medium text-ink">{new Date(record.clockIn).toLocaleString()}</td>
+              <td className="px-4 py-2 text-ink-2">
                 {record.clockOut ? new Date(record.clockOut).toLocaleString() : "Still clocked in"}
               </td>
             </tr>
           ))}
           {attendance.length === 0 ? (
             <tr>
-              <td colSpan={2} className="px-4 py-6 text-center text-slate-400">
+              <td colSpan={2} className="px-4 py-6 text-center text-ink-3">
                 No attendance recorded yet.
               </td>
             </tr>

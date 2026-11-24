@@ -54,20 +54,20 @@ export function CreateEmployeeForm({ outlets }: { outlets: { id: string; name: s
   return (
     <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600">Name</label>
+        <label className="block text-xs font-medium text-ink-2">Name</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Priya Sharma"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Role</label>
+        <label className="block text-xs font-medium text-ink-2">Role</label>
         <input
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Cashier"
         />
       </div>
@@ -79,27 +79,27 @@ export function CreateEmployeeForm({ outlets }: { outlets: { id: string; name: s
         placeholder="Organization-wide"
       />
       <div>
-        <label className="block text-xs font-medium text-slate-600">Phone</label>
+        <label className="block text-xs font-medium text-ink-2">Phone</label>
         <input
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="optional"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600">Hire date</label>
+        <label className="block text-xs font-medium text-ink-2">Hire date</label>
         <input
           type="date"
           value={hireDate}
           onChange={(e) => setHireDate(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <Button type="submit" isLoading={isLoading}>
         Add employee
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

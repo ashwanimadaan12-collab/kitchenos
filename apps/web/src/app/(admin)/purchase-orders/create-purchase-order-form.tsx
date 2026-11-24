@@ -96,20 +96,20 @@ export function CreatePurchaseOrderForm({
             placeholder="Select an ingredient"
           />
           <div>
-            <label className="block text-xs font-medium text-slate-600">Quantity</label>
+            <label className="block text-xs font-medium text-ink-2">Quantity</label>
             <input
               value={row.quantityOrdered}
               onChange={(e) => updateRow(index, { quantityOrdered: e.target.value })}
-              className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+              className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
               placeholder="50"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600">Unit cost</label>
+            <label className="block text-xs font-medium text-ink-2">Unit cost</label>
             <input
               value={row.unitCost}
               onChange={(e) => updateRow(index, { unitCost: e.target.value })}
-              className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+              className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
               placeholder="58.00"
             />
           </div>
@@ -124,7 +124,7 @@ export function CreatePurchaseOrderForm({
           Create purchase order
         </Button>
       </div>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

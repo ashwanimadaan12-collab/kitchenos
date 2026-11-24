@@ -84,20 +84,20 @@ export function CreateComboForm({
           placeholder="Select a brand"
         />
         <div>
-          <label className="block text-xs font-medium text-slate-600">Name</label>
+          <label className="block text-xs font-medium text-ink-2">Name</label>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="Pizza + Coke Combo"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Combo price</label>
+          <label className="block text-xs font-medium text-ink-2">Combo price</label>
           <input
             value={comboPrice}
             onChange={(e) => setComboPrice(e.target.value)}
-            className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="299.00"
           />
         </div>
@@ -113,11 +113,11 @@ export function CreateComboForm({
             placeholder={brandId ? "Select a variant" : "Select a brand first"}
           />
           <div>
-            <label className="block text-xs font-medium text-slate-600">Quantity</label>
+            <label className="block text-xs font-medium text-ink-2">Quantity</label>
             <input
               value={row.quantity}
               onChange={(e) => updateRow(index, { quantity: e.target.value })}
-              className="mt-1 w-20 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+              className="mt-1 w-20 rounded-md border border-line px-3 py-1.5 text-sm"
               placeholder="1"
             />
           </div>
@@ -132,7 +132,7 @@ export function CreateComboForm({
           Create combo
         </Button>
       </div>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

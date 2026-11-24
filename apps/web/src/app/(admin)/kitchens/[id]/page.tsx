@@ -40,8 +40,8 @@ export default async function KitchenDetailPage({ params }: { params: Promise<{ 
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">{kitchen.name}</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold text-ink">{kitchen.name}</h1>
+          <p className="mt-1 text-sm text-ink-2">
             {kitchen.code} · {kitchen.kind === "CENTRAL_WAREHOUSE" ? "Central warehouse" : "Production kitchen"}
           </p>
         </div>
@@ -49,13 +49,13 @@ export default async function KitchenDetailPage({ params }: { params: Promise<{ 
       </div>
 
       <section className="mt-8">
-        <h2 className="text-lg font-medium text-slate-900">Stations</h2>
-        <p className="mt-1 text-sm text-slate-500">Functional stations used later by the kitchen display system.</p>
-        <div className="mt-3 rounded-lg border border-slate-200 bg-white p-4">
+        <h2 className="text-lg font-medium text-ink">Stations</h2>
+        <p className="mt-1 text-sm text-ink-2">Functional stations used later by the kitchen display system.</p>
+        <div className="mt-3 rounded-lg border border-line bg-surface p-4">
           <AddStationForm kitchenId={kitchen.id} />
         </div>
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Code</th>
@@ -64,15 +64,15 @@ export default async function KitchenDetailPage({ params }: { params: Promise<{ 
           </thead>
           <tbody>
             {kitchen.stations.map((station) => (
-              <tr key={station.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">{station.name}</td>
-                <td className="px-4 py-2 text-slate-500">{station.code}</td>
+              <tr key={station.id} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">{station.name}</td>
+                <td className="px-4 py-2 text-ink-2">{station.code}</td>
                 <td className="px-4 py-2">{station.isActive ? "Active" : "Inactive"}</td>
               </tr>
             ))}
             {kitchen.stations.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={3} className="px-4 py-6 text-center text-ink-3">
                   No stations yet.
                 </td>
               </tr>
@@ -82,15 +82,15 @@ export default async function KitchenDetailPage({ params }: { params: Promise<{ 
       </section>
 
       <section className="mt-8">
-        <h2 className="text-lg font-medium text-slate-900">Brands served</h2>
-        <p className="mt-1 text-sm text-slate-500">
+        <h2 className="text-lg font-medium text-ink">Brands served</h2>
+        <p className="mt-1 text-sm text-ink-2">
           A kitchen can produce for several brands at once (shared kitchen) or just one (dedicated kitchen).
         </p>
-        <div className="mt-3 rounded-lg border border-slate-200 bg-white p-4">
+        <div className="mt-3 rounded-lg border border-line bg-surface p-4">
           <MapBrandForm kitchenId={kitchen.id} availableBrands={availableBrands} />
         </div>
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Brand</th>
               <th className="px-4 py-2">Primary</th>
@@ -99,9 +99,9 @@ export default async function KitchenDetailPage({ params }: { params: Promise<{ 
           </thead>
           <tbody>
             {kitchen.brandKitchens.map((mapping) => (
-              <tr key={mapping.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">{mapping.brand.name}</td>
-                <td className="px-4 py-2 text-slate-500">{mapping.isPrimary ? "Yes" : "No"}</td>
+              <tr key={mapping.id} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">{mapping.brand.name}</td>
+                <td className="px-4 py-2 text-ink-2">{mapping.isPrimary ? "Yes" : "No"}</td>
                 <td className="px-4 py-2 text-right">
                   <UnmapButton path={`kitchens/${kitchen.id}/brands/${mapping.brand.id}`} />
                 </td>
@@ -109,7 +109,7 @@ export default async function KitchenDetailPage({ params }: { params: Promise<{ 
             ))}
             {kitchen.brandKitchens.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={3} className="px-4 py-6 text-center text-ink-3">
                   No brands mapped yet.
                 </td>
               </tr>

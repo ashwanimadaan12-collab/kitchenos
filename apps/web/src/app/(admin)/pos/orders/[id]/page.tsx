@@ -11,6 +11,7 @@ import { PromotionForm } from "./promotion-form";
 import { LoyaltyRedemptionForm } from "./loyalty-redemption-form";
 import { CustomerForm } from "./customer-form";
 import { MoreOptions } from "./more-options";
+import { KotButtons } from "./kot-buttons";
 
 interface OrderItem {
   id: string;
@@ -61,7 +62,10 @@ interface Menu {
   id: string;
   isActive: boolean;
   outletMenus: { outlet: { id: string }; isActive: boolean }[];
-  items: { isAvailable: boolean; variant: { id: string; name: string; product: { name: string } } }[];
+  items: {
+    isAvailable: boolean;
+    variant: { id: string; name: string; basePrice: string; product: { name: string } };
+  }[];
   comboItems: { isAvailable: boolean; combo: { id: string; name: string } }[];
 }
 
@@ -103,6 +107,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       id: item.variant.id,
       label: `${item.variant.product.name} — ${item.variant.name}`,
       category: categoryNameByVariantId.get(item.variant.id) ?? "Other",
+      price: item.variant.basePrice,
     }));
   const availableCombos = activeMenus
     .flatMap((m) => m.comboItems)
@@ -118,35 +123,26 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
+          <h1 className="text-2xl font-semibold text-ink">
             Order #{order.orderNumber} · {order.outlet.name}
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-ink-2">
             {order.channel} · {order.status}
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href={`/print/kot/${order.id}`}
-            target="_blank"
-            className="rounded-md bg-slate-100 px-3 py-2 text-sm font-medium text-slate-900 hover:bg-slate-200"
-          >
-            Print KOT
-          </Link>
-          <Link
-            href={`/print/receipt/${order.id}`}
-            target="_blank"
-            className="rounded-md bg-slate-100 px-3 py-2 text-sm font-medium text-slate-900 hover:bg-slate-200"
-          >
-            Print receipt
-          </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <KotButtons
+            orderId={order.id}
+            itemIds={activeItems.map((i) => i.id)}
+            isOpen={order.status === "OPEN"}
+          />
           {order.status === "OPEN" && order.payments.length === 0 ? <VoidOrderButton orderId={order.id} /> : null}
         </div>
       </div>
 
       {order.status === "OPEN" ? (
         <section className="mt-6">
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <div className="rounded-lg border border-line bg-surface p-4">
             <AddItemForm
               orderId={order.id}
               availableVariants={availableVariants}
@@ -155,7 +151,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                 .map((i) => ({ id: i.id, variantId: i.variantId, quantity: i.quantity }))}
             />
             {availableCombos.length > 0 ? (
-              <div className="mt-4 border-t border-slate-100 pt-4">
+              <div className="mt-4 border-t border-line pt-4">
                 <AddComboForm orderId={order.id} availableCombos={availableCombos} />
               </div>
             ) : null}
@@ -163,8 +159,8 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         </section>
       ) : null}
 
-      <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">Item</th>
             <th className="px-4 py-2">Unit price</th>
@@ -175,12 +171,12 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         </thead>
         <tbody>
           {activeItems.map((item) => (
-            <tr key={item.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 font-medium text-slate-900">
-                {item.comboId ? <span className="mr-1 text-xs text-slate-400">combo ·</span> : null}
+            <tr key={item.id} className="border-t border-line">
+              <td className="px-4 py-2 font-medium text-ink">
+                {item.comboId ? <span className="mr-1 text-xs text-ink-3">combo ·</span> : null}
                 {item.productName} — {item.variantName}
               </td>
-              <td className="px-4 py-2 text-slate-500">₹{item.unitPrice}</td>
+              <td className="px-4 py-2 text-ink-2">₹{item.unitPrice}</td>
               <td className="px-4 py-2">
                 {order.status === "OPEN" && !item.comboInstanceId ? (
                   <ItemQuantityForm orderId={order.id} itemId={item.id} initialQuantity={item.quantity} />
@@ -188,7 +184,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
                   item.quantity
                 )}
               </td>
-              <td className="px-4 py-2 text-slate-900">₹{item.lineTotal}</td>
+              <td className="px-4 py-2 text-ink">₹{item.lineTotal}</td>
               <td className="px-4 py-2 text-right">
                 {order.status === "OPEN" ? (
                   item.comboInstanceId ? (
@@ -201,7 +197,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             </tr>
           ))}
           {voidedItems.map((item) => (
-            <tr key={item.id} className="border-t border-slate-100 text-slate-400 line-through">
+            <tr key={item.id} className="border-t border-line text-ink-3 line-through">
               <td className="px-4 py-2">
                 {item.productName} — {item.variantName}
               </td>
@@ -213,7 +209,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           ))}
           {order.items.length === 0 ? (
             <tr>
-              <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+              <td colSpan={5} className="px-4 py-6 text-center text-ink-3">
                 No items yet.
               </td>
             </tr>
@@ -223,18 +219,18 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
       {order.status === "OPEN" ? (
         <MoreOptions>
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <div className="rounded-lg border border-line bg-surface p-4">
             <CustomerForm
               orderId={order.id}
               customers={customers.map((c) => ({ id: c.id, label: `${c.name} (${c.phone})` }))}
               linkedCustomer={order.customer}
             />
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <div className="rounded-lg border border-line bg-surface p-4">
             <PromotionForm orderId={order.id} appliedCode={order.promotion?.code ?? null} />
           </div>
           {order.customer ? (
-            <div className="rounded-lg border border-slate-200 bg-white p-4">
+            <div className="rounded-lg border border-line bg-surface p-4">
               <LoyaltyRedemptionForm
                 orderId={order.id}
                 availablePoints={order.customer.loyaltyPoints}
@@ -244,45 +240,45 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           ) : null}
         </MoreOptions>
       ) : order.customer ? (
-        <p className="mt-4 text-sm text-slate-500">Customer: {order.customer.name}</p>
+        <p className="mt-4 text-sm text-ink-2">Customer: {order.customer.name}</p>
       ) : null}
 
-      <div className="mt-4 ml-auto w-64 rounded-lg border border-slate-200 bg-white p-4 text-sm">
-        <div className="flex justify-between text-slate-500">
+      <div className="mt-4 ml-auto w-64 rounded-lg border border-line bg-surface p-4 text-sm">
+        <div className="flex justify-between text-ink-2">
           <span>Subtotal</span>
           <span>₹{order.subtotal}</span>
         </div>
-        <div className="flex justify-between text-slate-500">
+        <div className="flex justify-between text-ink-2">
           <span>Tax</span>
           <span>₹{order.taxTotal}</span>
         </div>
         {Number(order.discountAmount) > 0 ? (
-          <div className="flex justify-between text-emerald-600">
+          <div className="flex justify-between text-good">
             <span>Discount{order.promotion ? ` (${order.promotion.code})` : ""}</span>
             <span>-₹{order.discountAmount}</span>
           </div>
         ) : null}
         {Number(order.loyaltyDiscountAmount) > 0 ? (
-          <div className="flex justify-between text-emerald-600">
+          <div className="flex justify-between text-good">
             <span>Loyalty points ({order.loyaltyPointsRedeemed})</span>
             <span>-₹{order.loyaltyDiscountAmount}</span>
           </div>
         ) : null}
-        <div className="mt-1 flex justify-between border-t border-slate-200 pt-1 font-medium text-slate-900">
+        <div className="mt-1 flex justify-between border-t border-line pt-1 font-medium text-ink">
           <span>Total</span>
           <span>₹{order.total}</span>
         </div>
       </div>
 
       <section className="mt-8">
-        <h2 className="text-lg font-medium text-slate-900">Payments</h2>
+        <h2 className="text-lg font-medium text-ink">Payments</h2>
         {order.status === "OPEN" ? (
-          <div className="mt-3 rounded-lg border border-slate-200 bg-white p-4">
+          <div className="mt-3 rounded-lg border border-line bg-surface p-4">
             <AddPaymentForm orderId={order.id} balanceDue={balanceDue} />
           </div>
         ) : null}
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Method</th>
               <th className="px-4 py-2">Amount</th>
@@ -291,15 +287,15 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           </thead>
           <tbody>
             {order.payments.map((payment) => (
-              <tr key={payment.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">{payment.method}</td>
-                <td className="px-4 py-2 text-slate-900">₹{payment.amount}</td>
-                <td className="px-4 py-2 text-slate-500">{payment.referenceNumber ?? "—"}</td>
+              <tr key={payment.id} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">{payment.method}</td>
+                <td className="px-4 py-2 text-ink">₹{payment.amount}</td>
+                <td className="px-4 py-2 text-ink-2">{payment.referenceNumber ?? "—"}</td>
               </tr>
             ))}
             {order.payments.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={3} className="px-4 py-6 text-center text-ink-3">
                   No payments recorded yet.
                 </td>
               </tr>

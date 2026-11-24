@@ -41,12 +41,12 @@ export function ReceiveItemForm({ purchaseOrderId, itemId }: { purchaseOrderId: 
         value={quantity}
         onChange={(e) => setQuantity(e.target.value)}
         placeholder="qty"
-        className="w-20 rounded-md border border-slate-200 px-2 py-1 text-sm"
+        className="w-20 rounded-md border border-line px-2 py-1 text-sm"
       />
       <Button type="submit" variant="secondary" isLoading={isLoading}>
         Receive
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

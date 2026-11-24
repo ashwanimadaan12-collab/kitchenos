@@ -79,19 +79,19 @@ const DAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 // Sequential single-hue ramp (light -> dark) for magnitude, per the dataviz skill's rule for
 // heatmap cells — never a multi-hue "rainbow" scale.
 const INTENSITY_CLASSES = [
-  "bg-blue-50",
-  "bg-blue-100",
-  "bg-blue-200",
-  "bg-blue-300",
-  "bg-blue-400 text-white",
-  "bg-blue-600 text-white",
-  "bg-blue-800 text-white",
+  "bg-heat-1 text-ink",
+  "bg-heat-2 text-ink",
+  "bg-heat-3 text-ink",
+  "bg-heat-4 text-ink",
+  "bg-heat-5 text-white",
+  "bg-heat-6 text-white",
+  "bg-heat-7 text-white",
 ];
 
 function intensityClass(count: number, max: number): string {
-  if (count === 0 || max === 0) return "bg-slate-50";
+  if (count === 0 || max === 0) return "bg-surface-2";
   const bucket = Math.min(INTENSITY_CLASSES.length - 1, Math.floor((count / max) * (INTENSITY_CLASSES.length - 1)));
-  return INTENSITY_CLASSES[bucket] ?? "bg-slate-50";
+  return INTENSITY_CLASSES[bucket] ?? "bg-surface-2";
 }
 
 export default async function DemandPage({
@@ -154,8 +154,8 @@ export default async function DemandPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Demand Intelligence &amp; Sales Heatmaps</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <h1 className="text-2xl font-semibold text-ink">Demand Intelligence &amp; Sales Heatmaps</h1>
+      <p className="mt-2 text-sm text-ink-2">
         Every figure below is computed on demand from PAID orders, the same reporting
         philosophy as <span className="font-medium">Reports</span>. Promotion recommendations are ranked by
         estimated contribution (revenue minus known cost of goods), not just how few orders a slot had — a
@@ -163,9 +163,9 @@ export default async function DemandPage({
         discount.
       </p>
 
-      <form method="get" className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4">
+      <form method="get" className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-line bg-surface p-4">
         <div>
-          <label className="block text-xs font-medium text-slate-600" htmlFor="from">
+          <label className="block text-xs font-medium text-ink-2" htmlFor="from">
             From
           </label>
           <input
@@ -173,11 +173,11 @@ export default async function DemandPage({
             type="date"
             name="from"
             defaultValue={from?.slice(0, 10)}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600" htmlFor="to">
+          <label className="block text-xs font-medium text-ink-2" htmlFor="to">
             To
           </label>
           <input
@@ -185,18 +185,18 @@ export default async function DemandPage({
             type="date"
             name="to"
             defaultValue={to?.slice(0, 10)}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600" htmlFor="brandId">
+          <label className="block text-xs font-medium text-ink-2" htmlFor="brandId">
             Brand
           </label>
           <select
             id="brandId"
             name="brandId"
             defaultValue={brandId ?? ""}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           >
             <option value="">All brands</option>
             {brands.map((b) => (
@@ -207,14 +207,14 @@ export default async function DemandPage({
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600" htmlFor="outletId">
+          <label className="block text-xs font-medium text-ink-2" htmlFor="outletId">
             Outlet
           </label>
           <select
             id="outletId"
             name="outletId"
             defaultValue={outletId ?? ""}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           >
             <option value="">All outlets</option>
             {outlets.map((o) => (
@@ -225,14 +225,14 @@ export default async function DemandPage({
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600" htmlFor="channel">
+          <label className="block text-xs font-medium text-ink-2" htmlFor="channel">
             Channel
           </label>
           <select
             id="channel"
             name="channel"
             defaultValue={channel ?? ""}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           >
             <option value="">All channels</option>
             <option value="DINE_IN">Dine-in</option>
@@ -240,7 +240,7 @@ export default async function DemandPage({
             <option value="TAKEAWAY">Takeaway</option>
           </select>
         </div>
-        <button type="submit" className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-700">
+        <button type="submit" className="rounded-md bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-hover">
           Apply filters
         </button>
       </form>
@@ -264,15 +264,15 @@ export default async function DemandPage({
       ) : null}
 
       <section className="mt-8">
-        <h2 className="text-sm font-semibold text-slate-700">Weekday x hour demand heatmap</h2>
-        <p className="mt-1 text-xs text-slate-500">Hover a cell for its exact order count and revenue.</p>
-        <div className="mt-2 overflow-x-auto rounded-lg border border-slate-200 bg-white p-3">
+        <h2 className="text-sm font-semibold text-ink">Weekday x hour demand heatmap</h2>
+        <p className="mt-1 text-xs text-ink-2">Hover a cell for its exact order count and revenue.</p>
+        <div className="mt-2 overflow-x-auto rounded-lg border border-line bg-surface p-3">
           <table className="border-separate border-spacing-1">
             <thead>
               <tr>
                 <th className="w-10" />
                 {Array.from({ length: 24 }, (_, hour) => (
-                  <th key={hour} className="w-6 text-[10px] font-normal text-slate-400">
+                  <th key={hour} className="w-6 text-[10px] font-normal text-ink-3">
                     {hour % 3 === 0 ? hour : ""}
                   </th>
                 ))}
@@ -281,7 +281,7 @@ export default async function DemandPage({
             <tbody>
               {DAY_SHORT.map((label, dayOfWeek) => (
                 <tr key={dayOfWeek}>
-                  <td className="pr-2 text-right text-xs font-medium text-slate-600">{label}</td>
+                  <td className="pr-2 text-right text-xs font-medium text-ink-2">{label}</td>
                   {Array.from({ length: 24 }, (_, hour) => {
                     const cell = heatmapByCell.get(`${dayOfWeek}-${hour}`);
                     const count = cell?.orderCount ?? 0;
@@ -297,7 +297,7 @@ export default async function DemandPage({
               ))}
             </tbody>
           </table>
-          <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+          <div className="mt-3 flex items-center gap-2 text-xs text-ink-2">
             <span>Fewer orders</span>
             {INTENSITY_CLASSES.map((cls) => (
               <span key={cls} className={`h-4 w-4 rounded ${cls}`} />
@@ -309,9 +309,9 @@ export default async function DemandPage({
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <section>
-          <h2 className="text-sm font-semibold text-slate-700">Weekday distribution</h2>
-          <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-            <thead className="bg-slate-50 text-left text-slate-500">
+          <h2 className="text-sm font-semibold text-ink">Weekday distribution</h2>
+          <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+            <thead className="bg-surface-2 text-left text-ink-2">
               <tr>
                 <th className="px-4 py-2">Day</th>
                 <th className="px-4 py-2">Orders</th>
@@ -321,21 +321,21 @@ export default async function DemandPage({
             </thead>
             <tbody>
               {weekday.map((row) => (
-                <tr key={row.dayOfWeek} className="border-t border-slate-100">
-                  <td className="px-4 py-2 font-medium text-slate-900">{DAY_NAMES[row.dayOfWeek]}</td>
-                  <td className="px-4 py-2 text-slate-500">
+                <tr key={row.dayOfWeek} className="border-t border-line">
+                  <td className="px-4 py-2 font-medium text-ink">{DAY_NAMES[row.dayOfWeek]}</td>
+                  <td className="px-4 py-2 text-ink-2">
                     <div className="flex items-center gap-2">
-                      <div className="h-2 w-16 rounded bg-slate-100">
+                      <div className="h-2 w-16 rounded bg-surface-2">
                         <div
-                          className="h-2 rounded bg-blue-600"
+                          className="h-2 rounded bg-brand"
                           style={{ width: maxWeekdayCount > 0 ? `${(row.orderCount / maxWeekdayCount) * 100}%` : "0%" }}
                         />
                       </div>
                       {row.orderCount}
                     </div>
                   </td>
-                  <td className="px-4 py-2 text-slate-900">₹{row.revenue}</td>
-                  <td className="px-4 py-2 text-slate-500">₹{row.averageOrderValue}</td>
+                  <td className="px-4 py-2 text-ink">₹{row.revenue}</td>
+                  <td className="px-4 py-2 text-ink-2">₹{row.averageOrderValue}</td>
                 </tr>
               ))}
             </tbody>
@@ -343,9 +343,9 @@ export default async function DemandPage({
         </section>
 
         <section>
-          <h2 className="text-sm font-semibold text-slate-700">Seasonal trend (by month)</h2>
-          <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-            <thead className="bg-slate-50 text-left text-slate-500">
+          <h2 className="text-sm font-semibold text-ink">Seasonal trend (by month)</h2>
+          <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+            <thead className="bg-surface-2 text-left text-ink-2">
               <tr>
                 <th className="px-4 py-2">Month</th>
                 <th className="px-4 py-2">Orders</th>
@@ -354,15 +354,15 @@ export default async function DemandPage({
             </thead>
             <tbody>
               {monthly.map((row) => (
-                <tr key={row.month} className="border-t border-slate-100">
-                  <td className="px-4 py-2 font-medium text-slate-900">{row.month}</td>
-                  <td className="px-4 py-2 text-slate-500">{row.orderCount}</td>
-                  <td className="px-4 py-2 text-slate-900">₹{row.revenue}</td>
+                <tr key={row.month} className="border-t border-line">
+                  <td className="px-4 py-2 font-medium text-ink">{row.month}</td>
+                  <td className="px-4 py-2 text-ink-2">{row.orderCount}</td>
+                  <td className="px-4 py-2 text-ink">₹{row.revenue}</td>
                 </tr>
               ))}
               {monthly.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-4 py-6 text-center text-slate-400">
+                  <td colSpan={3} className="px-4 py-6 text-center text-ink-3">
                     No revenue in this range.
                   </td>
                 </tr>
@@ -372,9 +372,9 @@ export default async function DemandPage({
         </section>
 
         <section>
-          <h2 className="text-sm font-semibold text-slate-700">Brand-wise demand</h2>
-          <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-            <thead className="bg-slate-50 text-left text-slate-500">
+          <h2 className="text-sm font-semibold text-ink">Brand-wise demand</h2>
+          <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+            <thead className="bg-surface-2 text-left text-ink-2">
               <tr>
                 <th className="px-4 py-2">Brand</th>
                 <th className="px-4 py-2">Orders</th>
@@ -383,10 +383,10 @@ export default async function DemandPage({
             </thead>
             <tbody>
               {brandDemand.map((row) => (
-                <tr key={row.brandId} className="border-t border-slate-100">
-                  <td className="px-4 py-2 font-medium text-slate-900">{row.brandName}</td>
-                  <td className="px-4 py-2 text-slate-500">{row.orderCount}</td>
-                  <td className="px-4 py-2 text-slate-900">₹{row.revenue}</td>
+                <tr key={row.brandId} className="border-t border-line">
+                  <td className="px-4 py-2 font-medium text-ink">{row.brandName}</td>
+                  <td className="px-4 py-2 text-ink-2">{row.orderCount}</td>
+                  <td className="px-4 py-2 text-ink">₹{row.revenue}</td>
                 </tr>
               ))}
             </tbody>
@@ -394,9 +394,9 @@ export default async function DemandPage({
         </section>
 
         <section>
-          <h2 className="text-sm font-semibold text-slate-700">Outlet-wise demand</h2>
-          <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-            <thead className="bg-slate-50 text-left text-slate-500">
+          <h2 className="text-sm font-semibold text-ink">Outlet-wise demand</h2>
+          <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+            <thead className="bg-surface-2 text-left text-ink-2">
               <tr>
                 <th className="px-4 py-2">Outlet</th>
                 <th className="px-4 py-2">Orders</th>
@@ -405,10 +405,10 @@ export default async function DemandPage({
             </thead>
             <tbody>
               {outletDemand.map((row) => (
-                <tr key={row.outletId} className="border-t border-slate-100">
-                  <td className="px-4 py-2 font-medium text-slate-900">{row.outletName}</td>
-                  <td className="px-4 py-2 text-slate-500">{row.orderCount}</td>
-                  <td className="px-4 py-2 text-slate-900">₹{row.revenue}</td>
+                <tr key={row.outletId} className="border-t border-line">
+                  <td className="px-4 py-2 font-medium text-ink">{row.outletName}</td>
+                  <td className="px-4 py-2 text-ink-2">{row.orderCount}</td>
+                  <td className="px-4 py-2 text-ink">₹{row.revenue}</td>
                 </tr>
               ))}
             </tbody>
@@ -416,9 +416,9 @@ export default async function DemandPage({
         </section>
 
         <section>
-          <h2 className="text-sm font-semibold text-slate-700">Channel-wise demand</h2>
-          <table className="mt-2 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-            <thead className="bg-slate-50 text-left text-slate-500">
+          <h2 className="text-sm font-semibold text-ink">Channel-wise demand</h2>
+          <table className="mt-2 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+            <thead className="bg-surface-2 text-left text-ink-2">
               <tr>
                 <th className="px-4 py-2">Channel</th>
                 <th className="px-4 py-2">Orders</th>
@@ -427,10 +427,10 @@ export default async function DemandPage({
             </thead>
             <tbody>
               {channelDemand.map((row) => (
-                <tr key={row.channel} className="border-t border-slate-100">
-                  <td className="px-4 py-2 font-medium text-slate-900">{row.channel.replace("_", "-")}</td>
-                  <td className="px-4 py-2 text-slate-500">{row.orderCount}</td>
-                  <td className="px-4 py-2 text-slate-900">₹{row.revenue}</td>
+                <tr key={row.channel} className="border-t border-line">
+                  <td className="px-4 py-2 font-medium text-ink">{row.channel.replace("_", "-")}</td>
+                  <td className="px-4 py-2 text-ink-2">{row.orderCount}</td>
+                  <td className="px-4 py-2 text-ink">₹{row.revenue}</td>
                 </tr>
               ))}
             </tbody>
@@ -438,23 +438,23 @@ export default async function DemandPage({
         </section>
 
         <section>
-          <h2 className="text-sm font-semibold text-slate-700">Promotion recommendations</h2>
-          <p className="mt-1 text-xs text-slate-500">Underperforming slots, ranked by order count, with a contribution-aware suggestion.</p>
+          <h2 className="text-sm font-semibold text-ink">Promotion recommendations</h2>
+          <p className="mt-1 text-xs text-ink-2">Underperforming slots, ranked by order count, with a contribution-aware suggestion.</p>
           <div className="mt-2 space-y-2">
             {recommendations.map((rec) => (
-              <div key={`${rec.dayOfWeek}-${rec.hour}`} className="rounded-lg border border-slate-200 bg-white p-3 text-sm">
-                <div className="font-medium text-slate-900">
+              <div key={`${rec.dayOfWeek}-${rec.hour}`} className="rounded-lg border border-line bg-surface p-3 text-sm">
+                <div className="font-medium text-ink">
                   {DAY_NAMES[rec.dayOfWeek]} {String(rec.hour).padStart(2, "0")}:00 — {rec.orderCount} order
                   {rec.orderCount === 1 ? "" : "s"}
                 </div>
-                <div className="mt-1 text-xs text-slate-500">
+                <div className="mt-1 text-xs text-ink-2">
                   Revenue ₹{rec.revenue} · Est. contribution ₹{rec.estimatedContribution} (₹{rec.contributionPerOrder}/order)
                 </div>
-                <div className="mt-1 text-slate-600">{rec.suggestion}</div>
+                <div className="mt-1 text-ink-2">{rec.suggestion}</div>
               </div>
             ))}
             {recommendations.length === 0 ? (
-              <div className="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-400">
+              <div className="rounded-lg border border-line bg-surface p-6 text-center text-sm text-ink-3">
                 No underperforming slots flagged in this range.
               </div>
             ) : null}
@@ -467,10 +467,10 @@ export default async function DemandPage({
 
 function SummaryCard({ label, value, sub, emphasize }: { label: string; value: string; sub?: string; emphasize?: boolean }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <div className="text-xs text-slate-500">{label}</div>
-      <div className={`mt-1 text-lg font-semibold ${emphasize ? "text-slate-900" : "text-slate-700"}`}>{value}</div>
-      {sub ? <div className="mt-0.5 text-xs text-slate-400">{sub}</div> : null}
+    <div className="rounded-lg border border-line bg-surface p-4">
+      <div className="text-xs text-ink-2">{label}</div>
+      <div className={`mt-1 text-lg font-semibold ${emphasize ? "text-ink" : "text-ink"}`}>{value}</div>
+      {sub ? <div className="mt-0.5 text-xs text-ink-3">{sub}</div> : null}
     </div>
   );
 }

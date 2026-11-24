@@ -49,7 +49,7 @@ export function AssignOutletForm({ menuId, availableOutlets }: AssignOutletFormP
   }
 
   if (availableOutlets.length === 0) {
-    return <p className="text-sm text-slate-400">Every outlet for this brand already runs this menu.</p>;
+    return <p className="text-sm text-ink-3">Every outlet for this brand already runs this menu.</p>;
   }
 
   return (
@@ -70,7 +70,7 @@ export function AssignOutletForm({ menuId, availableOutlets }: AssignOutletFormP
       <Button type="submit" isLoading={isLoading} variant="secondary" disabled={!outletId}>
         Assign to outlet
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

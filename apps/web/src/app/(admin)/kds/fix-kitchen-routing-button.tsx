@@ -109,16 +109,16 @@ export function FixKitchenRoutingButton() {
   }
 
   return (
-    <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
-      <p className="text-sm text-amber-900">
+    <div className="mb-4 rounded-lg border border-warn-line bg-warn-tint p-4">
+      <p className="text-sm text-warn">
         Agar order lene ke baad bhi kitchen screen pe kuch nahi dikh raha, niche button dabao — ye sabhi menu item ko
         kitchen se jod dega (ek hi baar karna hoga).
       </p>
       <Button type="button" onClick={onRun} isLoading={isRunning} className="mt-3">
         Kitchen Screen theek karo
       </Button>
-      {message ? <p className="mt-2 text-sm text-emerald-700">{message}</p> : null}
-      {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+      {message ? <p className="mt-2 text-sm text-good">{message}</p> : null}
+      {error ? <p className="mt-2 text-sm text-bad">{error}</p> : null}
     </div>
   );
 }

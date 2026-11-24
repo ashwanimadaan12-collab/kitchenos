@@ -112,20 +112,20 @@ export function CreatePricingRuleForm({ variants, outlets, defaultVariantId }: C
     <form onSubmit={onSubmit} className="space-y-3">
       <div className="flex flex-wrap items-end gap-3">
         <div>
-          <label className="block text-xs font-medium text-slate-600">Label</label>
+          <label className="block text-xs font-medium text-ink-2">Label</label>
           <input
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            className="mt-1 w-56 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-56 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="Weekend surcharge"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Category</label>
+          <label className="block text-xs font-medium text-ink-2">Category</label>
           <Select aria-label="Category" value={category} onChange={(e) => setCategory(e.target.value)} options={CATEGORY_OPTIONS} className="mt-1" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Variant (blank = all)</label>
+          <label className="block text-xs font-medium text-ink-2">Variant (blank = all)</label>
           <Select
             aria-label="Variant"
             value={variantId}
@@ -136,7 +136,7 @@ export function CreatePricingRuleForm({ variants, outlets, defaultVariantId }: C
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Outlet (blank = all)</label>
+          <label className="block text-xs font-medium text-ink-2">Outlet (blank = all)</label>
           <Select
             aria-label="Outlet"
             value={outletId}
@@ -147,7 +147,7 @@ export function CreatePricingRuleForm({ variants, outlets, defaultVariantId }: C
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Channel (blank = all)</label>
+          <label className="block text-xs font-medium text-ink-2">Channel (blank = all)</label>
           <Select
             aria-label="Channel"
             value={channel}
@@ -165,7 +165,7 @@ export function CreatePricingRuleForm({ variants, outlets, defaultVariantId }: C
 
       <div className="flex flex-wrap items-end gap-3">
         <div>
-          <label className="block text-xs font-medium text-slate-600">Days (blank = every day)</label>
+          <label className="block text-xs font-medium text-ink-2">Days (blank = every day)</label>
           <div className="mt-1 flex gap-1">
             {DAY_OPTIONS.map((d) => (
               <button
@@ -173,7 +173,7 @@ export function CreatePricingRuleForm({ variants, outlets, defaultVariantId }: C
                 type="button"
                 onClick={() => toggleDay(d.value)}
                 className={`rounded-md px-2 py-1 text-xs font-medium ${
-                  daysOfWeek.includes(d.value) ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600"
+                  daysOfWeek.includes(d.value) ? "bg-brand text-white" : "bg-surface-2 text-ink-2"
                 }`}
               >
                 {d.label}
@@ -182,46 +182,46 @@ export function CreatePricingRuleForm({ variants, outlets, defaultVariantId }: C
           </div>
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Start time (HH:mm)</label>
+          <label className="block text-xs font-medium text-ink-2">Start time (HH:mm)</label>
           <input
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
-            className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="22:00"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">End time (HH:mm)</label>
+          <label className="block text-xs font-medium text-ink-2">End time (HH:mm)</label>
           <input
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}
-            className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="06:00"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Valid from</label>
+          <label className="block text-xs font-medium text-ink-2">Valid from</label>
           <input
             value={validFrom}
             onChange={(e) => setValidFrom(e.target.value)}
             type="date"
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Valid to</label>
+          <label className="block text-xs font-medium text-ink-2">Valid to</label>
           <input
             value={validTo}
             onChange={(e) => setValidTo(e.target.value)}
             type="date"
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           />
         </div>
       </div>
 
       <div className="flex flex-wrap items-end gap-3">
         <div>
-          <label className="block text-xs font-medium text-slate-600">Adjustment</label>
+          <label className="block text-xs font-medium text-ink-2">Adjustment</label>
           <Select
             aria-label="Adjustment type"
             value={adjustmentType}
@@ -231,31 +231,31 @@ export function CreatePricingRuleForm({ variants, outlets, defaultVariantId }: C
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Value</label>
+          <label className="block text-xs font-medium text-ink-2">Value</label>
           <input
             value={adjustmentValue}
             onChange={(e) => setAdjustmentValue(e.target.value)}
-            className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="10.00"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Priority</label>
+          <label className="block text-xs font-medium text-ink-2">Priority</label>
           <input
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
             type="number"
-            className="mt-1 w-20 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-20 rounded-md border border-line px-3 py-1.5 text-sm"
           />
         </div>
-        <label className="flex items-center gap-1 whitespace-nowrap text-xs text-slate-600">
+        <label className="flex items-center gap-1 whitespace-nowrap text-xs text-ink-2">
           <input type="checkbox" checked={approvedOverride} onChange={(e) => setApprovedOverride(e.target.checked)} />
           Approve below the margin floor
         </label>
         <Button type="submit" isLoading={isLoading}>
           Add pricing rule
         </Button>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? <p className="text-sm text-bad">{error}</p> : null}
       </div>
     </form>
   );

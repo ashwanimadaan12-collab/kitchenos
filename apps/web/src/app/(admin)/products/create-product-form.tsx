@@ -91,7 +91,7 @@ export function CreateProductForm({ brands, categories, taxCategories }: CreateP
         placeholder="No tax category"
       />
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="product-name">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="product-name">
           Product name
         </label>
         <input
@@ -99,12 +99,12 @@ export function CreateProductForm({ brands, categories, taxCategories }: CreateP
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Margherita"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="product-sku">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="product-sku">
           SKU
         </label>
         <input
@@ -112,12 +112,12 @@ export function CreateProductForm({ brands, categories, taxCategories }: CreateP
           required
           value={sku}
           onChange={(e) => setSku(e.target.value.toUpperCase())}
-          className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="PP-MARG"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="variant-name">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="variant-name">
           First variant
         </label>
         <input
@@ -125,12 +125,12 @@ export function CreateProductForm({ brands, categories, taxCategories }: CreateP
           required
           value={variantName}
           onChange={(e) => setVariantName(e.target.value)}
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Regular"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="variant-sku">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="variant-sku">
           Variant SKU
         </label>
         <input
@@ -138,12 +138,12 @@ export function CreateProductForm({ brands, categories, taxCategories }: CreateP
           required
           value={variantSku}
           onChange={(e) => setVariantSku(e.target.value.toUpperCase())}
-          className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="PP-MARG-REG"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="base-price">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="base-price">
           Base price
         </label>
         <input
@@ -152,14 +152,14 @@ export function CreateProductForm({ brands, categories, taxCategories }: CreateP
           inputMode="decimal"
           value={basePrice}
           onChange={(e) => setBasePrice(e.target.value)}
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="199.00"
         />
       </div>
       <Button type="submit" isLoading={isLoading}>
         Add product
       </Button>
-      {error ? <p className="w-full text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="w-full text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

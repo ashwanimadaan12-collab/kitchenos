@@ -31,7 +31,7 @@ export function DispatchDueButton() {
       <Button variant="secondary" isLoading={isLoading} onClick={onClick}>
         Dispatch due messages now
       </Button>
-      {dispatched !== null ? <span className="text-xs text-slate-500">Dispatched {dispatched}.</span> : null}
+      {dispatched !== null ? <span className="text-xs text-ink-2">Dispatched {dispatched}.</span> : null}
     </div>
   );
 }

@@ -43,8 +43,8 @@ export function AddPaymentForm({ orderId, balanceDue }: { orderId: string; balan
 
   return (
     <div>
-      <p className="text-sm font-medium text-slate-700">
-        Pura amount <span className="font-semibold text-slate-900">₹{balanceDue}</span> — kis tarike se liya?
+      <p className="text-sm font-medium text-ink">
+        Pura amount <span className="font-semibold text-ink">₹{balanceDue}</span> — kis tarike se liya?
       </p>
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {METHODS.map((m) => (
@@ -53,7 +53,7 @@ export function AddPaymentForm({ orderId, balanceDue }: { orderId: string; balan
             type="button"
             onClick={() => pay(m.value)}
             disabled={loadingMethod !== null}
-            className="rounded-xl border-2 border-slate-200 bg-white px-3 py-5 text-center text-base font-semibold text-slate-900 shadow-sm transition hover:border-slate-900 hover:bg-slate-50 active:scale-95 disabled:opacity-50"
+            className="rounded-xl border-2 border-line bg-surface px-3 py-5 text-center text-base font-semibold text-ink shadow-sm transition hover:border-brand hover:bg-surface-2 active:scale-95 disabled:opacity-50"
           >
             <span className="block text-2xl">{loadingMethod === m.value ? "…" : m.icon}</span>
             <span className="mt-1 block">{m.label}</span>
@@ -64,7 +64,7 @@ export function AddPaymentForm({ orderId, balanceDue }: { orderId: string; balan
       <button
         type="button"
         onClick={() => setShowCustomAmount((v) => !v)}
-        className="mt-3 text-sm font-medium text-slate-500 hover:text-slate-900"
+        className="mt-3 text-sm font-medium text-ink-2 hover:text-ink"
       >
         {showCustomAmount ? "− Pura amount hi lo" : "+ Alag amount / reference number"}
       </button>
@@ -72,7 +72,7 @@ export function AddPaymentForm({ orderId, balanceDue }: { orderId: string; balan
       {showCustomAmount ? (
         <div className="mt-3 flex flex-wrap items-end gap-3">
           <div>
-            <label className="block text-xs font-medium text-slate-600" htmlFor="payment-amount">
+            <label className="block text-xs font-medium text-ink-2" htmlFor="payment-amount">
               Amount
             </label>
             <input
@@ -80,24 +80,24 @@ export function AddPaymentForm({ orderId, balanceDue }: { orderId: string; balan
               inputMode="decimal"
               value={customAmount}
               onChange={(e) => setCustomAmount(e.target.value)}
-              className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+              className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600" htmlFor="payment-reference">
+            <label className="block text-xs font-medium text-ink-2" htmlFor="payment-reference">
               Reference (optional)
             </label>
             <input
               id="payment-reference"
               value={referenceNumber}
               onChange={(e) => setReferenceNumber(e.target.value)}
-              className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+              className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
             />
           </div>
         </div>
       ) : null}
 
-      {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="mt-2 text-sm text-bad">{error}</p> : null}
     </div>
   );
 }

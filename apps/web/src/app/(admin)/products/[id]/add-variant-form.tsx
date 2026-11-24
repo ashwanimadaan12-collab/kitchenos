@@ -60,7 +60,7 @@ export function AddVariantForm({ productId }: { productId: string }) {
     <form onSubmit={onSubmit} className="space-y-3">
       <div className="flex flex-wrap items-end gap-3">
         <div>
-          <label className="block text-xs font-medium text-slate-600" htmlFor="variant-name">
+          <label className="block text-xs font-medium text-ink-2" htmlFor="variant-name">
             Name
           </label>
           <input
@@ -68,12 +68,12 @@ export function AddVariantForm({ productId }: { productId: string }) {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="Large"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600" htmlFor="variant-sku">
+          <label className="block text-xs font-medium text-ink-2" htmlFor="variant-sku">
             SKU
           </label>
           <input
@@ -81,12 +81,12 @@ export function AddVariantForm({ productId }: { productId: string }) {
             required
             value={sku}
             onChange={(e) => setSku(e.target.value.toUpperCase())}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="PP-MARG-L"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600" htmlFor="variant-price">
+          <label className="block text-xs font-medium text-ink-2" htmlFor="variant-price">
             Base price
           </label>
           <input
@@ -95,55 +95,55 @@ export function AddVariantForm({ productId }: { productId: string }) {
             inputMode="decimal"
             value={basePrice}
             onChange={(e) => setBasePrice(e.target.value)}
-            className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="499.00"
           />
         </div>
-        <label className="flex items-center gap-2 pb-2 text-sm text-slate-700">
+        <label className="flex items-center gap-2 pb-2 text-sm text-ink">
           <input type="checkbox" checked={isRetailCommodity} onChange={(e) => setIsRetailCommodity(e.target.checked)} />
           Pre-packaged retail commodity
         </label>
         <Button type="submit" isLoading={isLoading} variant="secondary">
           Add variant
         </Button>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
+        {error ? <p className="text-sm text-bad">{error}</p> : null}
       </div>
 
       {isRetailCommodity ? (
-        <div className="flex flex-wrap items-end gap-3 rounded-md bg-slate-50 p-3">
+        <div className="flex flex-wrap items-end gap-3 rounded-md bg-surface-2 p-3">
           <div>
-            <label className="block text-xs font-medium text-slate-600">Purchase price</label>
+            <label className="block text-xs font-medium text-ink-2">Purchase price</label>
             <input
               value={purchasePrice}
               onChange={(e) => setPurchasePrice(e.target.value)}
-              className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+              className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
               placeholder="9.00"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600">Supplier price</label>
+            <label className="block text-xs font-medium text-ink-2">Supplier price</label>
             <input
               value={supplierPrice}
               onChange={(e) => setSupplierPrice(e.target.value)}
-              className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+              className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
               placeholder="9.50"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600">Landed cost</label>
+            <label className="block text-xs font-medium text-ink-2">Landed cost</label>
             <input
               value={landedCost}
               onChange={(e) => setLandedCost(e.target.value)}
-              className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+              className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
               placeholder="10.00"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600">Printed MRP</label>
+            <label className="block text-xs font-medium text-ink-2">Printed MRP</label>
             <input
               value={printedMRP}
               onChange={(e) => setPrintedMRP(e.target.value)}
-              className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+              className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
               placeholder="20.00"
             />
           </div>

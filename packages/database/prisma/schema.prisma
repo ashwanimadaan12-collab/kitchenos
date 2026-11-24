@@ -21,12 +21,26 @@ datasource db {
 /// A tenant. All data in the system is scoped to an Organization, directly
 /// or transitively, to enforce tenant isolation.
 model Organization {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id   String @id @default(cuid())
+  name String
+  slug String @unique
+  /// Which subscription tier this workspace is on. A plain string, not an enum,
+  /// because the tiers and their prices live in @kitchenos/shared's PLANS table
+  /// and change far more often than the database should: adding or renaming a
+  /// tier there must not need a migration here. An unknown value falls back to
+  /// the cheapest tier rather than unlocking anything.
+  plan String @default("chhota")
+  /// While this is in the future every feature is unlocked, whatever `plan`
+  /// says, so a new restaurant sees the whole product before paying. Null once
+  /// the trial has been converted or was never offered.
+  trialEndsAt DateTime?
+  /// The registered business name, which a tax invoice must carry and which is
+  /// often not the name over the door: "Sharma Foods Pvt Ltd" trading as
+  /// "Spice Route". Null means the bill falls back to the brand's name.
+  legalName   String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   memberships            OrganizationMembership[]
   roles                  Role[]
@@ -66,6 +80,7 @@ model Organization {
   campaignRecipients     CampaignRecipient[]
   pricingRules           PricingRule[]
   pricingSettings        PricingSettings?
+  aggregatorSettlements  AggregatorSettlement[]
 
   @@map("organizations")
 }
@@ -88,6 +103,7 @@ model User {
   refreshTokens         RefreshToken[]
   auditLogs             AuditLog[]
   ordersCreated         Order[]
+  settlementsUploaded   AggregatorSettlement[]
   purchaseOrdersCreated PurchaseOrder[]
   expensesRecorded      Expense[]
   loyaltyTransactions   LoyaltyTransaction[]
@@ -307,6 +323,14 @@ model Outlet {
   code           String
   address        String?
   city           String?
+  /// GSTIN of the registration this outlet bills under. Registration is
+  /// state-wise, so two outlets in different states have different GSTINs and
+  /// this cannot live on the organization. Null for a business below the
+  /// threshold, which must then not charge GST at all — the bill prints as a
+  /// plain receipt rather than a tax invoice.
+  gstin          String?
+  /// FSSAI licence of these premises, which a food bill has to carry.
+  fssaiLicence   String?
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -322,6 +346,7 @@ model Outlet {
   employees           Employee[]
   pricingRules        PricingRule[]
   tables              RestaurantTable[]
+  aggregatorSettlements AggregatorSettlement[]
 
   @@unique([organizationId, code])
   @@index([organizationId])
@@ -1760,4 +1785,75 @@ model CampaignRecipient {
   @@index([organizationId])
   @@index([customerId])
   @@map("campaign_recipients")
+}
+
+/// Which delivery platform a settlement report came from.
+enum AggregatorPlatform {
+  ZOMATO
+  SWIGGY
+  OTHER
+}
+
+/// One uploaded payout report: the totals it added up to, kept so a restaurant
+/// can see month on month what each platform actually paid, long after the
+/// spreadsheet is lost. The per-order lines live in the rows below.
+model AggregatorSettlement {
+  id             String             @id @default(cuid())
+  organizationId String
+  /// Null when the upload covers the whole organization rather than one outlet.
+  outletId       String?
+  platform       AggregatorPlatform
+  fileName       String
+  /// Earliest and latest order date found in the file, used to line the report
+  /// up against the POS's own orders for the same days.
+  periodStart    DateTime?
+  periodEnd      DateTime?
+
+  orderCount         Int      @default(0)
+  grossSales         Decimal  @default(0) @db.Decimal(12, 2)
+  restaurantDiscount Decimal  @default(0) @db.Decimal(12, 2)
+  commission         Decimal  @default(0) @db.Decimal(12, 2)
+  platformFees       Decimal  @default(0) @db.Decimal(12, 2)
+  taxesWithheld      Decimal  @default(0) @db.Decimal(12, 2)
+  otherAdjustments   Decimal  @default(0) @db.Decimal(12, 2)
+  /// Gross less every deduction, as this app works it out from the columns.
+  calculatedNetPayout Decimal @default(0) @db.Decimal(12, 2)
+  /// What the report's own payout column added up to, when it had one. A gap
+  /// between the two is the thing worth querying with the platform.
+  reportedNetPayout   Decimal? @db.Decimal(12, 2)
+
+  uploadedByUserId String?
+  createdAt        DateTime @default(now())
+
+  organization Organization               @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  outlet       Outlet?                    @relation(fields: [outletId], references: [id], onDelete: SetNull)
+  uploadedBy   User?                      @relation(fields: [uploadedByUserId], references: [id], onDelete: SetNull)
+  rows         AggregatorSettlementRow[]
+
+  @@index([organizationId, platform, periodStart])
+  @@map("aggregator_settlements")
+}
+
+/// One order's line from a payout report, stored as the file gave it so a
+/// disputed order can be looked up later without the spreadsheet.
+model AggregatorSettlementRow {
+  id              String    @id @default(cuid())
+  settlementId    String
+  organizationId  String
+  externalOrderId String
+  orderedAt       DateTime?
+
+  grossSales         Decimal  @default(0) @db.Decimal(12, 2)
+  restaurantDiscount Decimal  @default(0) @db.Decimal(12, 2)
+  commission         Decimal  @default(0) @db.Decimal(12, 2)
+  platformFees       Decimal  @default(0) @db.Decimal(12, 2)
+  taxesWithheld      Decimal  @default(0) @db.Decimal(12, 2)
+  otherAdjustments   Decimal  @default(0) @db.Decimal(12, 2)
+  reportedNetPayout  Decimal? @db.Decimal(12, 2)
+
+  settlement AggregatorSettlement @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+
+  @@index([settlementId])
+  @@index([organizationId, externalOrderId])
+  @@map("aggregator_settlement_rows")
 }

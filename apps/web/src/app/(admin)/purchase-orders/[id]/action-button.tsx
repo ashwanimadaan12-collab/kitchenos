@@ -38,7 +38,7 @@ export function ActionButton({
       <Button variant={variant} isLoading={isLoading} onClick={onClick}>
         {label}
       </Button>
-      {error ? <p className="mt-1 text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="mt-1 text-sm text-bad">{error}</p> : null}
     </div>
   );
 }

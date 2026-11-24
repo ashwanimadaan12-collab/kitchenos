@@ -28,38 +28,38 @@ export default async function AuditLogsPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Audit Logs</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <h1 className="text-2xl font-semibold text-ink">Audit Logs</h1>
+      <p className="mt-2 text-sm text-ink-2">
         A record of every create/update action taken in this organization, most recent first. Login/logout
         events aren&apos;t shown here since they happen before an organization is selected.
       </p>
 
-      <form method="get" className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4">
+      <form method="get" className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-line bg-surface p-4">
         <div>
-          <label className="block text-xs font-medium text-slate-600">Entity type</label>
+          <label className="block text-xs font-medium text-ink-2">Entity type</label>
           <input
             name="entityType"
             defaultValue={entityType ?? ""}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="e.g. Order"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Action</label>
+          <label className="block text-xs font-medium text-ink-2">Action</label>
           <input
             name="action"
             defaultValue={action ?? ""}
-            className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+            className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
             placeholder="e.g. order.create"
           />
         </div>
-        <button type="submit" className="rounded-md bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-700">
+        <button type="submit" className="rounded-md bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-hover">
           Apply filters
         </button>
       </form>
 
-      <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">When</th>
             <th className="px-4 py-2">Action</th>
@@ -70,22 +70,22 @@ export default async function AuditLogsPage({
         </thead>
         <tbody>
           {entries.map((entry) => (
-            <tr key={entry.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 text-slate-500">{new Date(entry.createdAt).toLocaleString()}</td>
-              <td className="px-4 py-2 font-medium text-slate-900">{entry.action}</td>
-              <td className="px-4 py-2 text-slate-500">
+            <tr key={entry.id} className="border-t border-line">
+              <td className="px-4 py-2 text-ink-2">{new Date(entry.createdAt).toLocaleString()}</td>
+              <td className="px-4 py-2 font-medium text-ink">{entry.action}</td>
+              <td className="px-4 py-2 text-ink-2">
                 {entry.entityType}
-                {entry.entityId ? <span className="text-xs text-slate-400"> ({entry.entityId.slice(0, 8)}…)</span> : null}
+                {entry.entityId ? <span className="text-xs text-ink-3"> ({entry.entityId.slice(0, 8)}…)</span> : null}
               </td>
-              <td className="px-4 py-2 text-slate-500">
+              <td className="px-4 py-2 text-ink-2">
                 {entry.user ? `${entry.user.firstName} ${entry.user.lastName}` : "—"}
               </td>
-              <td className="px-4 py-2 text-slate-500">{entry.ipAddress ?? "—"}</td>
+              <td className="px-4 py-2 text-ink-2">{entry.ipAddress ?? "—"}</td>
             </tr>
           ))}
           {entries.length === 0 ? (
             <tr>
-              <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+              <td colSpan={5} className="px-4 py-6 text-center text-ink-3">
                 No audit log entries match this filter.
               </td>
             </tr>

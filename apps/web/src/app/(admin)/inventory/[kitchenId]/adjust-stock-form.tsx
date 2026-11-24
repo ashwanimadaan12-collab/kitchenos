@@ -55,7 +55,7 @@ export function AdjustStockForm({ kitchenId, ingredients }: { kitchenId: string;
       />
       <Select aria-label="Type" value={type} onChange={(e) => setType(e.target.value)} options={TYPE_OPTIONS} />
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="quantity-delta">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="quantity-delta">
           Quantity (+/-)
         </label>
         <input
@@ -63,25 +63,25 @@ export function AdjustStockForm({ kitchenId, ingredients }: { kitchenId: string;
           required
           value={quantityDelta}
           onChange={(e) => setQuantityDelta(e.target.value)}
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="-1"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="adjustment-note">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="adjustment-note">
           Note
         </label>
         <input
           id="adjustment-note"
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
         />
       </div>
       <Button type="submit" isLoading={isLoading} disabled={!ingredientId}>
         Record
       </Button>
-      {error ? <p className="w-full text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="w-full text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

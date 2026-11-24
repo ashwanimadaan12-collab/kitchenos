@@ -51,10 +51,10 @@ interface IngredientForecast {
 }
 
 const RISK_BADGE: Record<IngredientForecast["stockoutRisk"], string> = {
-  HIGH: "bg-red-100 text-red-700",
-  MEDIUM: "bg-amber-100 text-amber-700",
-  LOW: "bg-emerald-100 text-emerald-700",
-  NONE: "bg-slate-100 text-slate-500",
+  HIGH: "bg-bad-tint text-bad",
+  MEDIUM: "bg-warn-tint text-warn",
+  LOW: "bg-good-tint text-good",
+  NONE: "bg-surface-2 text-ink-2",
 };
 
 export default async function KitchenStockPage({
@@ -84,25 +84,25 @@ export default async function KitchenStockPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Stock on hand</h1>
+      <h1 className="text-2xl font-semibold text-ink">Stock on hand</h1>
 
       <section className="mt-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium text-slate-900">Demand forecast &amp; reorder recommendations</h2>
-          <form method="get" className="flex items-center gap-2 text-sm text-slate-600">
+          <h2 className="text-lg font-medium text-ink">Demand forecast &amp; reorder recommendations</h2>
+          <form method="get" className="flex items-center gap-2 text-sm text-ink-2">
             Horizon
-            <select name="horizonDays" defaultValue={effectiveHorizon} className="rounded-md border border-slate-200 px-2 py-1">
+            <select name="horizonDays" defaultValue={effectiveHorizon} className="rounded-md border border-line px-2 py-1">
               <option value="7">7 days</option>
               <option value="14">14 days</option>
               <option value="30">30 days</option>
             </select>
-            <button type="submit" className="rounded-md bg-slate-900 px-3 py-1.5 text-white">
+            <button type="submit" className="rounded-md bg-brand px-3 py-1.5 text-white">
               Apply
             </button>
           </form>
         </div>
-        <table className="mt-3 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-3 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Ingredient</th>
               <th className="px-4 py-2">Risk</th>
@@ -116,11 +116,11 @@ export default async function KitchenStockPage({
           </thead>
           <tbody>
             {forecasts.map((f) => (
-              <tr key={f.ingredientId} className="border-t border-slate-100 align-top">
-                <td className="px-4 py-2 font-medium text-slate-900">
+              <tr key={f.ingredientId} className="border-t border-line align-top">
+                <td className="px-4 py-2 font-medium text-ink">
                   <details>
                     <summary className="cursor-pointer">{f.ingredientName}</summary>
-                    <ul className="mt-1 list-disc pl-4 text-xs font-normal text-slate-500">
+                    <ul className="mt-1 list-disc pl-4 text-xs font-normal text-ink-2">
                       {f.explanation.map((line, i) => (
                         <li key={i}>{line}</li>
                       ))}
@@ -130,13 +130,13 @@ export default async function KitchenStockPage({
                 <td className="px-4 py-2">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${RISK_BADGE[f.stockoutRisk]}`}>{f.stockoutRisk}</span>
                 </td>
-                <td className="px-4 py-2 text-slate-500">{f.daysOfStockRemaining !== null ? f.daysOfStockRemaining.toFixed(1) : "—"}</td>
-                <td className="px-4 py-2 text-slate-500">
+                <td className="px-4 py-2 text-ink-2">{f.daysOfStockRemaining !== null ? f.daysOfStockRemaining.toFixed(1) : "—"}</td>
+                <td className="px-4 py-2 text-ink-2">
                   {f.forecastDemand}
                   {f.promotionUpliftApplied ? " (+promo)" : ""}
                 </td>
-                <td className="px-4 py-2 text-slate-500">
-                  {f.leadTimeDays}d <span className="text-xs text-slate-400">({f.leadTimeSource.replace("_", " ")})</span>
+                <td className="px-4 py-2 text-ink-2">
+                  {f.leadTimeDays}d <span className="text-xs text-ink-3">({f.leadTimeSource.replace("_", " ")})</span>
                 </td>
                 <td className="px-4 py-2">
                   <ForecastOverrideForm
@@ -148,12 +148,12 @@ export default async function KitchenStockPage({
                 </td>
                 <td className="px-4 py-2">
                   {f.reorderRecommended ? (
-                    <span className="font-medium text-amber-700">Reorder {f.reorderQuantitySuggested}</span>
+                    <span className="font-medium text-warn">Reorder {f.reorderQuantitySuggested}</span>
                   ) : (
-                    <span className="text-slate-400">OK</span>
+                    <span className="text-ink-3">OK</span>
                   )}
                 </td>
-                <td className="px-4 py-2 text-xs text-slate-500">
+                <td className="px-4 py-2 text-xs text-ink-2">
                   {f.excessInventory ? <div>Excess stock</div> : null}
                   {f.expiryRisk ? <div>Expiry risk</div> : null}
                   {!f.excessInventory && !f.expiryRisk ? "—" : null}
@@ -162,7 +162,7 @@ export default async function KitchenStockPage({
             ))}
             {forecasts.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={8} className="px-4 py-6 text-center text-ink-3">
                   No ingredients to forecast.
                 </td>
               </tr>
@@ -172,12 +172,12 @@ export default async function KitchenStockPage({
       </section>
 
       <section className="mt-8">
-        <h2 className="text-lg font-medium text-slate-900">Stock on hand</h2>
-        <div className="mt-3 rounded-lg border border-slate-200 bg-white p-4">
+        <h2 className="text-lg font-medium text-ink">Stock on hand</h2>
+        <div className="mt-3 rounded-lg border border-line bg-surface p-4">
           <AdjustStockForm kitchenId={kitchenId} ingredients={ingredients} />
         </div>
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Ingredient</th>
               <th className="px-4 py-2">Unit</th>
@@ -189,10 +189,10 @@ export default async function KitchenStockPage({
             {stock.map((balance) => {
               const low = balance.reorderPoint !== null && Number(balance.quantityOnHand) <= Number(balance.reorderPoint);
               return (
-                <tr key={balance.id} className="border-t border-slate-100">
-                  <td className="px-4 py-2 font-medium text-slate-900">{balance.ingredient.name}</td>
-                  <td className="px-4 py-2 text-slate-500">{balance.ingredient.unit}</td>
-                  <td className={`px-4 py-2 ${low ? "font-medium text-red-600" : "text-slate-900"}`}>
+                <tr key={balance.id} className="border-t border-line">
+                  <td className="px-4 py-2 font-medium text-ink">{balance.ingredient.name}</td>
+                  <td className="px-4 py-2 text-ink-2">{balance.ingredient.unit}</td>
+                  <td className={`px-4 py-2 ${low ? "font-medium text-bad" : "text-ink"}`}>
                     {balance.quantityOnHand}
                     {low ? " (low)" : ""}
                   </td>
@@ -204,7 +204,7 @@ export default async function KitchenStockPage({
             })}
             {stock.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={4} className="px-4 py-6 text-center text-ink-3">
                   No stock recorded at this kitchen yet.
                 </td>
               </tr>
@@ -214,9 +214,9 @@ export default async function KitchenStockPage({
       </section>
 
       <section className="mt-8">
-        <h2 className="text-lg font-medium text-slate-900">Movement history</h2>
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <h2 className="text-lg font-medium text-ink">Movement history</h2>
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">When</th>
               <th className="px-4 py-2">Ingredient</th>
@@ -227,17 +227,17 @@ export default async function KitchenStockPage({
           </thead>
           <tbody>
             {movements.map((movement) => (
-              <tr key={movement.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 text-slate-500">{new Date(movement.createdAt).toLocaleString()}</td>
-                <td className="px-4 py-2 font-medium text-slate-900">{movement.ingredient.name}</td>
-                <td className="px-4 py-2 text-slate-500">{movement.type}</td>
-                <td className="px-4 py-2 text-slate-900">{movement.quantityDelta}</td>
-                <td className="px-4 py-2 text-slate-500">{movement.note ?? "—"}</td>
+              <tr key={movement.id} className="border-t border-line">
+                <td className="px-4 py-2 text-ink-2">{new Date(movement.createdAt).toLocaleString()}</td>
+                <td className="px-4 py-2 font-medium text-ink">{movement.ingredient.name}</td>
+                <td className="px-4 py-2 text-ink-2">{movement.type}</td>
+                <td className="px-4 py-2 text-ink">{movement.quantityDelta}</td>
+                <td className="px-4 py-2 text-ink-2">{movement.note ?? "—"}</td>
               </tr>
             ))}
             {movements.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={5} className="px-4 py-6 text-center text-ink-3">
                   No movements yet.
                 </td>
               </tr>

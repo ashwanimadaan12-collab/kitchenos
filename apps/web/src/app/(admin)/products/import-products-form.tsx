@@ -235,14 +235,14 @@ export function ImportProductsForm({ brands, categories, taxCategories, outlets,
 
   return (
     <div className="space-y-4">
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-ink-2">
         Excel columns: Item Name, Price, MRP (optional), Purchase Price (optional). Agar MRP/Purchase Price doge to
         item retail-commodity (jaise packaged drinks) ke tarah save hoga.
       </p>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
         <div>
-          <label className="block text-xs font-medium text-slate-600">Brand</label>
+          <label className="block text-xs font-medium text-ink-2">Brand</label>
           <Select
             aria-label="Brand"
             value={brandId}
@@ -252,7 +252,7 @@ export function ImportProductsForm({ brands, categories, taxCategories, outlets,
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Category</label>
+          <label className="block text-xs font-medium text-ink-2">Category</label>
           <Select
             aria-label="Category"
             value={categoryId}
@@ -262,7 +262,7 @@ export function ImportProductsForm({ brands, categories, taxCategories, outlets,
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Tax category</label>
+          <label className="block text-xs font-medium text-ink-2">Tax category</label>
           <Select
             aria-label="Tax category"
             value={taxCategoryId}
@@ -272,7 +272,7 @@ export function ImportProductsForm({ brands, categories, taxCategories, outlets,
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600">Menu + Outlet price</label>
+          <label className="block text-xs font-medium text-ink-2">Menu + Outlet price</label>
           <div className="flex gap-2">
             <Select
               aria-label="Menu"
@@ -294,11 +294,11 @@ export function ImportProductsForm({ brands, categories, taxCategories, outlets,
 
       <div className="flex flex-wrap items-center gap-3">
         <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={onFileSelected} className="text-sm" />
-        <button type="button" onClick={downloadTemplate} className="text-sm font-medium text-slate-600 underline">
+        <button type="button" onClick={downloadTemplate} className="text-sm font-medium text-ink-2 underline">
           Sample template download karo
         </button>
       </div>
-      {importMessage ? <p className="text-sm text-slate-600">{importMessage}</p> : null}
+      {importMessage ? <p className="text-sm text-ink-2">{importMessage}</p> : null}
 
       {items.length > 0 ? (
         <div className="space-y-2">
@@ -307,33 +307,33 @@ export function ImportProductsForm({ brands, categories, taxCategories, outlets,
               <input
                 value={item.name}
                 onChange={(e) => updateItem(index, "name", e.target.value)}
-                className="col-span-2 rounded-md border border-slate-200 px-3 py-2 text-sm sm:col-span-1"
+                className="col-span-2 rounded-md border border-line px-3 py-2 text-sm sm:col-span-1"
               />
               <input
                 inputMode="decimal"
                 value={item.price}
                 onChange={(e) => updateItem(index, "price", e.target.value)}
                 placeholder="Price"
-                className="rounded-md border border-slate-200 px-3 py-2 text-sm"
+                className="rounded-md border border-line px-3 py-2 text-sm"
               />
               <input
                 inputMode="decimal"
                 value={item.mrp}
                 onChange={(e) => updateItem(index, "mrp", e.target.value)}
                 placeholder="MRP"
-                className="rounded-md border border-slate-200 px-3 py-2 text-sm"
+                className="rounded-md border border-line px-3 py-2 text-sm"
               />
               <input
                 inputMode="decimal"
                 value={item.purchasePrice}
                 onChange={(e) => updateItem(index, "purchasePrice", e.target.value)}
                 placeholder="Purchase"
-                className="rounded-md border border-slate-200 px-3 py-2 text-sm"
+                className="rounded-md border border-line px-3 py-2 text-sm"
               />
               <button
                 type="button"
                 onClick={() => removeItemRow(index)}
-                className="rounded-md px-2 py-2 text-slate-400 hover:bg-slate-100 hover:text-red-600"
+                className="rounded-md px-2 py-2 text-ink-3 hover:bg-surface-2 hover:text-bad"
                 aria-label="Remove item"
               >
                 ✕
@@ -343,8 +343,8 @@ export function ImportProductsForm({ brands, categories, taxCategories, outlets,
         </div>
       ) : null}
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      {progress && !error ? <p className="text-sm text-slate-600">{progress}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
+      {progress && !error ? <p className="text-sm text-ink-2">{progress}</p> : null}
 
       {items.length > 0 ? (
         <Button type="button" isLoading={isSubmitting} onClick={onImport}>

@@ -51,16 +51,16 @@ export function CommunicationPreferencesPanel({ customerId, preferences }: { cus
   }
 
   return (
-    <div className="mt-6 rounded-lg border border-slate-200 bg-white p-4">
-      <h2 className="text-sm font-semibold text-slate-900">Communication preferences</h2>
-      <p className="mt-1 text-xs text-slate-500">
+    <div className="mt-6 rounded-lg border border-line bg-surface p-4">
+      <h2 className="text-sm font-semibold text-ink">Communication preferences</h2>
+      <p className="mt-1 text-xs text-ink-2">
         Transactional messages (order confirmations, status updates) are allowed by default. Marketing messages
         require explicit, recorded consent before anything is sent.
       </p>
 
       <div className="mt-3 flex items-end gap-3">
         <div>
-          <label className="block text-xs font-medium text-slate-600">Consent source</label>
+          <label className="block text-xs font-medium text-ink-2">Consent source</label>
           <Select
             aria-label="Consent source"
             value={source}
@@ -74,8 +74,8 @@ export function CommunicationPreferencesPanel({ customerId, preferences }: { cus
         </div>
       </div>
 
-      <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-4 w-full overflow-hidden rounded-lg border border-line text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">Channel</th>
             <th className="px-4 py-2">Transactional</th>
@@ -88,13 +88,13 @@ export function CommunicationPreferencesPanel({ customerId, preferences }: { cus
           {CHANNELS.map((channel) => {
             const pref = byChannel.get(channel);
             return (
-              <tr key={channel} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">{channel}</td>
-                <td className="px-4 py-2 text-slate-500">
+              <tr key={channel} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">{channel}</td>
+                <td className="px-4 py-2 text-ink-2">
                   {(pref?.transactionalOptIn ?? true) ? "Allowed" : "Opted out of all messages"}
                 </td>
-                <td className="px-4 py-2 text-slate-500">{pref?.marketingOptIn ? "Opted in" : "Not consented"}</td>
-                <td className="px-4 py-2 text-xs text-slate-400">
+                <td className="px-4 py-2 text-ink-2">{pref?.marketingOptIn ? "Opted in" : "Not consented"}</td>
+                <td className="px-4 py-2 text-xs text-ink-3">
                   {pref?.consentGivenAt
                     ? `${pref.consentSource ?? "unknown source"} on ${new Date(pref.consentGivenAt).toLocaleDateString()}`
                     : "—"}

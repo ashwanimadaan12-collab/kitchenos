@@ -49,7 +49,7 @@ export function CreateProductCategoryForm({ brands }: { brands: { id: string; na
         placeholder="Select a brand"
       />
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="category-name">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="category-name">
           Category name
         </label>
         <input
@@ -57,14 +57,14 @@ export function CreateProductCategoryForm({ brands }: { brands: { id: string; na
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Pizzas"
         />
       </div>
       <Button type="submit" isLoading={isLoading} variant="secondary">
         Add category
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

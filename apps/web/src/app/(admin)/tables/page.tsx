@@ -42,27 +42,27 @@ export default async function TablesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Dine-in tables</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <h1 className="text-2xl font-semibold text-ink">Dine-in tables</h1>
+      <p className="mt-2 text-sm text-ink-2">
         Each table gets its own QR code. A customer who scans it sees the menu and can place an order
         directly — no app, no login — which lands in the normal POS/KDS flow as a cash-at-counter sale.
       </p>
 
-      <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+      <div className="mt-4 rounded-lg border border-line bg-surface p-4">
         <CreateTableForm outlets={outlets} />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {tables.map((table) => (
-          <div key={table.id} className="rounded-lg border border-slate-200 bg-white p-4">
+          <div key={table.id} className="rounded-lg border border-line bg-surface p-4">
             <div className="flex items-start justify-between">
               <div>
-                <p className="font-medium text-slate-900">{table.name}</p>
-                <p className="text-xs text-slate-500">{outletNameById.get(table.outletId) ?? "Unknown outlet"}</p>
+                <p className="font-medium text-ink">{table.name}</p>
+                <p className="text-xs text-ink-2">{outletNameById.get(table.outletId) ?? "Unknown outlet"}</p>
               </div>
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                  table.openOrder ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"
+                  table.openOrder ? "bg-warn-tint text-warn" : "bg-good-tint text-good"
                 }`}
               >
                 {table.openOrder ? `Occupied · #${table.openOrder.orderNumber} · ₹${table.openOrder.total}` : "Free"}
@@ -75,7 +75,7 @@ export default async function TablesPage() {
             </div>
           </div>
         ))}
-        {tables.length === 0 ? <p className="text-sm text-slate-400">No tables yet.</p> : null}
+        {tables.length === 0 ? <p className="text-sm text-ink-3">No tables yet.</p> : null}
       </div>
     </div>
   );

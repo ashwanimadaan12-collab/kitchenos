@@ -39,11 +39,11 @@ interface Template {
 }
 
 const STATUS_BADGE: Record<Campaign["status"], string> = {
-  DRAFT: "bg-slate-100 text-slate-600",
-  SCHEDULED: "bg-blue-100 text-blue-700",
-  RUNNING: "bg-amber-100 text-amber-700",
-  COMPLETED: "bg-emerald-100 text-emerald-700",
-  CANCELLED: "bg-red-100 text-red-700",
+  DRAFT: "bg-surface-2 text-ink-2",
+  SCHEDULED: "bg-brand-tint text-brand-tint-ink",
+  RUNNING: "bg-warn-tint text-warn",
+  COMPLETED: "bg-good-tint text-good",
+  CANCELLED: "bg-bad-tint text-bad",
 };
 
 export default async function CampaignsPage() {
@@ -87,21 +87,21 @@ export default async function CampaignsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">WhatsApp Marketing Automation</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <h1 className="text-2xl font-semibold text-ink">WhatsApp Marketing Automation</h1>
+      <p className="mt-2 text-sm text-ink-2">
         Build a customer segment, attach it to a campaign with one or more WhatsApp promotional templates (an
         A/B test if more than one), and dispatch. Every send is consent-gated — a customer who hasn&apos;t opted
         into marketing on WhatsApp is skipped, never messaged. Performance (sent/delivered/skipped/converted) is
         always computed fresh from the underlying message and order history, never a drifting cached counter.
       </p>
 
-      <section className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">Customer segments</h2>
+      <section className="mt-4 rounded-lg border border-line bg-surface p-4">
+        <h2 className="text-sm font-semibold text-ink">Customer segments</h2>
         <div className="mt-3">
           <CreateSegmentForm brands={brands} loyaltyTiers={loyaltyTiers} />
         </div>
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Matches</th>
@@ -109,14 +109,14 @@ export default async function CampaignsPage() {
           </thead>
           <tbody>
             {segments.map((segment) => (
-              <tr key={segment.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">{segment.name}</td>
-                <td className="px-4 py-2 text-slate-500">{segmentDescription(segment)}</td>
+              <tr key={segment.id} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">{segment.name}</td>
+                <td className="px-4 py-2 text-ink-2">{segmentDescription(segment)}</td>
               </tr>
             ))}
             {segments.length === 0 ? (
               <tr>
-                <td colSpan={2} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={2} className="px-4 py-6 text-center text-ink-3">
                   No customer segments yet.
                 </td>
               </tr>
@@ -125,18 +125,18 @@ export default async function CampaignsPage() {
         </table>
       </section>
 
-      <section className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">Campaigns</h2>
+      <section className="mt-4 rounded-lg border border-line bg-surface p-4">
+        <h2 className="text-sm font-semibold text-ink">Campaigns</h2>
         {blastTemplates.length === 0 ? (
-          <p className="mt-1 text-xs text-amber-600">
+          <p className="mt-1 text-xs text-warn">
             No active WhatsApp promotional templates yet — add one under Communications before creating a campaign.
           </p>
         ) : null}
         <div className="mt-3">
           <CreateCampaignForm segments={segments} templates={blastTemplates} />
         </div>
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Segment</th>
@@ -148,20 +148,20 @@ export default async function CampaignsPage() {
           </thead>
           <tbody>
             {campaigns.map((campaign) => (
-              <tr key={campaign.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">
+              <tr key={campaign.id} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">
                   <Link href={`/campaigns/${campaign.id}`} className="hover:underline">
                     {campaign.name}
                   </Link>
                 </td>
-                <td className="px-4 py-2 text-slate-500">{campaign.segment.name}</td>
-                <td className="px-4 py-2 text-slate-500">{campaign.variants.length}</td>
+                <td className="px-4 py-2 text-ink-2">{campaign.segment.name}</td>
+                <td className="px-4 py-2 text-ink-2">{campaign.variants.length}</td>
                 <td className="px-4 py-2">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[campaign.status]}`}>
                     {campaign.status}
                   </span>
                 </td>
-                <td className="px-4 py-2 text-slate-500">
+                <td className="px-4 py-2 text-ink-2">
                   {campaign.scheduledFor ? new Date(campaign.scheduledFor).toLocaleString() : "—"}
                 </td>
                 <td className="px-4 py-2 text-right">
@@ -171,7 +171,7 @@ export default async function CampaignsPage() {
             ))}
             {campaigns.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={6} className="px-4 py-6 text-center text-ink-3">
                   No campaigns yet.
                 </td>
               </tr>

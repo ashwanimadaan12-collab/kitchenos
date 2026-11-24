@@ -39,6 +39,11 @@ export interface SessionMembership {
   roleId: string;
   roleName: string;
   permissions: string[];
+  /** Subscription tier id, matching a plan in PLANS. Carried in the session so
+   *  every screen can gate on it without another round trip. */
+  plan: string;
+  /** ISO timestamp, or null. While it is in the future, every feature is on. */
+  trialEndsAt: string | null;
 }
 
 export interface AuthTokens {

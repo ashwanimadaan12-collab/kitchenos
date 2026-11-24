@@ -35,7 +35,7 @@ export function UpdateQuantityForm({ recipeId, ingredientId, initialQuantity }: 
       <input
         value={quantity}
         onChange={(e) => setQuantity(e.target.value)}
-        className="w-20 rounded-md border border-slate-200 px-2 py-1 text-sm"
+        className="w-20 rounded-md border border-line px-2 py-1 text-sm"
       />
       <Button type="submit" variant="ghost" isLoading={isLoading}>
         Save

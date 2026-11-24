@@ -34,18 +34,18 @@ export function PricingSettingsForm({ minimumMarginPercent }: { minimumMarginPer
   return (
     <form onSubmit={onSubmit} className="flex items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600">Minimum margin (%)</label>
+        <label className="block text-xs font-medium text-ink-2">Minimum margin (%)</label>
         <input
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="mt-1 w-28 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-28 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="0"
         />
       </div>
       <Button type="submit" isLoading={isLoading} variant="secondary">
         Save
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

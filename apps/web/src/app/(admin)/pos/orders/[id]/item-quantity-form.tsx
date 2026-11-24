@@ -35,7 +35,7 @@ export function ItemQuantityForm({ orderId, itemId, initialQuantity }: ItemQuant
         type="button"
         onClick={() => changeBy(-1)}
         disabled={isLoading}
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-lg font-bold text-slate-700 hover:bg-slate-200 disabled:opacity-50"
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-lg font-bold text-ink hover:bg-surface-2 disabled:opacity-50"
         aria-label="Kam karo"
       >
         −
@@ -45,7 +45,7 @@ export function ItemQuantityForm({ orderId, itemId, initialQuantity }: ItemQuant
         type="button"
         onClick={() => changeBy(1)}
         disabled={isLoading}
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-lg font-bold text-slate-700 hover:bg-slate-200 disabled:opacity-50"
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-lg font-bold text-ink hover:bg-surface-2 disabled:opacity-50"
         aria-label="Zyada karo"
       >
         +

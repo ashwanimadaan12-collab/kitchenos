@@ -45,14 +45,14 @@ export function ForecastOverrideForm({
         onChange={(e) => setSafetyStock(e.target.value)}
         placeholder="auto"
         title="Safety stock override"
-        className="w-16 rounded-md border border-slate-200 px-1.5 py-1 text-xs"
+        className="w-16 rounded-md border border-line px-1.5 py-1 text-xs"
       />
       <input
         value={leadTimeDays}
         onChange={(e) => setLeadTimeDays(e.target.value)}
         placeholder="auto"
         title="Lead time override (days)"
-        className="w-12 rounded-md border border-slate-200 px-1.5 py-1 text-xs"
+        className="w-12 rounded-md border border-line px-1.5 py-1 text-xs"
       />
       <Button type="submit" variant="ghost" isLoading={isLoading}>
         Save

@@ -4,7 +4,14 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import bcrypt from "bcryptjs";
 import { PrismaService, type User } from "@kitchenos/database";
-import { PERMISSIONS, type AuthTokens, type SessionMembership, type SessionUser, type SignupDto } from "@kitchenos/shared";
+import {
+  PERMISSIONS,
+  TRIAL_DAYS,
+  type AuthTokens,
+  type SessionMembership,
+  type SessionUser,
+  type SignupDto,
+} from "@kitchenos/shared";
 import type { Env } from "../config/env.schema.js";
 import { ms } from "./ms.util.js";
 import { slugify } from "../common/utils/slugify.util.js";
@@ -95,7 +102,12 @@ export class AuthService {
     const passwordHash = bcrypt.hashSync(dto.password, BCRYPT_ROUNDS);
 
     const user = await this.prisma.$transaction(async (tx) => {
-      const organization = await tx.organization.create({ data: { name: dto.organizationName, slug } });
+      // Every new workspace starts on a full trial: a small restaurant will not
+      // pay before it has put its own menu in and seen its own numbers come out.
+      const trialEndsAt = new Date(Date.now() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
+      const organization = await tx.organization.create({
+        data: { name: dto.organizationName, slug, trialEndsAt },
+      });
       const role = await tx.role.create({
         data: { organizationId: organization.id, name: "Org Admin", description: "Full access within the organization" },
       });
@@ -233,6 +245,8 @@ export class AuthService {
       roleId: m.roleId,
       roleName: m.role.name,
       permissions: m.role.permissions.map((rp) => rp.permission.key),
+      plan: m.organization.plan,
+      trialEndsAt: m.organization.trialEndsAt?.toISOString() ?? null,
     }));
 
     return {

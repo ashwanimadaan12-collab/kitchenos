@@ -1,7 +1,9 @@
 import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { Prisma, PrismaService } from "@kitchenos/database";
 import { CostingService } from "../costing/costing.service.js";
 import { resolveVariantCost } from "../common/utils/resolve-variant-cost.util.js";
+import type { Env } from "../config/env.schema.js";
 import type { ReportFilterDto } from "./dto/report-filter.dto.js";
 import type { TopProductsFilterDto } from "./dto/top-products-filter.dto.js";
 
@@ -23,7 +25,23 @@ export class ReportsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly costing: CostingService,
+    private readonly config: ConfigService<Env, true>,
   ) {}
+
+  /**
+   * Hour-of-day and day-of-week buckets in the restaurant's own clock.
+   *
+   * These used to read getUTCHours()/getUTCDay() straight off closedAt, which
+   * for an Indian outlet moved every order 5.5 hours earlier: the 9pm dinner
+   * rush was reported as a 3:30pm one, and anything sold after 5:30am IST on a
+   * Monday fell into Sunday's column. Shifting by the configured offset first
+   * puts both back where the owner would put them.
+   */
+  private localBucket(at: Date): { dayOfWeek: number; hour: number } {
+    const offsetMinutes = this.config.get("REPORT_UTC_OFFSET_MINUTES", { infer: true });
+    const shifted = new Date(at.getTime() + offsetMinutes * 60_000);
+    return { dayOfWeek: shifted.getUTCDay(), hour: shifted.getUTCHours() };
+  }
 
   /** Every report is scoped to PAID orders only — OPEN orders aren't final revenue, and VOIDED orders never were.
    *  Public so other modules (e.g. the growth dashboard) can scope their own queries to the same order set. */
@@ -120,13 +138,13 @@ export class ReportsService {
     });
   }
 
-  /** Revenue/order-count/AOV grouped by day of week (0 = Sunday .. 6 = Saturday), in UTC — the
-   *  same timezone convention Prompt 15's BIRTHDAY_THIS_WEEK segment already uses. */
+  /** Revenue/order-count/AOV grouped by day of week (0 = Sunday .. 6 = Saturday) in the
+   *  restaurant's own clock — see localBucket. */
   async weekdayDistribution(organizationId: string, filters: ReportFilterDto) {
     const orders = await this.loadBoundedOrders(organizationId, filters, false);
     const byDay = new Map<number, { orderCount: number; revenue: Prisma.Decimal }>();
     for (const order of orders) {
-      const day = order.closedAt!.getUTCDay();
+      const day = this.localBucket(order.closedAt!).dayOfWeek;
       const entry = byDay.get(day) ?? { orderCount: 0, revenue: new Decimal(0) };
       entry.orderCount += 1;
       entry.revenue = entry.revenue.add(order.total);
@@ -143,12 +161,12 @@ export class ReportsService {
     });
   }
 
-  /** Revenue/order-count/AOV grouped by hour of day (0-23, UTC). */
+  /** Revenue/order-count/AOV grouped by hour of day (0-23) in the restaurant's own clock. */
   async hourlyDistribution(organizationId: string, filters: ReportFilterDto) {
     const orders = await this.loadBoundedOrders(organizationId, filters, false);
     const byHour = new Map<number, { orderCount: number; revenue: Prisma.Decimal }>();
     for (const order of orders) {
-      const hour = order.closedAt!.getUTCHours();
+      const hour = this.localBucket(order.closedAt!).hour;
       const entry = byHour.get(hour) ?? { orderCount: 0, revenue: new Decimal(0) };
       entry.orderCount += 1;
       entry.revenue = entry.revenue.add(order.total);
@@ -171,8 +189,7 @@ export class ReportsService {
     const orders = await this.loadBoundedOrders(organizationId, filters, false);
     const byCell = new Map<string, { dayOfWeek: number; hour: number; orderCount: number; revenue: Prisma.Decimal }>();
     for (const order of orders) {
-      const dayOfWeek = order.closedAt!.getUTCDay();
-      const hour = order.closedAt!.getUTCHours();
+      const { dayOfWeek, hour } = this.localBucket(order.closedAt!);
       const key = `${dayOfWeek}-${hour}`;
       const entry = byCell.get(key) ?? { dayOfWeek, hour, orderCount: 0, revenue: new Decimal(0) };
       entry.orderCount += 1;
@@ -332,8 +349,7 @@ export class ReportsService {
     }
     const bySlot = new Map<string, SlotAccumulator>();
     for (const order of orders) {
-      const dayOfWeek = order.closedAt!.getUTCDay();
-      const hour = order.closedAt!.getUTCHours();
+      const { dayOfWeek, hour } = this.localBucket(order.closedAt!);
       const key = `${dayOfWeek}-${hour}`;
       const slot = bySlot.get(key) ?? { dayOfWeek, hour, orderCount: 0, revenue: new Decimal(0), contribution: new Decimal(0) };
       slot.orderCount += 1;

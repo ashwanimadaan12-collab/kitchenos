@@ -64,8 +64,8 @@ export default async function PricingPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Dynamic Pricing</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <h1 className="text-2xl font-semibold text-ink">Dynamic Pricing</h1>
+      <p className="mt-2 text-sm text-ink-2">
         Rules layer on top of each outlet&apos;s resolved base price (its own override, or the variant&apos;s base
         price) — time/weekend/festival windows, channel- or outlet-specific adjustments, and scheduled discounts
         all share one mechanism. A retail commodity&apos;s printed MRP is always a ceiling; the minimum margin
@@ -73,27 +73,27 @@ export default async function PricingPage({
         added to an order — a later rule change never rewrites a confirmed line.
       </p>
 
-      <section className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">Minimum contribution protection</h2>
+      <section className="mt-4 rounded-lg border border-line bg-surface p-4">
+        <h2 className="text-sm font-semibold text-ink">Minimum contribution protection</h2>
         <div className="mt-3">
           <PricingSettingsForm minimumMarginPercent={settings.minimumMarginPercent} />
         </div>
       </section>
 
-      <section className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">Try a quote</h2>
+      <section className="mt-4 rounded-lg border border-line bg-surface p-4">
+        <h2 className="text-sm font-semibold text-ink">Try a quote</h2>
         <div className="mt-3">
           <QuoteTool variants={variants} outlets={outlets} />
         </div>
       </section>
 
-      <section className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">Pricing rules</h2>
+      <section className="mt-4 rounded-lg border border-line bg-surface p-4">
+        <h2 className="text-sm font-semibold text-ink">Pricing rules</h2>
         <div className="mt-3">
           <CreatePricingRuleForm variants={variants} outlets={outlets} defaultVariantId={params.variantId} />
         </div>
-        <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 text-sm">
-          <thead className="bg-slate-50 text-left text-slate-500">
+        <table className="mt-4 w-full overflow-hidden rounded-lg border border-line text-sm">
+          <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
               <th className="px-4 py-2">Label</th>
               <th className="px-4 py-2">Category</th>
@@ -106,13 +106,13 @@ export default async function PricingPage({
           </thead>
           <tbody>
             {rules.map((rule) => (
-              <tr key={rule.id} className="border-t border-slate-100">
-                <td className="px-4 py-2 font-medium text-slate-900">{rule.label}</td>
-                <td className="px-4 py-2 text-slate-500">{rule.category.replace(/_/g, " ")}</td>
-                <td className="px-4 py-2 text-slate-500">
+              <tr key={rule.id} className="border-t border-line">
+                <td className="px-4 py-2 font-medium text-ink">{rule.label}</td>
+                <td className="px-4 py-2 text-ink-2">{rule.category.replace(/_/g, " ")}</td>
+                <td className="px-4 py-2 text-ink-2">
                   {rule.variant?.name ?? "All variants"} · {rule.outlet?.name ?? "All outlets"} · {rule.channel ?? "All channels"}
                 </td>
-                <td className="px-4 py-2 text-slate-500">
+                <td className="px-4 py-2 text-ink-2">
                   {rule.daysOfWeek.length > 0 ? rule.daysOfWeek.map((d) => DAY_LABELS[d]).join("/") : "Every day"}
                   {rule.startTime || rule.endTime ? ` ${rule.startTime ?? "00:00"}–${rule.endTime ?? "24:00"}` : ""}
                   {rule.validFrom || rule.validTo
@@ -121,7 +121,7 @@ export default async function PricingPage({
                       })`
                     : ""}
                 </td>
-                <td className="px-4 py-2 text-slate-500">
+                <td className="px-4 py-2 text-ink-2">
                   {ADJUSTMENT_LABEL[rule.adjustmentType]}
                   {rule.adjustmentValue} (priority {rule.priority})
                 </td>
@@ -133,7 +133,7 @@ export default async function PricingPage({
             ))}
             {rules.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-6 text-center text-slate-400">
+                <td colSpan={7} className="px-4 py-6 text-center text-ink-3">
                   No pricing rules yet.
                 </td>
               </tr>

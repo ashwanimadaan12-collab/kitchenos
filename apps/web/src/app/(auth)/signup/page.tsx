@@ -43,16 +43,16 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-8">
-      <form onSubmit={onSubmit} className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="text-xl font-semibold text-slate-900">Set up your restaurant</h1>
-        <p className="mt-1 text-sm text-slate-500">
+    <div className="flex min-h-screen items-center justify-center bg-surface-2 px-4 py-8">
+      <form onSubmit={onSubmit} className="w-full max-w-sm rounded-xl border border-line bg-surface p-8 shadow-sm">
+        <h1 className="text-xl font-semibold text-ink">Set up your restaurant</h1>
+        <p className="mt-1 text-sm text-ink-2">
           Creates a brand-new, empty workspace — you&apos;ll add your brands, outlets and menu after this.
         </p>
 
         <div className="mt-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700" htmlFor="organizationName">
+            <label className="block text-sm font-medium text-ink" htmlFor="organizationName">
               Restaurant / company name
             </label>
             <input
@@ -60,13 +60,13 @@ export default function SignupPage() {
               required
               value={organizationName}
               onChange={(e) => setOrganizationName(e.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm"
               placeholder="Spice Route Restaurants"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700" htmlFor="firstName">
+              <label className="block text-sm font-medium text-ink" htmlFor="firstName">
                 First name
               </label>
               <input
@@ -74,11 +74,11 @@ export default function SignupPage() {
                 required
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700" htmlFor="lastName">
+              <label className="block text-sm font-medium text-ink" htmlFor="lastName">
                 Last name
               </label>
               <input
@@ -86,12 +86,12 @@ export default function SignupPage() {
                 required
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm"
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700" htmlFor="email">
+            <label className="block text-sm font-medium text-ink" htmlFor="email">
               Email
             </label>
             <input
@@ -100,11 +100,11 @@ export default function SignupPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700" htmlFor="password">
+            <label className="block text-sm font-medium text-ink" htmlFor="password">
               Password
             </label>
             <input
@@ -114,21 +114,21 @@ export default function SignupPage() {
               minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm"
             />
-            <p className="mt-1 text-xs text-slate-400">At least 8 characters.</p>
+            <p className="mt-1 text-xs text-ink-3">At least 8 characters.</p>
           </div>
         </div>
 
-        {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+        {error ? <p className="mt-4 text-sm text-bad">{error}</p> : null}
 
         <Button type="submit" isLoading={isLoading} className="mt-6 w-full">
           Create workspace
         </Button>
 
-        <p className="mt-4 text-center text-sm text-slate-500">
+        <p className="mt-4 text-center text-sm text-ink-2">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-slate-900 hover:underline">
+          <Link href="/login" className="font-medium text-ink hover:underline">
             Sign in
           </Link>
         </p>

@@ -39,7 +39,7 @@ export function AddOverheadForm({ recipeId }: { recipeId: string }) {
   return (
     <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="overhead-label">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="overhead-label">
           Label
         </label>
         <input
@@ -47,12 +47,12 @@ export function AddOverheadForm({ recipeId }: { recipeId: string }) {
           required
           value={label}
           onChange={(e) => setLabel(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Labor"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="overhead-amount">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="overhead-amount">
           Amount
         </label>
         <input
@@ -61,14 +61,14 @@ export function AddOverheadForm({ recipeId }: { recipeId: string }) {
           inputMode="decimal"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="30.00"
         />
       </div>
       <Button type="submit" isLoading={isLoading} variant="secondary">
         Add overhead cost
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

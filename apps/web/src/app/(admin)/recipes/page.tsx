@@ -47,13 +47,13 @@ export default async function RecipesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Recipes</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <h1 className="text-2xl font-semibold text-ink">Recipes</h1>
+      <p className="mt-2 text-sm text-ink-2">
         The bill of materials for a variant — which ingredients (and packaging) it consumes, and which kitchen
         station prepares it. Prompt 05&apos;s costing engine will price a variant from this.
       </p>
 
-      <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+      <div className="mt-4 rounded-lg border border-line bg-surface p-4">
         <CreateRecipeForm
           brands={brands}
           products={products}
@@ -62,8 +62,8 @@ export default async function RecipesPage() {
         />
       </div>
 
-      <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">Product</th>
             <th className="px-4 py-2">Variant</th>
@@ -75,22 +75,22 @@ export default async function RecipesPage() {
         </thead>
         <tbody>
           {recipes.map((recipe) => (
-            <tr key={recipe.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 font-medium text-slate-900">
+            <tr key={recipe.id} className="border-t border-line">
+              <td className="px-4 py-2 font-medium text-ink">
                 <Link href={`/recipes/${recipe.id}`} className="hover:underline">
                   {recipe.variant.product.name}
                 </Link>
               </td>
-              <td className="px-4 py-2 text-slate-500">{recipe.variant.name}</td>
-              <td className="px-4 py-2 text-slate-500">{brandNameById.get(recipe.variant.product.brandId)}</td>
-              <td className="px-4 py-2 text-slate-500">{recipe.preparationStation?.name ?? "—"}</td>
-              <td className="px-4 py-2 text-slate-500">{recipe.ingredients.length}</td>
+              <td className="px-4 py-2 text-ink-2">{recipe.variant.name}</td>
+              <td className="px-4 py-2 text-ink-2">{brandNameById.get(recipe.variant.product.brandId)}</td>
+              <td className="px-4 py-2 text-ink-2">{recipe.preparationStation?.name ?? "—"}</td>
+              <td className="px-4 py-2 text-ink-2">{recipe.ingredients.length}</td>
               <td className="px-4 py-2">{recipe.isActive ? "Active" : "Inactive"}</td>
             </tr>
           ))}
           {recipes.length === 0 ? (
             <tr>
-              <td colSpan={6} className="px-4 py-6 text-center text-slate-400">
+              <td colSpan={6} className="px-4 py-6 text-center text-ink-3">
                 No recipes yet.
               </td>
             </tr>

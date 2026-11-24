@@ -6,6 +6,8 @@ import { LoggerModule } from "nestjs-pino";
 import { ConfigModule } from "./config/config.module.js";
 import type { Env } from "./config/env.schema.js";
 import { DatabaseModule } from "./database/database.module.js";
+import { PlanModule } from "./plan/plan.module.js";
+import { SettlementsModule } from "./settlements/settlements.module.js";
 import { RedisModule } from "./redis/redis.module.js";
 import { CommonModule } from "./common/common.module.js";
 import { AuditModule } from "./audit/audit.module.js";
@@ -66,6 +68,8 @@ import { HealthModule } from "./health/health.module.js";
       },
     }),
     DatabaseModule,
+    PlanModule,
+    SettlementsModule,
     RedisModule,
     CommonModule,
     AuditModule,

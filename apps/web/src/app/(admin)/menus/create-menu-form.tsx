@@ -40,7 +40,7 @@ export function CreateMenuForm({ brands }: { brands: { id: string; name: string 
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white p-4">
+    <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3 rounded-lg border border-line bg-surface p-4">
       <Select
         aria-label="Brand"
         value={brandId}
@@ -49,7 +49,7 @@ export function CreateMenuForm({ brands }: { brands: { id: string; name: string 
         placeholder="Select a brand"
       />
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="menu-name">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="menu-name">
           Menu name
         </label>
         <input
@@ -57,14 +57,14 @@ export function CreateMenuForm({ brands }: { brands: { id: string; name: string 
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="Dine-in Menu"
         />
       </div>
       <Button type="submit" isLoading={isLoading}>
         Add menu
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

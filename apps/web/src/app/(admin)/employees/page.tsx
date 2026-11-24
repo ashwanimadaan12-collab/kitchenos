@@ -23,18 +23,18 @@ export default async function EmployeesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Employees</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <h1 className="text-2xl font-semibold text-ink">Employees</h1>
+      <p className="mt-2 text-sm text-ink-2">
         Staff records and a clock-in/clock-out log. No payroll calculation, shift scheduling or leave management
         here — open an employee to clock them in or out.
       </p>
 
-      <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+      <div className="mt-4 rounded-lg border border-line bg-surface p-4">
         <CreateEmployeeForm outlets={outlets} />
       </div>
 
-      <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">Name</th>
             <th className="px-4 py-2">Role</th>
@@ -45,21 +45,21 @@ export default async function EmployeesPage() {
         </thead>
         <tbody>
           {employees.map((employee) => (
-            <tr key={employee.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 font-medium text-slate-900">
+            <tr key={employee.id} className="border-t border-line">
+              <td className="px-4 py-2 font-medium text-ink">
                 <Link href={`/employees/${employee.id}`} className="hover:underline">
                   {employee.name}
                 </Link>
               </td>
-              <td className="px-4 py-2 text-slate-500">{employee.role}</td>
-              <td className="px-4 py-2 text-slate-500">{employee.outlet?.name ?? "Organization-wide"}</td>
-              <td className="px-4 py-2 text-slate-500">{employee.phone ?? "—"}</td>
+              <td className="px-4 py-2 text-ink-2">{employee.role}</td>
+              <td className="px-4 py-2 text-ink-2">{employee.outlet?.name ?? "Organization-wide"}</td>
+              <td className="px-4 py-2 text-ink-2">{employee.phone ?? "—"}</td>
               <td className="px-4 py-2">{employee.isActive ? "Active" : "Inactive"}</td>
             </tr>
           ))}
           {employees.length === 0 ? (
             <tr>
-              <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+              <td colSpan={5} className="px-4 py-6 text-center text-ink-3">
                 No employees yet.
               </td>
             </tr>

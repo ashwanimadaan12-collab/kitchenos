@@ -46,16 +46,16 @@ export default async function ComboDetailPage({ params }: { params: Promise<{ id
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">{combo.name}</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-2xl font-semibold text-ink">{combo.name}</h1>
+          <p className="mt-1 text-sm text-ink-2">
             {combo.brand.name} · ₹{combo.comboPrice} · {combo.isActive ? "Active" : "Inactive"}
           </p>
         </div>
         <ToggleActiveButton path={`combos/${combo.id}`} isActive={combo.isActive} />
       </div>
 
-      <table className="mt-6 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-6 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">Component</th>
             <th className="px-4 py-2">Quantity</th>
@@ -64,11 +64,11 @@ export default async function ComboDetailPage({ params }: { params: Promise<{ id
         </thead>
         <tbody>
           {combo.items.map((item) => (
-            <tr key={item.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 font-medium text-slate-900">
+            <tr key={item.id} className="border-t border-line">
+              <td className="px-4 py-2 font-medium text-ink">
                 {item.variant.product.name} ({item.variant.name})
               </td>
-              <td className="px-4 py-2 text-slate-500">{item.quantity}</td>
+              <td className="px-4 py-2 text-ink-2">{item.quantity}</td>
               <td className="px-4 py-2 text-right">
                 <RemoveComboItemButton comboId={combo.id} variantId={item.variantId} disabled={combo.items.length <= 2} />
               </td>
@@ -77,7 +77,7 @@ export default async function ComboDetailPage({ params }: { params: Promise<{ id
         </tbody>
       </table>
 
-      <div className="mt-4 rounded-lg border border-slate-200 bg-white p-4">
+      <div className="mt-4 rounded-lg border border-line bg-surface p-4">
         <AddComboItemForm comboId={combo.id} variants={availableVariants} />
       </div>
     </div>

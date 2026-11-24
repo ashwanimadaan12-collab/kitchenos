@@ -13,9 +13,9 @@ export default async function OrganizationsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Organizations</h1>
-      <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <h1 className="text-2xl font-semibold text-ink">Organizations</h1>
+      <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">Name</th>
             <th className="px-4 py-2">Slug</th>
@@ -24,9 +24,9 @@ export default async function OrganizationsPage() {
         </thead>
         <tbody>
           {organizations.map((org) => (
-            <tr key={org.id} className="border-t border-slate-100">
+            <tr key={org.id} className="border-t border-line">
               <td className="px-4 py-2">{org.name}</td>
-              <td className="px-4 py-2 text-slate-500">{org.slug}</td>
+              <td className="px-4 py-2 text-ink-2">{org.slug}</td>
               <td className="px-4 py-2">{org.isActive ? "Active" : "Inactive"}</td>
             </tr>
           ))}

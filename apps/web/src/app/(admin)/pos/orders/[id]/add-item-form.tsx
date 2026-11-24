@@ -2,15 +2,22 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Chip, ChipGroup, Icon, Input } from "@kitchenos/ui";
 
 interface AddItemFormProps {
   orderId: string;
-  availableVariants: { id: string; label: string; category: string }[];
+  availableVariants: { id: string; label: string; category: string; price: string }[];
   /** Existing non-combo active lines, so tapping an item already on the order bumps its qty by 1 instead of adding a duplicate row. */
   activeItems: { id: string; variantId: string; quantity: number }[];
 }
 
 const ALL = "Sabhi";
+
+function rupees(amount: string): string {
+  const n = Number(amount);
+  if (!Number.isFinite(n)) return "₹0";
+  return "₹" + Math.round(n).toLocaleString("en-IN");
+}
 
 export function AddItemForm({ orderId, availableVariants, activeItems }: AddItemFormProps) {
   const router = useRouter();
@@ -23,6 +30,14 @@ export function AddItemForm({ orderId, availableVariants, activeItems }: AddItem
     const unique = Array.from(new Set(availableVariants.map((v) => v.category)));
     return [ALL, ...unique];
   }, [availableVariants]);
+
+  const qtyByVariantId = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of activeItems) {
+      map.set(item.variantId, (map.get(item.variantId) ?? 0) + item.quantity);
+    }
+    return map;
+  }, [activeItems]);
 
   const visibleVariants = availableVariants.filter((v) => {
     const matchesCategory = activeCategory === ALL || v.category === activeCategory;
@@ -50,7 +65,7 @@ export function AddItemForm({ orderId, availableVariants, activeItems }: AddItem
         const body = (await res.json().catch(() => ({ message: "Item add nahi ho paaya." }))) as {
           message?: string;
         };
-        setError(body.message ?? "Item add nahi ho paaya.");
+        setError(body.message ?? "Item add nahi ho paaya. Dobara tap karo.");
         return;
       }
       router.refresh();
@@ -61,59 +76,84 @@ export function AddItemForm({ orderId, availableVariants, activeItems }: AddItem
 
   if (availableVariants.length === 0) {
     return (
-      <p className="text-sm text-slate-400">
+      <p className="text-sm text-ink-3">
         Is outlet par koi menu item nahi hai abhi. Pehle Quick Setup ya Menu se item add karo.
       </p>
     );
   }
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row">
-      {categories.length > 2 ? (
-        <div className="flex gap-2 overflow-x-auto sm:w-40 sm:flex-shrink-0 sm:flex-col sm:overflow-visible">
-          {categories.map((category) => (
-            <button
-              key={category}
-              type="button"
-              onClick={() => setActiveCategory(category)}
-              className={`whitespace-nowrap rounded-lg px-3 py-2 text-left text-sm font-medium ${
-                activeCategory === category
-                  ? "bg-slate-900 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-      ) : null}
-
-      <div className="flex-1">
-        <input
+    <div className="flex flex-col gap-4">
+      <div className="relative">
+        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-3">
+          <Icon name="search" size={18} />
+        </span>
+        <label htmlFor="pos-search" className="sr-only">
+          Item dhoondho
+        </label>
+        <Input
+          id="pos-search"
           type="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Item search karo..."
-          className="mb-3 w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+          placeholder="Item ka naam likho"
+          className="pl-11"
         />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {visibleVariants.map((variant) => (
+      </div>
+
+      {categories.length > 2 ? (
+        <ChipGroup label="Category">
+          {categories.map((category) => (
+            <Chip
+              key={category}
+              selected={activeCategory === category}
+              onSelect={() => setActiveCategory(category)}
+            >
+              {category}
+            </Chip>
+          ))}
+        </ChipGroup>
+      ) : null}
+
+      {/* One tap adds the item. Tapping again bumps its quantity, so there is no
+          popup and no separate "add to order" step. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+        {visibleVariants.map((variant) => {
+          const qty = qtyByVariantId.get(variant.id) ?? 0;
+          const isLoading = loadingVariantId === variant.id;
+          return (
             <button
               key={variant.id}
               type="button"
               onClick={() => onTap(variant.id)}
-              disabled={loadingVariantId === variant.id}
-              className="rounded-xl border-2 border-slate-200 bg-white px-3 py-6 text-center text-base font-semibold text-slate-900 shadow-sm transition hover:border-slate-900 hover:bg-slate-50 active:scale-95 disabled:opacity-50"
+              disabled={isLoading}
+              aria-label={`${variant.label}, ${rupees(variant.price)}${qty ? `, ${qty} order me hai` : ""}`}
+              className={`flex min-h-[7.5rem] flex-col items-start gap-2 rounded-card p-4 text-left transition-colors disabled:opacity-60 ${
+                qty > 0
+                  ? "border-2 border-brand bg-brand-tint"
+                  : "border border-line bg-surface hover:border-brand"
+              }`}
             >
-              {loadingVariantId === variant.id ? "…" : variant.label}
+              <span className="text-[15px] font-bold leading-tight text-ink">{variant.label}</span>
+              <span className="mt-auto flex w-full items-baseline justify-between">
+                <span className="tnum font-display text-lg font-bold text-ink">{rupees(variant.price)}</span>
+                <span className={`text-xs font-bold ${qty > 0 ? "text-brand-tint-ink" : "text-ink-3"}`}>
+                  {isLoading ? "…" : qty > 0 ? `${qty} added` : "Tap karo"}
+                </span>
+              </span>
             </button>
-          ))}
-          {visibleVariants.length === 0 ? (
-            <p className="col-span-full text-sm text-slate-400">Koi item nahi mila.</p>
-          ) : null}
-        </div>
-        {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+          );
+        })}
+        {visibleVariants.length === 0 ? (
+          <p className="col-span-full py-8 text-center text-sm text-ink-3">Koi item nahi mila.</p>
+        ) : null}
       </div>
+
+      {error ? (
+        <p className="rounded-control bg-bad-tint px-4 py-3 text-sm font-semibold text-bad" role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

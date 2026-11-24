@@ -16,8 +16,8 @@ export default async function BrandsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-slate-900">Brands</h1>
-      <p className="mt-2 text-sm text-slate-600">
+      <h1 className="text-2xl font-semibold text-ink">Brands</h1>
+      <p className="mt-2 text-sm text-ink-2">
         Restaurant concepts within this organization (e.g. Cafe Old Monk, Pizza Paproni, Bounty Bakery). Each
         brand owns its outlets and is produced by one or more kitchens — see the Kitchens page to map them.
       </p>
@@ -26,8 +26,8 @@ export default async function BrandsPage() {
         <CreateBrandForm />
       </div>
 
-      <table className="mt-4 w-full overflow-hidden rounded-lg border border-slate-200 bg-white text-sm">
-        <thead className="bg-slate-50 text-left text-slate-500">
+      <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
+        <thead className="bg-surface-2 text-left text-ink-2">
           <tr>
             <th className="px-4 py-2">Name</th>
             <th className="px-4 py-2">Slug</th>
@@ -37,9 +37,9 @@ export default async function BrandsPage() {
         </thead>
         <tbody>
           {brands.map((brand) => (
-            <tr key={brand.id} className="border-t border-slate-100">
-              <td className="px-4 py-2 font-medium text-slate-900">{brand.name}</td>
-              <td className="px-4 py-2 text-slate-500">{brand.slug}</td>
+            <tr key={brand.id} className="border-t border-line">
+              <td className="px-4 py-2 font-medium text-ink">{brand.name}</td>
+              <td className="px-4 py-2 text-ink-2">{brand.slug}</td>
               <td className="px-4 py-2">{brand.isActive ? "Active" : "Inactive"}</td>
               <td className="px-4 py-2 text-right">
                 <ToggleActiveButton path={`brands/${brand.id}`} isActive={brand.isActive} />
@@ -48,7 +48,7 @@ export default async function BrandsPage() {
           ))}
           {brands.length === 0 ? (
             <tr>
-              <td colSpan={4} className="px-4 py-6 text-center text-slate-400">
+              <td colSpan={4} className="px-4 py-6 text-center text-ink-3">
                 No brands yet.
               </td>
             </tr>

@@ -39,7 +39,7 @@ export function CreateTaxCategoryForm() {
   return (
     <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-3">
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="tax-name">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="tax-name">
           Name
         </label>
         <input
@@ -47,12 +47,12 @@ export function CreateTaxCategoryForm() {
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="GST 18%"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600" htmlFor="tax-rate">
+        <label className="block text-xs font-medium text-ink-2" htmlFor="tax-rate">
           Rate %
         </label>
         <input
@@ -61,14 +61,14 @@ export function CreateTaxCategoryForm() {
           inputMode="decimal"
           value={ratePercent}
           onChange={(e) => setRatePercent(e.target.value)}
-          className="mt-1 w-24 rounded-md border border-slate-200 px-3 py-1.5 text-sm"
+          className="mt-1 w-24 rounded-md border border-line px-3 py-1.5 text-sm"
           placeholder="18.00"
         />
       </div>
       <Button type="submit" isLoading={isLoading} variant="secondary">
         Add tax category
       </Button>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-bad">{error}</p> : null}
     </form>
   );
 }

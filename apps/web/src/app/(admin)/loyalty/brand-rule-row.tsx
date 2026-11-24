@@ -35,14 +35,14 @@ export function BrandRuleRow({
   }
 
   return (
-    <tr className="border-t border-slate-100">
-      <td className="px-4 py-2 font-medium text-slate-900">{brandName}</td>
+    <tr className="border-t border-line">
+      <td className="px-4 py-2 font-medium text-ink">{brandName}</td>
       <td className="px-4 py-2">
         <input
           value={earning}
           onChange={(e) => setEarning(e.target.value)}
           placeholder="org default"
-          className="w-24 rounded-md border border-slate-200 px-2 py-1 text-sm"
+          className="w-24 rounded-md border border-line px-2 py-1 text-sm"
         />
       </td>
       <td className="px-4 py-2">
@@ -50,7 +50,7 @@ export function BrandRuleRow({
           value={redemption}
           onChange={(e) => setRedemption(e.target.value)}
           placeholder="org default"
-          className="w-24 rounded-md border border-slate-200 px-2 py-1 text-sm"
+          className="w-24 rounded-md border border-line px-2 py-1 text-sm"
         />
       </td>
       <td className="px-4 py-2 text-right">
