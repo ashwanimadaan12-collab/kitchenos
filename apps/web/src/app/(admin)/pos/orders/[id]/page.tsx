@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Badge } from "@kitchenos/ui";
+import { CHANNEL_LABEL, fulfillmentLabel, type FulfillmentStage, type OrderChannel } from "@kitchenos/shared";
 import { apiFetch } from "@/lib/api";
 import { UnmapButton } from "@/components/unmap-button";
 import { AddItemForm } from "./add-item-form";
@@ -39,6 +41,7 @@ interface OrderDetail {
   orderNumber: number;
   channel: string;
   status: "OPEN" | "PAID" | "VOIDED";
+  fulfillment: FulfillmentStage;
   subtotal: string;
   taxTotal: string;
   discountAmount: string;
@@ -126,8 +129,15 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           <h1 className="text-2xl font-semibold text-ink">
             Order #{order.orderNumber} · {order.outlet.name}
           </h1>
-          <p className="mt-1 text-sm text-ink-2">
-            {order.channel} · {order.status}
+          <p className="mt-1 flex flex-wrap items-center gap-2 text-sm text-ink-2">
+            <span>
+              {CHANNEL_LABEL[order.channel as OrderChannel] ?? order.channel} · {order.status}
+            </span>
+            {order.status === "VOIDED" ? null : (
+              <Badge tone={order.fulfillment === "COMPLETED" ? "good" : "brand"}>
+                {fulfillmentLabel(order.fulfillment, order.channel as OrderChannel)}
+              </Badge>
+            )}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -274,9 +284,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         <h2 className="text-lg font-medium text-ink">Payments</h2>
         {order.status === "OPEN" ? (
           <div className="mt-3 rounded-lg border border-line bg-surface p-4">
-            <AddPaymentForm orderId={order.id} balanceDue={balanceDue} />
+            <AddPaymentForm orderId={order.id} balanceDue={balanceDue} payments={order.payments} />
           </div>
         ) : null}
+        {order.status === "OPEN" ? null : (
         <table className="mt-4 w-full overflow-hidden rounded-lg border border-line bg-surface text-sm">
           <thead className="bg-surface-2 text-left text-ink-2">
             <tr>
@@ -302,6 +313,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             ) : null}
           </tbody>
         </table>
+        )}
       </section>
     </div>
   );

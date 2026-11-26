@@ -56,6 +56,7 @@ model Organization {
   ingredients            Ingredient[]
   recipes                Recipe[]
   orders                 Order[]
+  deliveryRiders        DeliveryRider[]
   tables                 RestaurantTable[]
   kitchenTicketItems     KitchenTicketItem[]
   suppliers              Supplier[]
@@ -346,6 +347,7 @@ model Outlet {
   employees           Employee[]
   pricingRules        PricingRule[]
   tables              RestaurantTable[]
+  deliveryRiders      DeliveryRider[]
   aggregatorSettlements AggregatorSettlement[]
 
   @@unique([organizationId, code])
@@ -829,6 +831,18 @@ enum OrderChannel {
   TAKEAWAY
 }
 
+/// How far an order has travelled *physically*, independent of whether it is paid.
+/// One ladder for every channel; only the labels differ (see FULFILLMENT_LABEL in
+/// @kitchenos/shared). PICKED_UP is skipped for dine-in and takeaway, where there is
+/// no rider leg — READY goes straight to COMPLETED.
+enum FulfillmentStage {
+  PLACED
+  COOKING
+  READY
+  PICKED_UP
+  COMPLETED
+}
+
 enum OrderStatus {
   OPEN
   PAID
@@ -845,6 +859,18 @@ model Order {
   orderNumber           Int
   channel               OrderChannel
   status                OrderStatus  @default(OPEN)
+  /// Kitchen/handover progress, kept apart from `status` (which is only about money):
+  /// an order can be COMPLETED but unpaid (running table) or PAID but still COOKING
+  /// (prepaid delivery). Auto-advanced by the KDS; also settable by hand from the
+  /// tracking board, because not every outlet has a kitchen screen.
+  fulfillment           FulfillmentStage @default(PLACED)
+  /// Who is carrying a DELIVERY order. Null until the rider picks it up, and always
+  /// null for dine-in and takeaway.
+  riderId               String?
+  cookingStartedAt      DateTime?
+  readyAt               DateTime?
+  pickedUpAt            DateTime?
+  completedAt           DateTime?
   subtotal              Decimal      @default(0) @db.Decimal(12, 2)
   taxTotal              Decimal      @default(0) @db.Decimal(12, 2)
   /// Snapshotted when a promotion is applied (see PromotionRedemption);
@@ -878,6 +904,7 @@ model Order {
   outlet              Outlet               @relation(fields: [outletId], references: [id], onDelete: Restrict)
   createdBy           User?                @relation(fields: [createdByUserId], references: [id], onDelete: SetNull)
   table               RestaurantTable?     @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  rider               DeliveryRider?       @relation(fields: [riderId], references: [id], onDelete: SetNull)
   promotion           Promotion?           @relation(fields: [promotionId], references: [id], onDelete: SetNull)
   customer            Customer?            @relation(fields: [customerId], references: [id], onDelete: SetNull)
   items               OrderItem[]
@@ -891,6 +918,7 @@ model Order {
   @@unique([organizationId, clientOrderId])
   @@index([organizationId])
   @@index([outletId, status])
+  @@index([outletId, fulfillment])
   @@map("orders")
 }
 
@@ -1856,4 +1884,26 @@ model AggregatorSettlementRow {
   @@index([settlementId])
   @@index([organizationId, externalOrderId])
   @@map("aggregator_settlement_rows")
+}
+
+/// A delivery boy. Deliberately not a User: at a small outlet the rider has no login,
+/// no email and no password — the cashier just needs a name to tap when the order
+/// leaves. Scoped to an outlet because riders are hired per location.
+model DeliveryRider {
+  id             String   @id @default(cuid())
+  organizationId String
+  outletId       String
+  name           String
+  phone          String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  outlet       Outlet       @relation(fields: [outletId], references: [id], onDelete: Cascade)
+  orders       Order[]
+
+  @@index([organizationId])
+  @@index([outletId, isActive])
+  @@map("delivery_riders")
 }

@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@kitchenos/database";
 import { assertBelongsToOrg } from "../common/utils/assert-belongs-to-org.js";
+import { isForwardStage, type FulfillmentStage } from "@kitchenos/shared";
 import { KdsGateway } from "./kds.gateway.js";
 import type { AdvanceTicketStatusDto } from "./dto/advance-ticket-status.dto.js";
 
@@ -85,7 +86,44 @@ export class KdsService {
       include: TICKET_INCLUDE,
     });
     this.gateway.broadcast(organizationId, updated.stationId, "ticket.updated", updated);
+    await this.syncOrderFulfillment(organizationId, updated.orderItem.orderId);
     return updated;
+  }
+
+  /**
+   * Mirrors kitchen progress onto the order itself, so an outlet with a kitchen screen never has
+   * to tap the tracking board. Lives here rather than in OrdersService because OrdersService
+   * already injects this one — importing it back would be a circular module.
+   *
+   * COOKING as soon as any station starts; READY only once every live ticket on the order is
+   * READY or further (a thali isn't ready while the dal is still on the stove). Clamped to READY:
+   * the kitchen has no way of knowing whether a rider has taken it. Forward-only, so a station
+   * finishing late can never drag a dispatched order back.
+   */
+  private async syncOrderFulfillment(organizationId: string, orderId: string) {
+    const tickets: { status: string }[] = await this.prisma.kitchenTicketItem.findMany({
+      where: { orderItem: { orderId }, organizationId, status: { not: "CANCELLED" } },
+      select: { status: true },
+    });
+    if (tickets.length === 0) return;
+
+    const allDone = tickets.every((t) => t.status === "READY" || t.status === "SERVED");
+    const anyStarted = tickets.some((t) => t.status !== "QUEUED");
+    const stage: FulfillmentStage | null = allDone ? "READY" : anyStarted ? "COOKING" : null;
+    if (!stage) return;
+
+    const order = await this.prisma.order.findFirst({
+      where: { id: orderId, organizationId },
+      select: { id: true, status: true, fulfillment: true },
+    });
+    if (!order || order.status === "VOIDED") return;
+    if (!isForwardStage(order.fulfillment as FulfillmentStage, stage)) return;
+
+    const now = new Date();
+    await this.prisma.order.update({
+      where: { id: order.id },
+      data: { fulfillment: stage, ...(stage === "COOKING" ? { cookingStartedAt: now } : { readyAt: now }) },
+    });
   }
 
   private async assertStationBelongsToOrg(organizationId: string, stationId: string) {

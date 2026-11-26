@@ -41,7 +41,8 @@ describe("OrdersService", () => {
     menuItem: { findFirst: jest.Mock };
     outletProductPrice: { findFirst: jest.Mock };
     orderItem: { create: jest.Mock; findFirst: jest.Mock; update: jest.Mock; findMany: jest.Mock; count: jest.Mock };
-    payment: { create: jest.Mock; findMany: jest.Mock; count: jest.Mock };
+    payment: { create: jest.Mock; findMany: jest.Mock; count: jest.Mock; findFirst: jest.Mock; delete: jest.Mock };
+    deliveryRider: { findFirst: jest.Mock };
     combo: { findFirst: jest.Mock };
     menuComboItem: { findFirst: jest.Mock };
     customer: { findFirst: jest.Mock };
@@ -69,7 +70,8 @@ describe("OrdersService", () => {
         findMany: jest.fn(),
         count: jest.fn().mockResolvedValue(1),
       },
-      payment: { create: jest.fn(), findMany: jest.fn(), count: jest.fn() },
+      payment: { create: jest.fn(), findMany: jest.fn(), count: jest.fn(), findFirst: jest.fn(), delete: jest.fn() },
+      deliveryRider: { findFirst: jest.fn() },
       combo: { findFirst: jest.fn() },
       menuComboItem: { findFirst: jest.fn() },
       customer: { findFirst: jest.fn() },
@@ -772,6 +774,137 @@ describe("OrdersService", () => {
       expect(orderItems).toHaveLength(1); // v1 was already added — never re-added.
       expect(orderPayments).toHaveLength(1); // the payment that never landed on the prior attempt does now.
       expect(order.status).toBe("PAID");
+    });
+  });
+
+  describe("removePayment()", () => {
+    it("deletes a mistyped split-payment line from an open order", async () => {
+      prisma.order.findFirst
+        .mockResolvedValueOnce({ id: "order_1", organizationId: "org_1", status: "OPEN", total: D("150"), outlet: {} })
+        .mockResolvedValue({ id: "order_1", payments: [] });
+      prisma.payment.findFirst.mockResolvedValue({ id: "pay_1", orderId: "order_1" });
+
+      await service.removePayment("org_1", "order_1", "pay_1");
+
+      expect(prisma.payment.delete).toHaveBeenCalledWith({ where: { id: "pay_1" } });
+    });
+
+    it("404s for a payment that belongs to a different order", async () => {
+      prisma.order.findFirst.mockResolvedValue({ id: "order_1", organizationId: "org_1", status: "OPEN", outlet: {} });
+      prisma.payment.findFirst.mockResolvedValue(null);
+
+      await expect(service.removePayment("org_1", "order_1", "pay_from_other_order")).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(prisma.payment.delete).not.toHaveBeenCalled();
+    });
+
+    it("refuses to unwind a payment once the order is PAID — that is a refund, not a delete", async () => {
+      prisma.order.findFirst.mockResolvedValue({ id: "order_1", organizationId: "org_1", status: "PAID", outlet: {} });
+
+      await expect(service.removePayment("org_1", "order_1", "pay_1")).rejects.toThrow(ConflictException);
+      expect(prisma.payment.delete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("advanceFulfillment()", () => {
+    function openOrder(over: Record<string, unknown> = {}) {
+      return {
+        id: "order_1",
+        organizationId: "org_1",
+        outletId: "outlet_1",
+        status: "OPEN",
+        channel: "DELIVERY",
+        fulfillment: "PLACED",
+        riderId: null,
+        ...over,
+      };
+    }
+
+    beforeEach(() => {
+      prisma.order.findMany.mockResolvedValue([]);
+    });
+
+    it("stamps only the stage it reached", async () => {
+      prisma.order.findFirst.mockResolvedValueOnce(openOrder()).mockResolvedValue({ id: "order_1" });
+
+      await service.advanceFulfillment("org_1", "order_1", { stage: "COOKING" });
+
+      expect(prisma.order.update).toHaveBeenCalledWith({
+        where: { id: "order_1" },
+        data: { fulfillment: "COOKING", riderId: null, cookingStartedAt: expect.any(Date) },
+      });
+    });
+
+    it("refuses to run the ladder backwards", async () => {
+      prisma.order.findFirst.mockResolvedValue(openOrder({ fulfillment: "READY" }));
+
+      await expect(service.advanceFulfillment("org_1", "order_1", { stage: "COOKING" })).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(prisma.order.update).not.toHaveBeenCalled();
+    });
+
+    it("refuses the rider leg on a takeaway order", async () => {
+      prisma.order.findFirst.mockResolvedValue(openOrder({ channel: "TAKEAWAY", fulfillment: "READY" }));
+
+      await expect(
+        service.advanceFulfillment("org_1", "order_1", { stage: "PICKED_UP", riderId: "rider_1" }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("will not dispatch a delivery without naming who took it", async () => {
+      prisma.order.findFirst.mockResolvedValue(openOrder({ fulfillment: "READY" }));
+
+      await expect(service.advanceFulfillment("org_1", "order_1", { stage: "PICKED_UP" })).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(prisma.order.update).not.toHaveBeenCalled();
+    });
+
+    it("404s for a rider from another outlet", async () => {
+      prisma.order.findFirst.mockResolvedValue(openOrder({ fulfillment: "READY" }));
+      prisma.deliveryRider.findFirst.mockResolvedValue(null);
+
+      await expect(
+        service.advanceFulfillment("org_1", "order_1", { stage: "PICKED_UP", riderId: "rider_other_outlet" }),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it("records the rider when the delivery goes out", async () => {
+      prisma.order.findFirst
+        .mockResolvedValueOnce(openOrder({ fulfillment: "READY" }))
+        .mockResolvedValue({ id: "order_1" });
+      prisma.deliveryRider.findFirst.mockResolvedValue({ id: "rider_1" });
+
+      await service.advanceFulfillment("org_1", "order_1", { stage: "PICKED_UP", riderId: "rider_1" });
+
+      expect(prisma.order.update).toHaveBeenCalledWith({
+        where: { id: "order_1" },
+        data: { fulfillment: "PICKED_UP", riderId: "rider_1", pickedUpAt: expect.any(Date) },
+      });
+    });
+
+    it("lets a counter sale be handed over in one tap, leaving the skipped stages unstamped", async () => {
+      prisma.order.findFirst
+        .mockResolvedValueOnce(openOrder({ channel: "TAKEAWAY" }))
+        .mockResolvedValue({ id: "order_1" });
+
+      await service.advanceFulfillment("org_1", "order_1", { stage: "COMPLETED" });
+
+      expect(prisma.order.update).toHaveBeenCalledWith({
+        where: { id: "order_1" },
+        data: { fulfillment: "COMPLETED", riderId: null, completedAt: expect.any(Date) },
+      });
+    });
+
+    it("never advances a voided order", async () => {
+      prisma.order.findFirst.mockResolvedValue(openOrder({ status: "VOIDED" }));
+
+      await expect(service.advanceFulfillment("org_1", "order_1", { stage: "COOKING" })).rejects.toThrow(
+        ConflictException,
+      );
+      expect(prisma.order.update).not.toHaveBeenCalled();
     });
   });
 });

@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { Prisma, PrismaService } from "@kitchenos/database";
 import { assertBelongsToOrg } from "../common/utils/assert-belongs-to-org.js";
+import { isForwardStage, stageAppliesTo, type FulfillmentStage, type OrderChannel } from "@kitchenos/shared";
 import { KdsService } from "../kds/kds.service.js";
 import { InventoryService } from "../inventory/inventory.service.js";
 import { PromotionsService } from "../promotions/promotions.service.js";
@@ -18,6 +19,7 @@ import type { ApplyPromotionDto } from "./dto/apply-promotion.dto.js";
 import type { AssignCustomerToOrderDto } from "./dto/assign-customer-to-order.dto.js";
 import type { RedeemLoyaltyPointsDto } from "./dto/redeem-loyalty-points.dto.js";
 import type { SyncOfflineOrderDto } from "./dto/sync-offline-order.dto.js";
+import type { AdvanceFulfillmentDto } from "./dto/advance-fulfillment.dto.js";
 
 const { Decimal } = Prisma;
 
@@ -33,6 +35,7 @@ const ORDER_INCLUDE = {
   customer: true,
   loyaltyRedemption: true,
   table: { select: { id: true, name: true } },
+  rider: { select: { id: true, name: true, phone: true } },
 };
 
 @Injectable()
@@ -48,14 +51,37 @@ export class OrdersService {
     private readonly pricingRules: PricingRulesService,
   ) {}
 
-  async list(organizationId: string, outletId?: string, status?: string) {
+  async list(organizationId: string, outletId?: string, status?: string, fulfillment?: string[]) {
     return this.prisma.order.findMany({
       where: {
         organizationId,
         ...(outletId ? { outletId } : {}),
         ...(status ? { status: status as "OPEN" | "PAID" | "VOIDED" } : {}),
+        ...(fulfillment?.length ? { fulfillment: { in: fulfillment as FulfillmentStage[] } } : {}),
       },
       orderBy: { createdAt: "desc" },
+      include: ORDER_INCLUDE,
+    });
+  }
+
+  /**
+   * Everything still physically in flight at an outlet: not yet handed over, and not voided.
+   * This is what the tracking board reads. Paid-but-undelivered orders are the whole point
+   * (a prepaid delivery is paid the moment it is punched), so payment status is not a filter.
+   * Orders finished in the last half hour ride along so the cashier can see that the tap
+   * registered, and spot an order marked delivered by mistake while the customer is still
+   * standing there. Older ones drop off on their own — the board is not a history page.
+   */
+  async listInFlight(organizationId: string, outletId?: string) {
+    const recentlyDone = new Date(Date.now() - 30 * 60_000);
+    return this.prisma.order.findMany({
+      where: {
+        organizationId,
+        ...(outletId ? { outletId } : {}),
+        status: { not: "VOIDED" },
+        OR: [{ fulfillment: { not: "COMPLETED" } }, { completedAt: { gte: recentlyDone } }],
+      },
+      orderBy: { createdAt: "asc" },
       include: ORDER_INCLUDE,
     });
   }
@@ -460,6 +486,65 @@ export class OrdersService {
       }
     }
 
+    return this.findOne(organizationId, order.id);
+  }
+
+  /**
+   * Removes one payment line from a still-open order. This is the undo for a split-payment
+   * mistype — the cashier meant 50 and keyed 500 — and is deliberately limited to OPEN orders:
+   * once an order is PAID, loyalty points have accrued and a confirmation has gone out, so
+   * unwinding it is a refund, not a delete.
+   */
+  async removePayment(organizationId: string, orderId: string, paymentId: string) {
+    const order = await this.assertOpenOrder(organizationId, orderId);
+    const payment = await this.prisma.payment.findFirst({ where: { id: paymentId, orderId: order.id } });
+    if (!payment) throw new NotFoundException("Payment not found");
+    await this.prisma.payment.delete({ where: { id: payment.id } });
+    return this.findOne(organizationId, order.id);
+  }
+
+  /**
+   * Moves an order along the fulfillment ladder. Forward-only, and never on a voided order.
+   * Stages are not skipped silently: jumping from PLACED to COMPLETED is allowed (a counter sale
+   * handed over in one tap) but every timestamp in between stays null, which is what the reports
+   * read, so a skipped stage reads as skipped rather than as instant.
+   */
+  async advanceFulfillment(organizationId: string, orderId: string, dto: AdvanceFulfillmentDto) {
+    const order = await this.prisma.order.findFirst({ where: { id: orderId, organizationId } });
+    if (!order) throw new NotFoundException("Order not found");
+    if (order.status === "VOIDED") throw new ConflictException("Voided order ko aage nahi badha sakte");
+
+    const channel = order.channel as OrderChannel;
+    const current = order.fulfillment as FulfillmentStage;
+    if (!isForwardStage(current, dto.stage)) {
+      throw new BadRequestException(`Order already ${current.toLowerCase()} hai — peeche nahi ja sakta`);
+    }
+    if (!stageAppliesTo(dto.stage, channel)) {
+      throw new BadRequestException(`${dto.stage} sirf delivery order par lagta hai`);
+    }
+
+    let riderId = order.riderId;
+    if (dto.stage === "PICKED_UP") {
+      if (!dto.riderId) throw new BadRequestException("Rider chunna zaroori hai");
+      const rider = await this.prisma.deliveryRider.findFirst({
+        where: { id: dto.riderId, organizationId, outletId: order.outletId },
+      });
+      if (!rider) throw new NotFoundException("Rider not found");
+      riderId = rider.id;
+    }
+
+    const now = new Date();
+    await this.prisma.order.update({
+      where: { id: order.id },
+      data: {
+        fulfillment: dto.stage,
+        riderId,
+        ...(dto.stage === "COOKING" ? { cookingStartedAt: now } : {}),
+        ...(dto.stage === "READY" ? { readyAt: now } : {}),
+        ...(dto.stage === "PICKED_UP" ? { pickedUpAt: now } : {}),
+        ...(dto.stage === "COMPLETED" ? { completedAt: now } : {}),
+      },
+    });
     return this.findOne(organizationId, order.id);
   }
 
