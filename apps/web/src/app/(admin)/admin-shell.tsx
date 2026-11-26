@@ -22,6 +22,7 @@ interface AdminShellProps {
 const TABS: { href: string; label: string; icon: IconName }[] = [
   { href: "/dashboard", label: "Aaj", icon: "home" },
   { href: "/pos", label: "Order lo", icon: "order" },
+  { href: "/track", label: "Status", icon: "track" },
   { href: "/dhandha", label: "Dhandha", icon: "report" },
   { href: "/kds", label: "Kitchen", icon: "kitchen" },
   { href: "/tables", label: "Tables", icon: "table" },
@@ -78,6 +79,7 @@ const SETTINGS_GROUPS = [
       { href: "/online-pnl", label: "Online P&L (Zomato/Swiggy)" },
       { href: "/expenses", label: "Expenses" },
       { href: "/employees", label: "Employees" },
+      { href: "/riders", label: "Delivery boys" },
       { href: "/sessions", label: "Sessions" },
       { href: "/plans", label: "Plans" },
       { href: "/audit-logs", label: "Audit Logs" },
@@ -87,7 +89,7 @@ const SETTINGS_GROUPS = [
 
 /** Order taking and the kitchen screen run for whole shifts, often in a bright
  *  kitchen. They get the dark palette; the office screens stay light. */
-const DARK_ROUTES = ["/pos", "/kds"];
+const DARK_ROUTES = ["/pos", "/kds", "/track"];
 
 export function AdminShell({ session, activeOrgId, children }: AdminShellProps) {
   const router = useRouter();

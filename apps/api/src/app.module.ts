@@ -42,6 +42,7 @@ import { LoyaltyModule } from "./loyalty/loyalty.module.js";
 import { CampaignsModule } from "./campaigns/campaigns.module.js";
 import { DashboardModule } from "./dashboard/dashboard.module.js";
 import { TablesModule } from "./tables/tables.module.js";
+import { RidersModule } from "./riders/riders.module.js";
 import { HealthModule } from "./health/health.module.js";
 
 @Module({
@@ -102,6 +103,7 @@ import { HealthModule } from "./health/health.module.js";
     CampaignsModule,
     DashboardModule,
     TablesModule,
+    RidersModule,
     HealthModule,
   ],
   providers: [

@@ -19,7 +19,9 @@ export type IconName =
   | "alert"
   | "install"
   | "logout"
-  | "logo";
+  | "logo"
+  | "rider"
+  | "track";
 
 const PATHS: Record<IconName, string[]> = {
   home: ["M3 10.5 12 3l9 7.5", "M5 10v10h14V10"],
@@ -40,6 +42,13 @@ const PATHS: Record<IconName, string[]> = {
   alert: ["M12 8v5", "M12 17h.01", "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"],
   install: ["M12 3v12", "M7 11l5 5 5-5", "M4 21h16"],
   logout: ["M15 17l5-5-5-5", "M20 12H9", "M13 3H5v18h8"],
+  rider: [
+    "M18 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z",
+    "M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z",
+    "M8 17h7l-3-7H9",
+    "M13 10l2-4h3",
+  ],
+  track: ["M4 7h7", "M4 12h11", "M4 17h5", "M14 18l2.5 2.5L21 16"],
   logo: ["M5 4v7a3 3 0 0 0 6 0V4", "M8 11v9", "M17 4c-1.4 2-2 4-2 6s.6 3 2 3 2-1 2-3-.6-4-2-6Z", "M17 13v7"],
 };
 

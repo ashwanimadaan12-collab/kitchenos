@@ -16,6 +16,7 @@ import { applyPromotionSchema, type ApplyPromotionDto } from "./dto/apply-promot
 import { assignCustomerToOrderSchema, type AssignCustomerToOrderDto } from "./dto/assign-customer-to-order.dto.js";
 import { redeemLoyaltyPointsSchema, type RedeemLoyaltyPointsDto } from "./dto/redeem-loyalty-points.dto.js";
 import { syncOfflineOrderSchema, type SyncOfflineOrderDto } from "./dto/sync-offline-order.dto.js";
+import { advanceFulfillmentSchema, type AdvanceFulfillmentDto } from "./dto/advance-fulfillment.dto.js";
 
 @Controller({ path: "orders", version: "1" })
 export class OrdersController {
@@ -26,8 +27,20 @@ export class OrdersController {
 
   @Get()
   @RequirePermissions(PERMISSIONS.ORDER_VIEW)
-  async list(@CurrentUser() user: RequestUser, @Query("outletId") outletId?: string, @Query("status") status?: string) {
-    return this.orders.list(requireOrganizationId(user), outletId, status);
+  async list(
+    @CurrentUser() user: RequestUser,
+    @Query("outletId") outletId?: string,
+    @Query("status") status?: string,
+    @Query("fulfillment") fulfillment?: string,
+  ) {
+    return this.orders.list(requireOrganizationId(user), outletId, status, fulfillment?.split(","));
+  }
+
+  /** Declared before `:id` so Nest does not read "in-flight" as an order id. */
+  @Get("in-flight")
+  @RequirePermissions(PERMISSIONS.ORDER_VIEW)
+  async listInFlight(@CurrentUser() user: RequestUser, @Query("outletId") outletId?: string) {
+    return this.orders.listInFlight(requireOrganizationId(user), outletId);
   }
 
   @Get(":id")
@@ -315,6 +328,47 @@ export class OrdersController {
       entityId: order.id,
       organizationId,
       userId: user.userId,
+    });
+    return order;
+  }
+
+  @Delete(":id/payments/:paymentId")
+  @HttpCode(200)
+  @RequirePermissions(PERMISSIONS.PAYMENT_MANAGE)
+  async removePayment(
+    @CurrentUser() user: RequestUser,
+    @Param("id") orderId: string,
+    @Param("paymentId") paymentId: string,
+  ) {
+    const organizationId = requireOrganizationId(user);
+    const order = await this.orders.removePayment(organizationId, orderId, paymentId);
+    await this.audit.log({
+      action: "order.payment.remove",
+      entityType: "Order",
+      entityId: order.id,
+      organizationId,
+      userId: user.userId,
+      metadata: { paymentId },
+    });
+    return order;
+  }
+
+  @Patch(":id/fulfillment")
+  @RequirePermissions(PERMISSIONS.ORDER_MANAGE)
+  async advanceFulfillment(
+    @CurrentUser() user: RequestUser,
+    @Param("id") orderId: string,
+    @Body(new ZodValidationPipe(advanceFulfillmentSchema)) dto: AdvanceFulfillmentDto,
+  ) {
+    const organizationId = requireOrganizationId(user);
+    const order = await this.orders.advanceFulfillment(organizationId, orderId, dto);
+    await this.audit.log({
+      action: "order.fulfillment.advance",
+      entityType: "Order",
+      entityId: order.id,
+      organizationId,
+      userId: user.userId,
+      metadata: { stage: dto.stage, riderId: dto.riderId ?? null },
     });
     return order;
   }

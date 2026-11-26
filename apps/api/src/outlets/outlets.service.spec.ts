@@ -1,6 +1,7 @@
 import { Test } from "@nestjs/testing";
 import { NotFoundException } from "@nestjs/common";
 import { PrismaService } from "@kitchenos/database";
+import { PlanService } from "../plan/plan.service.js";
 import { OutletsService } from "./outlets.service.js";
 
 describe("OutletsService", () => {
@@ -11,6 +12,7 @@ describe("OutletsService", () => {
     kitchen: { findFirst: jest.Mock };
     outletKitchen: { upsert: jest.Mock; deleteMany: jest.Mock };
   };
+  let plans: { assertWithinLimit: jest.Mock };
 
   beforeEach(async () => {
     prisma = {
@@ -19,9 +21,16 @@ describe("OutletsService", () => {
       kitchen: { findFirst: jest.fn() },
       outletKitchen: { upsert: jest.fn(), deleteMany: jest.fn() },
     };
+    // PlanModule is @Global() in the app, so the service gets this for free there; a
+    // TestingModule has no global scope, which is why it has to be provided by hand.
+    plans = { assertWithinLimit: jest.fn().mockResolvedValue(undefined) };
 
     const module = await Test.createTestingModule({
-      providers: [OutletsService, { provide: PrismaService, useValue: prisma }],
+      providers: [
+        OutletsService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: PlanService, useValue: plans },
+      ],
     }).compile();
 
     service = module.get(OutletsService);

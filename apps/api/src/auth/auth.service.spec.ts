@@ -4,6 +4,7 @@ import { JwtService } from "@nestjs/jwt";
 import { ConflictException, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import bcrypt from "bcryptjs";
 import { PrismaService } from "@kitchenos/database";
+import { TRIAL_DAYS } from "@kitchenos/shared";
 import { AuthService } from "./auth.service.js";
 
 describe("AuthService", () => {
@@ -118,7 +119,7 @@ describe("AuthService", () => {
       const tokens = await service.signup(dto);
 
       expect(prisma.organization.create).toHaveBeenCalledWith({
-        data: { name: "Pizza Planet", slug: "pizza-planet" },
+        data: { name: "Pizza Planet", slug: "pizza-planet", trialEndsAt: expect.any(Date) },
       });
       expect(prisma.permission.findMany).toHaveBeenCalledWith({ where: { key: { not: "platform:manage" } } });
       expect(prisma.rolePermission.createMany).toHaveBeenCalledWith({
@@ -144,8 +145,28 @@ describe("AuthService", () => {
       await service.signup(dto);
 
       expect(prisma.organization.create).toHaveBeenCalledWith({
-        data: { name: "Pizza Planet", slug: "pizza-planet-1" },
+        data: { name: "Pizza Planet", slug: "pizza-planet-1", trialEndsAt: expect.any(Date) },
       });
+    });
+
+    it("opens the free trial for exactly TRIAL_DAYS, not merely 'some date'", async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
+      prisma.organization.create.mockResolvedValue({ id: "org_1", name: "Pizza Planet", slug: "pizza-planet" });
+      prisma.role.create.mockResolvedValue({ id: "role_1" });
+      prisma.permission.findMany.mockResolvedValue([{ id: "perm_1", key: "order:manage" }]);
+      prisma.user.create.mockResolvedValue({ id: "user_1", email: dto.email });
+
+      const before = Date.now();
+      await service.signup(dto);
+
+      const after = Date.now();
+
+      const { trialEndsAt } = prisma.organization.create.mock.calls[0][0].data as { trialEndsAt: Date };
+      const trialMs = TRIAL_DAYS * 24 * 60 * 60 * 1000;
+      // Bracketed by the clock either side of the call, so this pins the length to the
+      // millisecond without depending on how long signup took to run.
+      expect(trialEndsAt.getTime()).toBeGreaterThanOrEqual(before + trialMs);
+      expect(trialEndsAt.getTime()).toBeLessThanOrEqual(after + trialMs);
     });
   });
 
